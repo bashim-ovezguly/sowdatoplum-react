@@ -1,0 +1,89 @@
+.stores_edit{
+    display: grid;
+    margin: auto;
+}
+
+.stores_edit .field_name{
+    font-size: 12px;
+    font-weight: bold;
+}
+
+
+.stores_edit .main_img{
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border: 1px solid gainsboro;
+}
+
+.stores_edit .images img{
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border: 1px solid gainsboro;
+}
+
+.stores_edit .images .img_button{
+    background: gainsboro;
+    border: 1px solid gainsboro;
+    border-radius: 5px;
+    padding: 2px;
+    cursor: pointer;
+    margin: 2px;
+}
+
+
+.stores_edit textarea{
+    min-height: 100px;
+}
+
+
+.stores_edit .save{
+    border: none;
+    background: green;
+    color: white;
+    margin-top: 10px;
+}
+
+.stores_edit .img_container{
+  
+    margin: 2px;
+}
+
+.stores_edit .close{
+    border-radius: 50%;
+    border: 1px solid gainsboro;
+    padding: 2px;
+}
+
+.stores_edit .close:hover{
+    background: grey;
+    color: white;
+}
+
+.stores_edit .new_phone{
+    margin: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.stores_edit .new_phone input{
+    border: 1px solid grey;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 2px;
+}
+
+.stores_edit .new_phone button{
+    background: dodgerblue;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    padding: 5px 10px;
+}
+
+.stores_edit .layout-1{
+    display: grid;
+    height: max-content;
+    max-width: 300px;
+}

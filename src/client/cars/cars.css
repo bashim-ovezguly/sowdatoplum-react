@@ -1,0 +1,84 @@
+.home .cars .items{
+    display:  flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+
+.home .cars .item{
+    margin: 10px;
+    text-decoration: none;
+    width: 120px;
+    overflow: hidden;
+    font-size: 13px;
+    color: black;
+    padding: 10px;
+}
+
+.home .cars .price{
+    color: steelblue;
+    font-weight: bold;
+    padding: 2px;
+    border-radius: 5px;
+    width: max-content;
+}
+
+
+
+.home .cars .item img{
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    
+}
+
+.home .cars .filter{
+    display: grid;
+    height: max-content;
+    padding: 10px;
+    position: absolute;
+    top: 130px;
+    background-color: white;
+    width: 60%;
+    margin: auto;
+    left: 0px;
+    right: 0px;
+    max-width: 400px;
+}
+
+.home .cars .filter input,
+.home .cars .filter select{
+    border: 1px solid gainsboro;
+    border-radius: 5px;
+    margin: 2px;
+    padding: 4px;
+}
+
+.home .cars .filter .field{
+    border: 1px solid gainsboro;
+    border-radius: 5px;
+    margin: 2px;
+    padding: 4px;
+}
+
+
+.home .cars .filter button{
+    padding: 4px;
+    margin: 2px;
+    border: none;
+    background: dodgerblue;
+    color: white;
+    border-radius: 5px;
+}
+
+.home .cars .item img{
+    border-radius: 10px;
+}
+
+
+
+
+
+
+
+

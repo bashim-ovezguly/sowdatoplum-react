@@ -1,0 +1,34 @@
+.profile_announces .items{
+    display: grid;
+}
+
+
+.profile_products .item{
+    display: grid;
+    width: 140px;
+    overflow: hidden;
+    text-decoration: none;
+    margin: 5px;
+    color: black;
+
+}
+
+.profile_products .item img{
+    height: 200px;
+    width: 100%;
+    object-fit: cover;
+}
+
+@media screen and (max-width:450px) {
+    
+    .profile_products .item{
+        width: 90px;
+        font-size: 10px;
+    }
+    
+    .profile_products .item img{
+        height: 140px;   
+    }
+    
+}
+

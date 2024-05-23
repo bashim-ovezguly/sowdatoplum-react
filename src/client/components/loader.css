@@ -1,0 +1,10 @@
+.loader{
+    padding: 10px;
+    max-width: 300px;
+    height: max-content;
+    left: 0px;
+    right: 0px;
+    margin: auto;
+    position: fixed;
+    z-index: 10;
+}

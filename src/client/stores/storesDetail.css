@@ -1,0 +1,195 @@
+
+.store_products .item{
+    width: 200px;
+    overflow: hidden;
+    padding: 5px;
+    text-decoration: none;
+    transition: 0.3s;
+    border-radius: 5px;
+    color: black;
+}
+
+.store_products .item:hover{
+    background: gainsboro;
+}
+
+.store_products .item img{
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border: 1px solid gainsboro;
+}
+
+.stores_detail .menu{
+    height: max-content;
+}
+
+.store_imgs .imgs{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+
+ .stores_detail .products {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.stores_detail .store_card{
+    display: grid;   
+    border-bottom: 1px solid gainsboro;
+    min-width: 800px;
+    overflow: hidden;
+}
+
+
+.stores_detail .store_card .name{
+    font-size: 20px;
+    font-weight: bold;
+    color: dodgerblue;
+}
+
+
+.stores_detail .store_card .main_img{
+    border: 1px solid gainsboro;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    
+}
+
+
+.stores_detail .store_card >div{
+    padding: 10px;
+}
+
+
+.stores_detail .products {
+    justify-content: center;
+    
+}
+
+
+.stores_detail .viewed div{
+    display: flex;
+    align-items: center;
+    margin: 0px 10px;
+}
+
+
+
+.stores_detail textarea {
+    height: 100px;
+}
+
+
+.stores_detail .text{
+    display: grid;
+    height: max-content;
+}
+
+.stores_detail .cars{
+    display: flex;
+}
+
+
+
+.stores_detail .phone_list .call_icon{
+    border-radius: 50%;
+    background: green ;
+    color: white;
+    padding: 5px;
+}
+
+.phone_list > div {
+    display: flex;
+    align-items: center;
+}
+
+
+.home .stores_detail .contacts div img{
+    width: 20px;
+    height: 20px;
+}
+
+.home .stores_detail .contacts div{
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    margin: 2px;
+}
+
+
+.store_header{
+    display: grid;
+    grid-template-columns: max-content auto;
+    padding: 5px;
+}
+
+.stores_detail .lines{
+    display: grid;
+    height: max-content;
+    padding: 10px;
+}
+
+.stores_detail .logo{
+    width: 100px;
+    height: 100px;
+    margin: 2px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+
+
+.subscribe{
+    background: none;
+    color: grey;
+    border: none;
+}
+
+.stores_detail .tab a:hover{
+    color: grey;
+}
+
+.customer_link{
+    padding: 5px;
+    color: steelblue;
+    text-decoration: none;
+    font-size: 13px;
+    align-items: center;
+    display: flex;
+    border-radius: 5px;
+    transition: 0.3s;
+    margin: 2px;
+    background: whitesmoke;
+    width: max-content;
+}
+
+.customer_link:hover{
+    background: whitesmoke;
+}
+
+.customer_link *{
+    margin: 2px;
+}
+
+
+@media screen and (max-width:450px){
+   
+    .store_products .item{
+        width: 100px;
+        font-size: 12px;
+    }
+
+    .store_products .item .name{
+        font-size: 13px;
+    }
+
+    .store_products .item img{
+        height: 160px;
+    }
+}
+
+
