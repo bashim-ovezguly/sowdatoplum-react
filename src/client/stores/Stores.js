@@ -77,7 +77,7 @@ class Stores extends React.Component {
         var default_img_url = "/default.png";
 
         return (
-            <div className="stores p-[10px]">
+            <div className="stores p-2">
                 <div className="flex justify-between text-sky-800 items-center flex-wrap">
                     <label className="text-[20px] ">
                         Dükanlar {this.state.count}
@@ -99,15 +99,17 @@ class Stores extends React.Component {
                     </div>
                 </div>
 
-                <Pagination
-                    className="pagination"
-                    onChange={(event, page) => {
-                        this.setPage(page);
-                    }}
-                    count={Number(this.state.total_page)}
-                    variant="outlined"
-                    shape="rounded"
-                />
+                <div className="flex justify-center">
+                    <Pagination
+                        className="m-auto my-2"
+                        onChange={(event, page) => {
+                            this.setPage(page);
+                        }}
+                        count={Number(this.state.total_page)}
+                        variant="outlined"
+                        shape="rounded"
+                    />
+                </div>
 
                 {this.state.isLoading && (
                     <div className="flex justify-center m-5px">
@@ -115,7 +117,7 @@ class Stores extends React.Component {
                     </div>
                 )}
 
-                <div className="flex flex-wrap justify-center">
+                <div className="grid grid-cols-4 sm:grid-cols-2 justify-between">
                     {this.state.stores.map((item) => {
                         var img_url = server + item.img;
                         if (item.img === "") {
@@ -130,10 +132,11 @@ class Stores extends React.Component {
                             >
                                 <Link
                                     to={"/stores/" + item.id + "/"}
-                                    className="p-2 w-[200px] sm:w-[140px] m-[10px] duration-300 text-center rounded-lg"
+                                    className="w-[200px] sm:w-[140px] m-1 mx-auto duration-300 text-center  "
                                 >
                                     <img
-                                        className="h-[200px] w-[200px] sm:h-[140px] sm:w-[140px] object-cover rounded-lg border hover:shadow-2xl duration-200"
+                                        className="h-[200px] w-[200px] sm:h-[140px] sm:w-[140px] shadow-md
+                                        object-cover rounded-3xl border hover:shadow-2xl duration-200"
                                         alt=""
                                         src={img_url}
                                     ></img>

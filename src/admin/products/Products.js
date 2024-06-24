@@ -264,7 +264,7 @@ class Products extends React.Component {
     render() {
         return (
             <div className="products">
-                <ToastContainer />
+                <ToastContainer autoClose={5000} closeOnClick={true} />
                 {this.newProductModal()}
 
                 <h3 className="text-2xl">
@@ -352,8 +352,8 @@ class Products extends React.Component {
                         return (
                             <div
                                 key={item.id}
-                                className="item  grid grid-rows-[max-content_auto] border text-slate-600
-                                w-[200px] sm:w-[150px] m-2 overflow-hidden shadow-md rounded-md hover:shadow-lg duration-200"
+                                className="item text-[12px] grid grid-rows-[max-content_auto] border text-slate-600
+                                w-[200px] sm:w-[150px] m-2 overflow-hidden rounded-md duration-200 hover:shadow-md"
                             >
                                 <Link to={"/admin/products/" + item.id}>
                                     {item.img === "" ? (

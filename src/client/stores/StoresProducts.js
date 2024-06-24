@@ -1,9 +1,11 @@
 import axios from "axios";
 import React from "react";
 import { server } from "../../static";
-import "./storesDetail.css";
 import { Pagination } from "@mui/material";
 import { Link } from "react-router-dom";
+import { BiBasket } from "react-icons/bi";
+import { ToastContainer, toast } from "react-toastify";
+import { FiShoppingCart } from "react-icons/fi";
 
 class StoreProducts extends React.Component {
     constructor(props) {
@@ -12,8 +14,6 @@ class StoreProducts extends React.Component {
         this.state = {
             isLoading: true,
             id: "",
-            workStart: "",
-            workEnd: "",
             category: "",
             name: "",
             location: "",
@@ -23,7 +23,6 @@ class StoreProducts extends React.Component {
             images: [],
             products: [],
             viewed: 0,
-            size: "",
             center: "",
             address: "",
             customer_id: "",
@@ -35,23 +34,72 @@ class StoreProducts extends React.Component {
             page_size: 20,
             products_page: "",
             products_count: "",
-
-            auth: {
-                auth: {
-                    username: localStorage.getItem("username"),
-                    password: localStorage.getItem("password"),
-                },
-            },
         };
 
         this.setData();
     }
 
+    componentDidMount() {
+        if (localStorage.getItem("basket") != undefined) {
+            this.setState({
+                basketSize: JSON.parse(localStorage.getItem("basket")).length,
+            });
+        }
+    }
+
+    addToBasket(id) {
+        let tempArray = [];
+        let exist = false;
+        const product = { id: id, amount: 1 };
+
+        if (
+            (localStorage.getItem("basket") != null) &
+            (localStorage.getItem("basket") !== "")
+        ) {
+            tempArray = JSON.parse(localStorage.getItem("basket"));
+        }
+
+        tempArray.filter((item) => {
+            if (item !== "") {
+                if (item.id === id) {
+                    exist = true;
+                }
+            }
+        });
+
+        if (exist === false) {
+            tempArray.push(product);
+            toast.success("Sebede goşuldy");
+        } else {
+            toast.info("Eýýäm sebetde bar");
+        }
+        localStorage.setItem("basket", JSON.stringify(tempArray));
+        this.setState({ basketSize: tempArray.length });
+    }
+
     render() {
         return (
             <div className="grid">
+                <ToastContainer
+                    autoClose={5000}
+                    closeOnClick={true}
+                ></ToastContainer>
+
+                <Link
+                    to={"/stores/" + this.state.id + "/basket"}
+                    className="fixed bottom-14 right-10"
+                >
+                    <label className="bg-green-600 rounded-full px-2 absolute top--1 text-white">
+                        {this.state.basketSize}
+                    </label>
+                    <FiShoppingCart
+                        size={70}
+                        className=" rounded-2xl bg-sky-600 text-white shadow-lg p-2"
+                    ></FiShoppingCart>
+                </Link>
+
                 <Pagination
-                    className="pagination"
+                    className="mx-auto"
                     onChange={(event, page) => {
                         this.setProductsPage(page);
                     }}
@@ -60,32 +108,43 @@ class StoreProducts extends React.Component {
                     shape="rounded"
                 />
 
-                <div className="flex flex-wrap justify-between">
+                <div className="grid grid-cols-4 sm:grid-cols-2">
                     {this.state.products.map((item) => {
                         var img = server + item.img;
                         if (item.img.length === 0) {
                             img = "/default.png";
                         }
                         return (
-                            <Link
-                                to={"/products/" + item.id}
-                                className="grid w-[150px] m-[10px] border rounded-md overflow-hidden"
+                            <div
+                                className="grid m-2 border rounded-md overflow-hidden bg-slate-100 hover:shadow-lg duration-200"
                                 key={item.id}
                             >
-                                <img
-                                    className="w-[100%] h-[150px] object-cover"
-                                    alt=""
-                                    src={img}
-                                ></img>
-                                <label className="name text-[12px] m-[5px]">
-                                    {item.name}
-                                </label>
-                                {this.state.price !== "0 TMT" && (
-                                    <label className="price text-[14px] m-[5px] font-bold text-blue-700">
-                                        {item.price}
+                                <Link to={"/products/" + item.id}>
+                                    <img
+                                        className="w-[100%] h-[200px] object-cover"
+                                        alt=""
+                                        src={img}
+                                    ></img>
+                                </Link>
+                                <div className="p-2 grid text-[14px] sm:text-[12px]">
+                                    <label className="font-bold ">
+                                        {item.name}
                                     </label>
-                                )}
-                            </Link>
+                                    {item.price !== "0 TMT" && (
+                                        <label className="price font-bold text-blue-700">
+                                            {item.price}
+                                        </label>
+                                    )}
+                                    <button
+                                        onClick={() => {
+                                            this.addToBasket(item.id);
+                                        }}
+                                        className="bg-green-600 text-white rounded-md p-1 hover:bg-green-400 duration-200"
+                                    >
+                                        Sebede goşmak
+                                    </button>
+                                </div>
+                            </div>
                         );
                     })}
                 </div>

@@ -1,7 +1,6 @@
 import axios from "axios";
 import React from "react";
 import { server } from "../../static";
-import "./cars.css";
 import { BiMap, BiSearch, BiSort } from "react-icons/bi";
 import { CircularProgress } from "@mui/material";
 import { Link } from "react-router-dom";
@@ -31,7 +30,6 @@ class Cars extends React.Component {
             },
         };
 
-        // document.title = 'Dükanlar';
         this.setData();
     }
 
@@ -45,13 +43,6 @@ class Cars extends React.Component {
     }
 
     setData() {
-        // const queryString = window.location.search;
-        // const urlParams = new URLSearchParams(queryString);
-        // const customer = urlParams.get('customer')
-
-        // const pathname = window.location.pathname
-        // const id = pathname.split('/')[2]
-
         axios.get(server + "/mob/cars").then((resp) => {
             this.setState({ cars: resp.data.data });
             this.setState({ count: resp.data.data.length });
@@ -167,13 +158,13 @@ class Cars extends React.Component {
     render() {
         var default_img_url = "/default.png";
         return (
-            <div className="cars p-[10px]">
+            <div className="cars grid p-2">
                 {this.state.filterModalIsOpen && this.filterModal()}
                 <div className="flex justify-between">
                     <h3 className="text-[20px] text-sky-800">
                         Awtoulaglar {this.state.count}
                     </h3>
-                    <div className="flex items-center text-[12px]">
+                    {/* <div className="flex items-center text-[12px]">
                         <button className="m-5px steelblue_btn flex items-center">
                             <label>Gözleg</label>
                             <BiSearch className="m-[2px]" size={20}></BiSearch>
@@ -182,7 +173,7 @@ class Cars extends React.Component {
                             <label>Tertibi</label>
                             <BiSort className="m-2px" size={20}></BiSort>
                         </button>
-                    </div>
+                    </div> */}
                 </div>
 
                 <label className="flex items-center bold text-18px"></label>
@@ -193,7 +184,7 @@ class Cars extends React.Component {
                     </div>
                 )}
 
-                <div className="items">
+                <div className=" grid grid-cols-5 sm:grid-cols-2 justify-center">
                     {this.state.cars.map((item) => {
                         var img_url = server + item.img;
                         if (item.img === "") {
@@ -203,26 +194,28 @@ class Cars extends React.Component {
                         return (
                             <Link
                                 to={"/cars/" + item.id}
-                                className="grid w-[300px] sm:w-[150px] overflow-hidden m-[10px] rounded-md hover:shadow-lg 
-                                shadow-md duration-300 border"
+                                className="grid overflow-hidden m-2 rounded-md bg-slate-100 
+                                hover:shadow-lg duration-300 border"
                             >
                                 <img
                                     alt=""
-                                    className="w-full h-[200px] sm:h-[100px] object-cover"
+                                    className="w-full h-[200px] sm:h-[150px] object-cover"
                                     src={img_url}
                                 ></img>
-                                <div className="text grid p-3">
-                                    <label className="name text-[14px] font-bold text-slate-600  ">
+                                <div className="text grid p-2 text-[12px] sm:text-[10px]">
+                                    <label className="name sm:text-[11px] font-bold text-slate-600  ">
                                         {item.mark} {item.model} {item.year}
                                     </label>
-                                    <label className="price text-blue-700 font-bold p-[2px] text-[14px] ">
+
+                                    <label>{item.store.name}</label>
+                                    <label className="price text-blue-700 font-bold p-[2px]">
                                         {item.price}
                                     </label>
-                                    <div className="text-slategrey flex items-center text-[12px]">
+                                    <div className="text-slategrey flex items-center">
                                         <BiMap></BiMap>
                                         <label>{item.location}</label>
                                     </div>
-                                    <label className="text-[12px]">
+                                    <label className="">
                                         {item.created_at}
                                     </label>
                                 </div>

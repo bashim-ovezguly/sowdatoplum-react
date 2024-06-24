@@ -1,9 +1,10 @@
 import axios from "axios";
 import React from "react";
 import { server } from "../../static";
-import { BiPlus } from "react-icons/bi";
+import { BiHeart, BiPlus } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
+import { BsEye } from "react-icons/bs";
 
 class ProfileLenta extends React.Component {
     constructor(props) {
@@ -40,24 +41,24 @@ class ProfileLenta extends React.Component {
                     <Link to="/lenta/add">
                         {" "}
                         <BiPlus
-                            className="p-[5px] border m-[2px] my-[5px] rounded-md"
+                            className="p-2 border m-1 my-2 rounded-md"
                             size={25}
                         ></BiPlus>
                     </Link>
                 </div>
 
                 {this.state.isLoading && (
-                    <div className="flex justify-center">
+                    <div className="grid grid-cols-3 sm:grid-cols-2">
                         <CircularProgress></CircularProgress>
                     </div>
                 )}
 
-                <div className="items flex flex-wrap">
+                <div className="items grid grid-cols-3 sm:grid-cols-1">
                     {this.state.products.map((item) => {
                         return (
                             <Link
                                 to={"/lenta/edit/" + item.id}
-                                className="grid grid-rows-[max-content_auto]  w-[140px] overflow-hidden m-[10px] rounded-md shadow-md border"
+                                className="grid grid-rows-[max-content_auto] overflow-hidden m-2 rounded-md shadow-md border"
                             >
                                 {item.img !== "" && (
                                     <img
@@ -71,7 +72,21 @@ class ProfileLenta extends React.Component {
                                 )}
 
                                 <div className="grid h-max p-[5px] text-[14px] sm:text-[11px]">
-                                    <label className="font-bold text-slate-600 max-h-[40px]">
+                                    <div className="flex">
+                                        <div className="flex items-center">
+                                            <BiHeart></BiHeart>
+                                            <label className="ml-1">
+                                                {item.like_count}
+                                            </label>
+                                        </div>
+                                        <div className="flex items-center ml-2">
+                                            <BsEye></BsEye>
+                                            <label className="ml-1">
+                                                {item.view}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <label className="text-[12px] text-slate-600 max-h-[100px]">
                                         {item.text}
                                     </label>
                                     {item.status === "pending" && (

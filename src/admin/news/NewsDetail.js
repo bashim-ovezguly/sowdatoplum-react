@@ -4,10 +4,12 @@ import { server } from "../../static";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { IoMdTrash } from "react-icons/io";
-import { BiCheck } from "react-icons/bi";
+import { BiArrowToLeft, BiCheck } from "react-icons/bi";
 import { FcCancel, FcCheckmark, FcOk } from "react-icons/fc";
 import VideoThumbnail from "react-video-thumbnail";
-import { MdVideocam } from "react-icons/md";
+import { MdArrowLeft, MdOutlineArrowLeft, MdVideocam } from "react-icons/md";
+import { AiOutlineArrowLeft } from "react-icons/ai";
+import { Link } from "react-router-dom";
 
 class AdminNewsDetail extends React.Component {
     constructor(props) {
@@ -265,6 +267,52 @@ class AdminNewsDetail extends React.Component {
             <div className="news grid max-w-[600px] mx-auto">
                 <ToastContainer closeOnClick autoClose={5000} />
 
+                <Link
+                    to={"/admin/news"}
+                    className="flex items-center my-2 hover:text-sky-600 w-max"
+                >
+                    <AiOutlineArrowLeft></AiOutlineArrowLeft>
+                    <label>Habarlar</label>
+                </Link>
+
+                <div className="flex items-center text-[13px]">
+                    <button
+                        onClick={() => {
+                            this.accept();
+                        }}
+                        className="flex items-center border rounded-md m-1 p-1 bg-slate-100 hover:bg-slate-200"
+                    >
+                        <label>Kabul etmek</label>
+                        <FcOk size={25}></FcOk>
+                    </button>
+                    <button
+                        onClick={() => {
+                            this.cancel();
+                        }}
+                        className="flex items-center border rounded-md m-1 p-1 bg-slate-100 hover:bg-slate-200"
+                    >
+                        <label>Gaýtarmak</label>
+                        <FcCancel size={25}></FcCancel>
+                    </button>
+
+                    <button
+                        onClick={() => {
+                            this.updatePost();
+                        }}
+                        className=" bg-sky-600 text-white m-1 p-1 w-max rounded-lg"
+                    >
+                        Ýatda saklamak
+                    </button>
+                    <button
+                        onClick={() => {
+                            this.deletePost(this.state.id);
+                        }}
+                        className=" bg-red-600 text-white m-1 p-1 w-max rounded-lg"
+                    >
+                        Bozmak
+                    </button>
+                </div>
+
                 <div className="flex flex-wrap">
                     {this.state.images.map((item) => {
                         return (
@@ -293,24 +341,6 @@ class AdminNewsDetail extends React.Component {
                     })}
                 </div>
 
-                <label>Wideolar {this.state.videos.length} </label>
-                <video width="200" height="200" controls>
-                    <source
-                        src={this.state.videos[0].video}
-                        type="video/mp4"
-                    ></source>
-                </video>
-                <div className="flex flex-wrap">
-                    {this.state.videos.map((item) => {
-                        return (
-                            <div className="w-[150px] h-[150px] border rounded-lg m-2">
-                                {/* <video src={}></video> */}
-                                <img alt="" src={item.thumbnail}></img>
-                                <MdVideocam size={40}></MdVideocam>
-                            </div>
-                        );
-                    })}
-                </div>
                 <label>Surat</label>
                 <input
                     id="imgSelector"
@@ -330,27 +360,6 @@ class AdminNewsDetail extends React.Component {
                     id="videoInput"
                     type="file"
                 ></input>
-
-                <div className="flex items-center">
-                    <button
-                        onClick={() => {
-                            this.accept();
-                        }}
-                        className="flex items-center border rounded-md mx-1 p-2 bg-slate-100 hover:bg-slate-200"
-                    >
-                        <label>Kabul etmek</label>
-                        <FcOk size={30}></FcOk>
-                    </button>
-                    <button
-                        onClick={() => {
-                            this.cancel();
-                        }}
-                        className="flex items-center border rounded-md mx-1 p-2 bg-slate-100 hover:bg-slate-200"
-                    >
-                        <label>Gaýtarmak</label>
-                        <FcCancel size={30}></FcCancel>
-                    </button>
-                </div>
 
                 {this.state.status === "active" ? (
                     <label>Aktiw</label>
@@ -411,24 +420,7 @@ class AdminNewsDetail extends React.Component {
                     defaultValue={this.state.body_en}
                 ></textarea>
 
-                <div className="flex items-center">
-                    <button
-                        onClick={() => {
-                            this.updatePost();
-                        }}
-                        className=" bg-sky-600 text-white p-2 w-max rounded-lg"
-                    >
-                        Ýatda saklamak
-                    </button>
-                    <button
-                        onClick={() => {
-                            this.deletePost(this.state.id);
-                        }}
-                        className=" bg-red-600 text-white p-2 w-max rounded-lg"
-                    >
-                        Bozmak
-                    </button>
-                </div>
+                <div className="flex items-center"></div>
             </div>
         );
     }

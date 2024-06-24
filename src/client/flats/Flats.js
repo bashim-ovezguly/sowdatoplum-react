@@ -1,10 +1,7 @@
 import axios from "axios";
 import React from "react";
-import { FiEye, FiEyeOff, FiFilter } from "react-icons/fi";
 import { server } from "../../static";
-import "./flats.css";
-import { MdFilter } from "react-icons/md";
-import { BiFilter, BiMap, BiSearch } from "react-icons/bi";
+import { BiMap } from "react-icons/bi";
 import { CircularProgress } from "@mui/material";
 import { Link } from "react-router-dom";
 
@@ -120,7 +117,7 @@ class Flats extends React.Component {
                     </div>
                 )}
 
-                <div className="items flex justify-center">
+                <div className="grid grid-cols-4 sm:grid-cols-2">
                     {this.state.cars.map((item) => {
                         var img_url = server + item.img;
                         if (item.img === "") {
@@ -130,8 +127,8 @@ class Flats extends React.Component {
                         return (
                             <Link
                                 to={"/flats/" + item.id}
-                                className="grid grid-rows-[max-content_auto] hover:shadow-slate-700/50 duration-200
-                                            shadow-md rounded-md w-[200px] text-slate-600 sm:w-[150px] m-2 overflow-hidden border"
+                                className="grid grid-rows-[max-content_auto] bg-slate-100 duration-200
+                                            hover:shadow-lg rounded-md text-slate-600 sm:w-[150px] m-2 overflow-hidden border"
                             >
                                 <img
                                     className="h-[200px] object-cover sm:h-[150px] w-full"

@@ -1,8 +1,9 @@
 import axios from "axios";
 import React from "react";
-import { BiLeftArrow, BiRightArrow } from "react-icons/bi";
-import { MdRefresh } from "react-icons/md";
+import { BiLeftArrow, BiRightArrow, BiTrash } from "react-icons/bi";
+import { MdDelete, MdRefresh, MdRemove } from "react-icons/md";
 import { server } from "../static";
+import { Link } from "react-router-dom";
 
 class Orders extends React.Component {
     constructor(props) {
@@ -24,32 +25,13 @@ class Orders extends React.Component {
             newStoreOpen: false,
 
             auth: {
-                auth: {
-                    username: localStorage.getItem("admin_username"),
-                    password: localStorage.getItem("admin_password"),
-                },
+                username: localStorage.getItem("admin_username"),
+                password: localStorage.getItem("admin_password"),
             },
         };
 
         document.title = "Myhmanlar";
         this.setData();
-    }
-
-    next_page() {
-        if (this.state.last_page >= this.state.current_page + 1) {
-            var next_page_number = this.state.current_page + 1;
-            this.setState({ current_page: next_page_number }, () => {
-                this.setData();
-            });
-        }
-    }
-
-    prev_page() {
-        if (this.state.current_page - 1 != 0) {
-            this.setState({ current_page: this.state.current_page - 1 }, () => {
-                this.setData();
-            });
-        }
     }
 
     setData() {
@@ -58,7 +40,7 @@ class Orders extends React.Component {
                 server +
                     "/api/admin/orders/?page_size=50&page=" +
                     this.state.current_page,
-                this.state.auth
+                { auth: this.state.auth }
             )
             .then((resp) => {
                 this.setState({ last_page: resp.data["last_page"] });
@@ -66,11 +48,16 @@ class Orders extends React.Component {
                 this.setState({ total: resp.data["total"] });
                 this.setState({ datalist: resp.data.data });
                 this.setState({ isLoading: false });
+            })
+            .catch((err) => {
+                if (err.response.status === 403) {
+                    window.location.href = "/admin/login";
+                }
             });
     }
 
     deleteOrder(id) {
-        if (window.confirm("Bozmaga ynamyňyz barmy?") == true) {
+        if (window.confirm("Bozmaga ynamyňyz barmy?") === true) {
             axios
                 .post(
                     server + "/api/admin/orders/delete/" + id,
@@ -85,7 +72,7 @@ class Orders extends React.Component {
 
     render() {
         return (
-            <div className="orders">
+            <div className="orders w-full">
                 <h3>
                     Sargytlar {this.state.total}
                     {this.state.isLoading && (
@@ -108,35 +95,16 @@ class Orders extends React.Component {
                     </button>
                 </div>
 
-                <div className="pagination">
-                    <button
-                        onClick={() => {
-                            this.prev_page();
-                        }}
-                    >
-                        <BiLeftArrow></BiLeftArrow>
-                    </button>
-                    <label>
-                        Sahypa {this.state.current_page}/{this.state.last_page}{" "}
-                    </label>
-                    <button
-                        onClick={() => {
-                            this.next_page();
-                        }}
-                    >
-                        <BiRightArrow></BiRightArrow>
-                    </button>
-                </div>
-
-                <table>
-                    <tr>
+                <table className="w-full text-[12px] border">
+                    <tr className="bg-slate-200">
                         <th>ID</th>
-                        <th>Sargyt ediji</th>
-                        <th>Söwda nokady</th>
+                        <th>Customer</th>
+                        <th>Store</th>
                         <th>Kabul ediji</th>
                         <th>Wagty</th>
                         <th>Summasy</th>
                         <th>Statusy</th>
+                        <th>Hereket</th>
                     </tr>
                     {this.state.datalist.map((item) => {
                         return (
@@ -146,17 +114,18 @@ class Orders extends React.Component {
                                         {item.id}{" "}
                                     </a>
                                 </td>
+
                                 <td>
-                                    <a
-                                        href={
+                                    <Link
+                                        to={
                                             "/admin/customers/" +
                                             item.customer.id
                                         }
                                     >
                                         {item.customer.name}{" "}
                                         {item.customer.phone}
-                                    </a>
-                                    {item.customer_deleted == "True" &&
+                                    </Link>
+                                    {item.customer_deleted === "True" &&
                                         " (Bozdy)"}
                                 </td>
                                 <td>
@@ -173,7 +142,7 @@ class Orders extends React.Component {
                                     >
                                         {item.store_customer}
                                     </a>
-                                    {item.accepter_deleted == "True" &&
+                                    {item.accepter_deleted === "True" &&
                                         " (Bozdy)"}
                                 </td>
 
@@ -186,7 +155,10 @@ class Orders extends React.Component {
                                             this.deleteOrder(item.id)
                                         }
                                     >
-                                        Bozmak
+                                        <BiTrash
+                                            className="hover:text-red-600"
+                                            size={20}
+                                        ></BiTrash>
                                     </button>
                                 </td>
                             </tr>

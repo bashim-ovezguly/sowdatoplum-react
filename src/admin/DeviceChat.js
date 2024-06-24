@@ -120,9 +120,11 @@ class DeviceChat extends React.Component {
 
                 <div className="min-h-[600px] grid grid-rows-[max-content_auto_max-content] px-2 bg-slate-50 rounded-lg">
                     <div className="deviceID bg-slate-200 rounded-lg p-2">
-                        <label>{this.state.device_id}</label>
+                        <label className="text-[12px]">
+                            {this.state.device_id}
+                        </label>
                     </div>
-                    <div className="flex h-max overflow-auto flex-col-reverse">
+                    <div className="flex h-max overflow-auto flex-col-reverse text-[12px]">
                         {this.state.msgList.map((item) => {
                             const date = String(item.created_at).split("T")[0];
                             const time = String(item.created_at)
@@ -131,8 +133,8 @@ class DeviceChat extends React.Component {
 
                             if (item.sender !== "customer") {
                                 return (
-                                    <div className=" flex justify-end">
-                                        <div className="w-max bg-green-500 rounded-lg p-2 m-1 text-white grid h-max">
+                                    <div className="flex justify-end">
+                                        <div className="bg-slate-500 rounded-md p-2 m-1 text-white grid h-max max-w-[50%]">
                                             <label>{item.msg}</label>
                                             <label className="text-[12px]">
                                                 {date} {time}
@@ -143,7 +145,7 @@ class DeviceChat extends React.Component {
                             } else {
                             }
                             return (
-                                <div className="w-max bg-green-500 rounded-lg p-2 m-1 text-white grid">
+                                <div className="w-max bg-green-500 rounded-md p-2 m-1 text-white grid max-w-[50%]">
                                     <label>{item.msg}</label>
                                     <label className="text-[12px]">
                                         {date} {time}
@@ -152,7 +154,7 @@ class DeviceChat extends React.Component {
                             );
                         })}
                     </div>
-                    <div className="grid grid-cols-[auto_max-content] items-center text-slate-500">
+                    <div className="grid grid-cols-[auto_max-content] items-center text-slate-500 ">
                         <input id="adminText"></input>{" "}
                         <button
                             onClick={() => {

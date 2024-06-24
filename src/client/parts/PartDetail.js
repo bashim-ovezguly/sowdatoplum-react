@@ -33,10 +33,6 @@ class PartDetail extends React.Component {
 
     componentDidMount() {
         this.setData();
-
-        var elem = document.getElementById("og:title");
-        elem.setAttribute("content", this.state.name);
-        console.log(elem, this.state.name);
     }
 
     async setData() {
@@ -49,20 +45,20 @@ class PartDetail extends React.Component {
 
         const resp = await axios.get(server + "/mob/parts/" + id);
 
-        document.title = resp.data["name_tm"];
+        document.title = resp.data.name_tm;
         this.setState({
-            name: resp.data["name_tm"],
-            location: resp.data["location"],
-            viewed: resp.data["viewed"],
-            detail_text: resp.data["body_tm"],
-            img: resp.data["img"],
-            id: resp.data["id"],
-            price: resp.data["price"],
-            created_at: resp.data["created_at"],
-            images: resp.data["images"],
-            category: resp.data["category"],
-            phone: resp.data["phone"],
-            store: resp.data["store"],
+            name: resp.data.name_tm,
+            location: resp.data.location,
+            viewed: resp.data.viewed,
+            detail_text: resp.data.body_tm,
+            img: resp.data.img,
+            id: resp.data.id,
+            price: resp.data.price,
+            created_at: resp.data.created_at,
+            images: resp.data.images,
+            category: resp.data.category,
+            phone: resp.data.phone,
+            store: resp.data.store,
             customer_name: resp.data.customer_name,
             customer_id: resp.data.customer_id,
             store_id: resp.data.store_id,
@@ -83,15 +79,15 @@ class PartDetail extends React.Component {
         let date = this.state.created_at.split(" ")[0];
 
         return (
-            <div className="product_detail grid grid-cols-2 sm:grid-cols-1 p-[20px]">
-                <div className="grid">
+            <div className="grid grid-cols-2 sm:grid-cols-1 p-2">
+                <div className="grid p-2">
                     <img
                         alt=""
-                        className="h-[300px] mx-auto w-[300px] rounded-lg shadow-lg border object-cover "
+                        className="h-[300px] w-full object-contain border "
                         src={main_img}
                     ></img>
 
-                    <div className="flex flex-wrap my-[10px]">
+                    <div className="flex flex-wrap p-2">
                         {this.state.images.map((item) => {
                             return (
                                 <div key={item.id}>
@@ -106,24 +102,22 @@ class PartDetail extends React.Component {
                     </div>
                 </div>
 
-                <div className="grid h-max">
-                    <div className="grid my-[5px]">
-                        <label className="font-bold text-[25px] ">
-                            {}
-                            {this.state.name}{" "}
+                <div className="grid h-max p-2">
+                    <label className="font-bold text-[25px] ">
+                        {}
+                        {this.state.name}{" "}
+                    </label>
+                    {this.state.category !== "" && (
+                        <label className="text-12px">
+                            {this.state.category.name}{" "}
                         </label>
-                        {this.state.category !== "" && (
-                            <label className="text-12px">
-                                {this.state.category.name}{" "}
-                            </label>
-                        )}
-                    </div>
+                    )}
 
-                    <label className="font-bold text-sky-600 text-[22px] py-[10px]">
+                    <label className="font-bold text-sky-600 text-[22px]">
                         {this.state.price}
                     </label>
 
-                    <div className="py-[10px]">
+                    <div className="py-2">
                         {this.state.detail_text !== "" && (
                             <p>{this.state.detail_text}</p>
                         )}

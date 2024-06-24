@@ -2,9 +2,8 @@ import axios from "axios";
 import React from "react";
 import { BiMap, BiPlus } from "react-icons/bi";
 import { MdRefresh } from "react-icons/md";
-import { server } from "../static";
-import "./flats.css";
-import LocationSelector from "./LocationSelector";
+import { server } from "../../static";
+import LocationSelector from "../LocationSelector";
 import Pagination from "@mui/material/Pagination";
 import { Link } from "react-router-dom";
 

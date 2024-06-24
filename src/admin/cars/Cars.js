@@ -1,11 +1,11 @@
 import axios from "axios";
 import React from "react";
-import { BiLeftArrow, BiMap, BiPlus, BiRightArrow } from "react-icons/bi";
-import { MdPerson, MdRefresh } from "react-icons/md";
+import { BiMap, BiPlus } from "react-icons/bi";
+import { MdRefresh } from "react-icons/md";
 import { server } from "../../static";
-import { AiOutlineShop } from "react-icons/ai";
 import LocationSelector from "../LocationSelector";
 import { Link } from "react-router-dom";
+import Pagination from "@mui/material/Pagination";
 
 class AdminCars extends React.Component {
     constructor(props) {
@@ -35,12 +35,11 @@ class AdminCars extends React.Component {
             location_id: "",
             customers: [],
             cars: [],
+            pageNumber: 1,
 
             auth: {
-                auth: {
-                    username: localStorage.getItem("admin_username"),
-                    password: localStorage.getItem("admin_password"),
-                },
+                username: localStorage.getItem("admin_username"),
+                password: localStorage.getItem("admin_password"),
             },
         };
 
@@ -359,23 +358,6 @@ class AdminCars extends React.Component {
         );
     }
 
-    next_page() {
-        if (this.state.last_page >= this.state.current_page + 1) {
-            var next_page_number = this.state.current_page + 1;
-            this.setState({ current_page: next_page_number }, () => {
-                this.setState();
-            });
-        }
-    }
-
-    prev_page() {
-        if (this.state.current_page - 1 !== 0) {
-            this.setState({ current_page: this.state.current_page - 1 }, () => {
-                this.setState();
-            });
-        }
-    }
-
     setData() {
         let q = "";
         if (this.state.selectedMark !== undefined) {
@@ -384,15 +366,15 @@ class AdminCars extends React.Component {
 
         axios.get(server + "/mob/index/car" + q).then((resp) => {
             this.setState({
-                categories: resp.data["categories"],
-                transmissions: resp.data["transmissions"],
-                countries: resp.data["countries"],
-                colors: resp.data["colors"],
-                wds: resp.data["wheel_drives"],
-                models: resp.data["models"],
-                marks: resp.data["marks"],
-                fuels: resp.data["fuels"],
-                bodyTypes: resp.data["body_types"],
+                categories: resp.data.categories,
+                transmissions: resp.data.transmissions,
+                countries: resp.data.countries,
+                colors: resp.data.colors,
+                wds: resp.data.wheel_drives,
+                models: resp.data.models,
+                marks: resp.data.marks,
+                fuels: resp.data.fuels,
+                bodyTypes: resp.data.body_types,
             });
             this.setState({ isLoading: false });
         });
@@ -402,7 +384,9 @@ class AdminCars extends React.Component {
         });
 
         axios
-            .get(server + "/api/admin/stores?pagination=None", this.state.auth)
+            .get(server + "/api/admin/stores?pagination=None", {
+                auth: this.state.auth,
+            })
             .then((resp) => {
                 this.setState({ stores: resp.data });
             });
@@ -412,15 +396,14 @@ class AdminCars extends React.Component {
         });
 
         axios.get(server + "/mob/index/car").then((resp) => {
-            this.setState({ categories: resp.data["categories"] });
-            this.setState({ countries: resp.data["countries"] });
+            this.setState({ categories: resp.data.categories });
+            this.setState({ countries: resp.data.countries });
         });
 
         axios
-            .get(
-                server + "/api/admin/cars/?page=" + this.state.current_page,
-                this.state.auth
-            )
+            .get(server + "/api/admin/cars/?page=" + this.state.current_page, {
+                auth: this.state.auth,
+            })
             .then((resp) => {
                 this.setState({ locations: resp.data.data, isLoading: false });
                 this.setState({ last_page: resp.data["last_page"] });
@@ -485,6 +468,17 @@ class AdminCars extends React.Component {
         );
     }
 
+    setPage(pageNumber) {
+        this.setState({ current_page: pageNumber });
+        axios
+            .get(server + "/api/admin/cars?page=" + pageNumber, {
+                auth: this.state.auth,
+            })
+            .then((resp) => {
+                this.setState({ cars: resp.data.data });
+            });
+    }
+
     render() {
         return (
             <div className="grid">
@@ -518,33 +512,23 @@ class AdminCars extends React.Component {
 
                 {this.addCarModal()}
 
-                <div className="pagination">
-                    <button
-                        onClick={() => {
-                            this.prev_page();
-                        }}
-                    >
-                        <BiLeftArrow></BiLeftArrow>
-                    </button>
-                    <label>
-                        Sahypa {this.state.current_page}/{this.state.last_page}{" "}
-                    </label>
-                    <button
-                        onClick={() => {
-                            this.next_page();
-                        }}
-                    >
-                        <BiRightArrow></BiRightArrow>
-                    </button>
-                </div>
+                <Pagination
+                    className="pagination"
+                    onChange={(event, page) => {
+                        this.setPage(page);
+                    }}
+                    count={Number(this.state.last_page)}
+                    variant="outlined"
+                    shape="rounded"
+                />
 
-                <div className="items flex flex-wrap justify-center ">
+                <div className="grid grid-cols-6 sm:grid-cols-2 ">
                     {this.state.cars.map((item, index) => {
                         return (
                             <Link
                                 to={"/admin/cars/" + item.id}
                                 key={item.id}
-                                className="item w-[200px] sm:w-[150px] m-2 shadow-md rounded-md overflow-hidden border"
+                                className="item m-2 shadow-md rounded-md overflow-hidden border"
                             >
                                 <img
                                     className="w-full h-[200px] sm:h-[150px] object-cover"

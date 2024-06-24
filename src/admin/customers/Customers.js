@@ -8,10 +8,10 @@ import {
     BiPlus,
     BiRightArrow,
 } from "react-icons/bi";
-import { server } from "../static";
+import { server } from "../../static";
 import { Pagination } from "@mui/material";
 import { Link } from "react-router-dom";
-import Loader from "../client/components/Loader";
+import Loader from "../../client/components/Loader";
 import { MdPerson, MdRefresh, MdSearch } from "react-icons/md";
 
 class Customers extends React.Component {
@@ -102,24 +102,6 @@ class Customers extends React.Component {
         }
     }
 
-    saveNewCustomer() {
-        var formdata = new FormData();
-        formdata.append("name", document.getElementById("name").value);
-        formdata.append("phone", document.getElementById("phone").value);
-        formdata.append("password", document.getElementById("password").value);
-
-        this.setState({ isLoading: true });
-
-        axios
-            .post(server + "/mob/reg", formdata, this.state.auth)
-            .then((resp) => {
-                this.init();
-            })
-            .catch((err) => {
-                alert("Ýalňyşlyk ýüze çykdy");
-            });
-    }
-
     newCustomerModal() {
         if (this.state.newCustomerOpen === false) {
             return null;
@@ -173,14 +155,9 @@ class Customers extends React.Component {
             <div className="customers ">
                 <Loader open={this.state.isLoading}></Loader>
 
-                <div className="flex items-center">
+                <div className="grid items-center">
                     <h3>Ulanyjylar {this.state.total} </h3>
-                    <BiPlus
-                        onClick={() => {
-                            this.setState({ newCustomerOpen: true });
-                        }}
-                        size={25}
-                    ></BiPlus>
+
                     <MdRefresh
                         onClick={() => {
                             this.init();
@@ -189,23 +166,21 @@ class Customers extends React.Component {
                         size={25}
                     ></MdRefresh>
 
-                    <div className="border rounded flex items-center">
+                    <div className="flex items-center w-max">
                         <input
-                            className="border-none m-0"
+                            className="border"
                             id="filter_name"
                             placeholder="Ady ýa-da telefon belgisi..."
                         ></input>
                         <MdSearch
-                            className="hover:bg-slate-200 duration-200"
+                            className="hover:bg-slate-200 duration-200 m-2 rounded-lg"
                             onClick={() => {
                                 this.setFilter();
                             }}
-                            size={25}
+                            size={30}
                         ></MdSearch>
                     </div>
                 </div>
-
-                {this.newCustomerModal()}
 
                 <Pagination
                     className="pagination"
@@ -222,32 +197,18 @@ class Customers extends React.Component {
                         return (
                             <Link
                                 to={"/admin/customers/" + item.id}
-                                className="grid m-1 overflow-hidden border shadow-md hover:shadow-lg 
-                                rounded-lg duration-200 w-[150px] text-[12px]"
+                                className="grid m-1 overflow-hidden hover:bg-slate-100 p-2 rounded-lg duration-200 max-w-[180px] text-[12px]"
                             >
-                                {item.img_m !== null ? (
-                                    <img
-                                        className="w-full h-[150px] object-cover"
-                                        alt=""
-                                        src={item.img_m}
-                                    ></img>
-                                ) : (
-                                    <MdPerson className="w-full h-[150px] text-slate-500"></MdPerson>
-                                )}
+                                <img
+                                    className="w-[150px] max-w-none h-[150px] object-cover rounded-3xl border bg-slate-200"
+                                    alt=""
+                                    src={item.img_m}
+                                ></img>
 
                                 <div className="grid p-2">
                                     <label>{item.id}</label>
                                     <label> {item.name} </label>
                                     <label>{item.phone}</label>
-                                    {item.active === true ? (
-                                        <label className="text-green-500 font-bold">
-                                            Active
-                                        </label>
-                                    ) : (
-                                        <label className="text-red-500 font-bold">
-                                            Passiw
-                                        </label>
-                                    )}
 
                                     {item.verificated === "True" ? (
                                         <label className="text-green-500 font-bold">

@@ -44,13 +44,9 @@ class Stat extends React.Component {
                 <div className="grid">
                     <label>Dükanlar: {this.state.counts.store}</label>
                     <label>Harytlary: {this.state.counts.product}</label>
-                    <label>
-                        Söwda merkezleri: {this.state.counts.shopping_center}
-                    </label>
-                    <label>Dermanhanalar: {this.state.counts.pharmacy}</label>
+                    <label>Söwda merkezleri: {this.state.counts.bazar}</label>
                     <label>Emläkler: {this.state.counts.flat}</label>
                     <label>Awtoulaglar: {this.state.counts.car}</label>
-                    <label>Hyzmatlar: {this.state.counts.service}</label>
                     <label>Awtoşaýlar: {this.state.counts.part}</label>
                 </div>
 

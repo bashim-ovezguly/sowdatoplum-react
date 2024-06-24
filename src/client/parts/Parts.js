@@ -94,7 +94,7 @@ class Parts extends React.Component {
     render() {
         var default_img_url = "/default.png";
         return (
-            <div className="auto_parts p-[20px] grid">
+            <div className="grid p-2">
                 <label className="text-[20px] text-sky-800">
                     Awtoşaýlar {this.state.count}
                 </label>
@@ -106,7 +106,7 @@ class Parts extends React.Component {
                     </div>
                 )}
 
-                <div className="flex flex-wrap">
+                <div className="grid grid-cols-4 sm:grid-cols-2">
                     {this.state.cars.map((item) => {
                         var img_url = server + item.img;
                         if (item.img === "") {
@@ -116,28 +116,37 @@ class Parts extends React.Component {
                         return (
                             <Link
                                 to={"/parts/" + item.id}
-                                className="grid grid-rows-[max-content_auto] hover:shadow-slate-700/50 duration-200
-                                shadow-md rounded-md w-[200px] m-2 overflow-hidden border"
+                                className="grid grid-rows-[max-content_auto]  duration-200
+                                hover:shadow-lg bg-slate-100 rounded-lg m-2 overflow-hidden border"
                             >
                                 <img
-                                    className="w-full h-[200px] object-cover"
+                                    className="w-full h-[200px] sm:h-[120px] object-cover"
                                     alt=""
                                     src={img_url}
                                 ></img>
-                                <div className="text-slate-600 p-[5px] text-[13px] grid h-max">
+                                <div className="text-slate-600 p-2 text-[13px] sm:text-[11px] grid h-max">
                                     <label className="font-bold text-[14px]">
                                         {item.name_tm}
                                     </label>
                                     <label>
                                         {item.mark} {item.model} {item.year}
                                     </label>
-                                    <label className="text-sky-600 font-bold text-[18px]">
-                                        {item.price}
-                                    </label>
-                                    <div>
-                                        <BiMap></BiMap>
-                                        <label>{item.location}</label>
-                                    </div>
+                                    <label>{item.store}</label>
+
+                                    {item.price !== "0 TMT" && (
+                                        <label className="text-sky-600 font-bold">
+                                            {item.price}
+                                        </label>
+                                    )}
+
+                                    {item.location !== "" && (
+                                        <div className="flex items-center">
+                                            <BiMap></BiMap>
+                                            <label>{item.location}</label>
+                                        </div>
+                                    )}
+
+                                    <label>{item.created_at}</label>
                                 </div>
                             </Link>
                         );

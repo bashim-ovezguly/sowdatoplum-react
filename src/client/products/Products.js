@@ -1,7 +1,6 @@
 import axios from "axios";
 import React from "react";
 import { server } from "../../static";
-import "./products.css";
 import { BiSearch } from "react-icons/bi";
 import Pagination from "@mui/material/Pagination";
 import { CircularProgress } from "@mui/material";
@@ -36,23 +35,6 @@ class Products extends React.Component {
             this.setState({ products: resp.data.data });
             this.setState({ isLoading: false });
         });
-    }
-
-    next_page() {
-        if (this.state.last_page >= this.state.current_page + 1) {
-            var next_page_number = this.state.current_page + 1;
-            this.setState({ current_page: next_page_number }, () => {
-                this.setData();
-            });
-        }
-    }
-
-    prev_page() {
-        if (this.state.current_page - 1 !== 0) {
-            this.setState({ current_page: this.state.current_page - 1 }, () => {
-                this.setData();
-            });
-        }
     }
 
     filter() {
@@ -121,7 +103,7 @@ class Products extends React.Component {
                 </div>
 
                 <Pagination
-                    className="pagination"
+                    className="mx-auto"
                     onChange={(event, page) => {
                         this.setPage(page);
                     }}
@@ -136,7 +118,7 @@ class Products extends React.Component {
                     </div>
                 )}
 
-                <div className="flex flex-wrap justify-center">
+                <div className="grid grid-cols-4 sm:grid-cols-2">
                     {this.state.products.map((item) => {
                         var img_url = server + item.img;
                         if (item.img === "") {
@@ -148,9 +130,9 @@ class Products extends React.Component {
 
                         return (
                             <div
-                                className="grid grid-rows-[max-content_auto] w-[200px] sm:w-[150px]  
-                                overflow-hidden m-[10px] rounded shadow-md border text-[14px]
-                                hover:shadow-slate-500/50 duration-200"
+                                className="grid grid-rows-[max-content_auto] 
+                                overflow-hidden m-3 rounded-lg bg-slate-100 border text-[12px]
+                                hover:shadow-lg duration-200"
                             >
                                 <Link to={"/products/" + item.id}>
                                     <img
@@ -159,17 +141,18 @@ class Products extends React.Component {
                                         src={img_url}
                                     ></img>
                                 </Link>
-                                <div className="grid p-[5px] h-max">
-                                    <label className="name text-[14px] font-bold text-slate-600">
+
+                                <div className="grid p-2 h-max">
+                                    <label className="name  font-bold text-slate-600">
                                         {item.name}
                                     </label>
-                                    <label className="text-[12px] text-slate-600">
+                                    <label className="text-slate-600">
                                         {item.store_name}
                                     </label>
-                                    <label className="price text-blue-700 font-bold p-[2px] text-[14px]">
+                                    <label className="price text-blue-700 font-bold p-1">
                                         {item.price}
                                     </label>
-                                    <label className="text-slate-700 p-[2px] text-[14px]">
+                                    <label className="text-slate-700 p-1">
                                         {date}
                                     </label>
                                 </div>

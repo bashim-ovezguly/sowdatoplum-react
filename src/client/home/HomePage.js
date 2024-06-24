@@ -152,11 +152,11 @@ class HomePage extends React.Component {
                             <Link
                                 to={"/stores/" + item.id + "/"}
                                 key={item.id}
-                                className="w-[200px] sm:w-[100px]  grid m-[5px] p-[5px] rounded-md duration-200"
+                                className="w-[200px] sm:w-[100px] grid m-2 p-2 rounded-lg duration-200 text-[12px]"
                             >
                                 <img
-                                    className="h-[200px] hover:shadow-slate-500 duration-200 sm:h-[90px] shadow-md
-                                    object-cover rounded-lg "
+                                    className="h-[200px] hover:shadow-lg duration-200 sm:h-[90px] object-cover rounded-3xl 
+                                    border shadow-md "
                                     alt=""
                                     src={img_url}
                                 ></img>
@@ -188,14 +188,15 @@ class HomePage extends React.Component {
                             <Link
                                 to={"/cars/" + item.id}
                                 key={item.id}
-                                className="sm:w-[150px] w-[200px] m-3 grid justify-center"
+                                className="sm:w-[150px] w-[200px] m-1 grid grid-rows-[max_content-max_content] shadow-lg bg-slate-100
+                                justify-center rounded-lg border overflow-hidden hover:shadow-lg duration-200 text-[12px]"
                             >
                                 <img
-                                    className="hover:shadow-slate-300 duration-200  w-full h-[200px] sm:h-[90px] object-cover rounded-md "
+                                    className="hover:shadow-slate-300 duration-200 w-full h-[200px] sm:h-[150px] object-cover"
                                     alt=""
                                     src={img_url}
                                 ></img>
-                                <div className="text grid h-max sm:text-[10px]">
+                                <div className="text grid content-start h-max sm:text-[10px] p-2">
                                     <label
                                         className="font-bold"
                                         onClick={() => {
@@ -207,6 +208,9 @@ class HomePage extends React.Component {
                                     <label className="text-sky-600 font-bold">
                                         {item.price}
                                     </label>
+                                    <label className="text-[12px]">
+                                        {item.created_at}
+                                    </label>
                                 </div>
                             </Link>
                         );
@@ -215,7 +219,7 @@ class HomePage extends React.Component {
 
                 <div className="border-b p-2">
                     <Link
-                        to={"/cars"}
+                        to={"/products"}
                         className="text-2xl w-full sm:text-xl my-[10px] text-sky-800"
                     >
                         Soňky goşulan harytlar
@@ -227,24 +231,24 @@ class HomePage extends React.Component {
                         return (
                             <Link
                                 to={"/products/" + item.id}
-                                className="m-2 shadow-md w-[200px] grid overflow-hidden rounded-md border hover:shadow-lg 
-                            duration-200 sm:w-[150px]"
+                                className="m-1 w-[200px] grid overflow-hidden rounded-lg hover:shadow-lg border shadow-lg
+                            duration-200 sm:w-[150px] bg-slate-100"
                             >
                                 <img
-                                    className="w-full h-[180px] sm:h-[100px] object-cover"
+                                    className="w-full h-[180px] sm:h-[150px] object-cover "
                                     alt=""
                                     src={server + item.img}
                                 ></img>
                                 <div className="grid m-2">
-                                    <label className="text-[12px]">
-                                        {item.created_at}
-                                    </label>
-                                    <label className="text-[12px]  font-bold">
+                                    <label className="text-[12px] content-start  font-bold">
                                         {item.name}
                                     </label>
 
                                     <label className="text-sky-600 font-bold text-[14px]  ">
                                         {item.price}
+                                    </label>
+                                    <label className="text-[12px]">
+                                        {item.created_at}
                                     </label>
                                 </div>
                             </Link>
@@ -261,16 +265,16 @@ class HomePage extends React.Component {
                     </Link>
                 </div>
 
-                <div className="flex flex-wrap justify-center ">
+                <div className="flex flex-wrap justify-center my-2">
                     {this.state.news.map((item) => {
                         return (
                             <Link
                                 to={"/news/" + item.id}
-                                className="m-2 shadow-md w-[250px] grid overflow-hidden rounded-md border hover:shadow-lg 
-                            duration-200 sm:w-[150px]"
+                                className="m-1 w-[250px] grid overflow-hidden rounded-lg hover:shadow-lg border shadow-lg
+                            duration-200 sm:w-[150px] bg-slate-100"
                             >
                                 <img
-                                    className="w-full h-[200px] sm:h-[100px] object-contain"
+                                    className="w-full h-[200px] sm:h-[150px] object-cover"
                                     alt=""
                                     src={server + item.img}
                                 ></img>

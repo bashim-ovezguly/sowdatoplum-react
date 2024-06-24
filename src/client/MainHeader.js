@@ -3,7 +3,7 @@ import { Routes, Route, Link } from "react-router-dom";
 import "./main.css";
 import Products from "./products/Products";
 import StoreProfile from "./stores/StoresProfile";
-import { MdLanguage, MdMail, MdPhone } from "react-icons/md";
+import { MdMail, MdPhone } from "react-icons/md";
 import { BsArrowUp } from "react-icons/bs";
 import Register from "./registration/Register";
 import HomePage from "./home/HomePage";
@@ -44,6 +44,11 @@ import LentaEdit from "./lenta/LentaEdit";
 import PartDetail from "./parts/PartDetail";
 import News from "./news/News";
 import NewsDetail from "./news/NewsDetail";
+import Videos from "./videos/Videos";
+import VideoDetail from "./videos/VideoDetail";
+import OrderOutDetail from "./OrderOutDetail";
+import OrderInDetail from "./OrderInDetail";
+import StoreBasket from "./stores/StoreBasket";
 
 class MainHeader extends React.Component {
     constructor(props) {
@@ -116,9 +121,9 @@ class MainHeader extends React.Component {
 
     render() {
         return (
-            <div className="home">
+            <div className="home grid">
                 <div className="header text-white">
-                    <div className="px-[20px] sm:px-[10px] py-[5px] flex items-center justify-between">
+                    <div className="px-[20px] sm:px-2 py-2 flex items-center justify-between">
                         <Link className="logo" to="/">
                             <img alt="" src="/logo_white.png"></img>
                             <div className="text">
@@ -132,10 +137,10 @@ class MainHeader extends React.Component {
                         </Link>
 
                         <div className="icons flex items-center ">
-                            <button className="flex items-center p-[5px] m-[2px]">
+                            {/* <button className="flex items-center p-[5px] m-[2px]">
                                 <MdLanguage size={30}></MdLanguage>
                                 <label className="sm:hidden">Türkmençe</label>
-                            </button>
+                            </button> */}
                             <button
                                 onClick={() => {
                                     this.setState({
@@ -174,7 +179,7 @@ class MainHeader extends React.Component {
 
                 <div
                     className="bg-slate-100 text-sky-600 flex justify-center sm:justify-start
-                    overflow-x-auto whitespace-nowrap shadow-md  z-10"
+                    overflow-x-auto whitespace-nowrap shadow-md  z-10 sticky top-0"
                 >
                     <Link to="/">
                         <button className="p-2 hover:text-slate-800 hover:bg-slate-300 rounded-lg duration-200">
@@ -219,6 +224,11 @@ class MainHeader extends React.Component {
                     <Link to="/lenta">
                         <button className="p-2 hover:text-slate-800 hover:bg-slate-300 rounded-lg duration-200">
                             Lenta
+                        </button>
+                    </Link>
+                    <Link to="/videos">
+                        <button className="p-2 hover:text-slate-800 hover:bg-slate-300 rounded-lg duration-200">
+                            Wideolar
                         </button>
                     </Link>
                 </div>
@@ -348,6 +358,21 @@ class MainHeader extends React.Component {
                         <Route
                             path="/news/*"
                             element={<NewsDetail></NewsDetail>}
+                        />
+
+                        <Route path="/videos" element={<Videos></Videos>} />
+                        <Route
+                            path="/videos/*"
+                            element={<VideoDetail></VideoDetail>}
+                        />
+
+                        <Route
+                            path="/orders_out/*"
+                            element={<OrderOutDetail></OrderOutDetail>}
+                        />
+                        <Route
+                            path="/orders_in/*"
+                            element={<OrderInDetail></OrderInDetail>}
                         />
                     </Routes>
                 </div>

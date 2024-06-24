@@ -4,6 +4,8 @@ import { server } from "../../static";
 import { Link } from "react-router-dom";
 import { BiMap } from "react-icons/bi";
 import LocationSelector from "../../admin/LocationSelector";
+import { toast, ToastContainer } from "react-toastify";
+import { BsArrowLeft } from "react-icons/bs";
 
 class Register extends React.Component {
     constructor(props) {
@@ -15,10 +17,6 @@ class Register extends React.Component {
             user: [],
             showSuccessMsg: false,
 
-            email_error: "",
-            phone_error: "",
-            password_error: "",
-            password_confirm_error: "",
             location_id: "",
             location_name: "",
 
@@ -33,18 +31,9 @@ class Register extends React.Component {
         document.title = "Registrasiýa";
     }
 
-    clear_all_errors() {
-        this.setState({
-            email_error: "",
-            password_error: "",
-            phone_error: "",
-            password_confirm_error: "",
-        });
-    }
-
     ok_click() {
         var valid = true;
-        this.clear_all_errors();
+
         var name = document.getElementById("name").value;
         var password = document.getElementById("password").value;
         var password_confirm =
@@ -52,25 +41,24 @@ class Register extends React.Component {
         var email = document.getElementById("email").value;
         var phone = document.getElementById("phone").value;
 
-        if ((password.length == 0) & (password_confirm.length == 0)) {
-            this.setState({ password_error: "Açar sözi hökman giriziň" });
-            valid = false;
+        if (name === "") {
+            toast.error("Dükan adyny giriziň");
+            return false;
         }
 
-        if (password != password_confirm) {
-            this.setState({
-                password_confirm_error: "Tassyklama gabat gelenok",
-            });
-            valid = false;
+        if ((password.length === 0) & (password_confirm.length === 0)) {
+            toast.error("Açar sözi hökman giriziň");
+            return false;
         }
 
-        if (phone.length == 0) {
-            this.setState({ phone_error: "Telefon belgini hokman girizmeli" });
-            valid = false;
+        if (password !== password_confirm) {
+            toast.error("Tassyklama gabat gelenok");
+            return false;
         }
 
-        if (valid == false) {
-            return null;
+        if (phone.length === 0) {
+            toast.error("Telefon belgini hokman girizmeli");
+            return false;
         }
 
         var formData = new FormData();
@@ -92,20 +80,19 @@ class Register extends React.Component {
                 console.log(
                     err.response.status,
                     err,
-                    err.response.data["error_code"]
+                    err.response.data.error_code
                 );
                 if (err.response.data["error_code"] === 5) {
-                    this.setState({ email_error: "Nädogry email" });
+                    toast.error("Nädogry email");
                 }
 
                 if (err.response.data["error_code"] === 3) {
-                    this.setState({ email_error: "E-mail eýýäm hasaba alnan" });
+                    this.setState({ email_error: "" });
+                    toast.error("E-mail eýýäm hasaba alnan");
                 }
 
                 if (err.response.data["error_code"] === 2) {
-                    this.setState({
-                        phone_error: "Telefon belgi eýýäm hasaba alnan ",
-                    });
+                    toast.error("Telefon belgi eýýäm hasaba alnan");
                 }
             });
     }
@@ -113,14 +100,28 @@ class Register extends React.Component {
     render() {
         return (
             <div className="max-w-[400px] mx-auto my-5">
-                <div className="fields grid shadow-md rounded-md p-[20px] border">
+                <ToastContainer
+                    autoClose={10000}
+                    closeOnClick={true}
+                ></ToastContainer>
+                <div className="fields grid shadow-md rounded-lg p-4 border m-4">
                     <h2 className="text-[20px] font-bold text-sky-600">
                         Registrasiýa
                     </h2>
-                    <input className="" id="name" placeholder="Adyňyz"></input>
-                    <label className="error text-orange-500">
-                        {this.state.phone_error}
-                    </label>{" "}
+                    <input
+                        className=""
+                        id="name"
+                        placeholder="Dükanyň ady"
+                    ></input>
+                    <label className="text-[12px] mt-1">Satýan harydy</label>
+                    <select>
+                        <option selected value={""}></option>
+                        <option value={"car"}>Awtoulag</option>
+                        <option value={"flat"}>Gozgalmaýan emläk</option>
+                        <option value={"car"}>Awtoşaý</option>
+                        <option value={"other"}>Beýleki harytlar</option>
+                    </select>
+
                     <div className="border rounded-md p-1 grid grid-cols-[max-content_auto] items-center">
                         <label className="mx-2">+993</label>
                         <input
@@ -133,8 +134,6 @@ class Register extends React.Component {
                             placeholder="Telefon belgiňiz (xx xxxxxx)"
                         ></input>
                     </div>
-                    <label className="error">{this.state.email_error}</label>
-                    <label className="error">{this.state.password_error}</label>
                     <input
                         id="password"
                         placeholder="Açar sözi"
@@ -154,7 +153,7 @@ class Register extends React.Component {
                         type="email"
                     ></input>
                     <button
-                        className="text-white bg-sky-600  p-[5px] my-2 rounded-md"
+                        className="text-white bg-sky-600  p-2 my-2 rounded-md"
                         onClick={() => {
                             this.ok_click();
                         }}
@@ -162,10 +161,11 @@ class Register extends React.Component {
                         Agza bolmak
                     </button>
                     <Link
-                        className="text-white bg-sky-600  p-[5px] text-center rounded-md my-2"
+                        className="p-2 text-center rounded-md my-2 border hover:bg-slate-200 flex items-center justify-center"
                         to="/login"
                     >
-                        Yza gaýtmak
+                        <BsArrowLeft className="mx-2"></BsArrowLeft>
+                        <label>Yza gaýtmak</label>
                     </Link>
                 </div>
             </div>

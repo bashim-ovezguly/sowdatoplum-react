@@ -1,7 +1,6 @@
 import axios from "axios";
 import React from "react";
 import { server } from "../../static";
-import "./profile_flats.css";
 import { BiMap, BiPlus } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
@@ -55,12 +54,12 @@ class ProfileFlats extends React.Component {
                     </div>
                 )}
 
-                <div className="items flex flex-wrap">
+                <div className="grid grid-cols-3 sm:grid-cols-2">
                     {this.state.stores.map((item) => {
                         return (
                             <Link
                                 to={"/flats/edit/" + item.id}
-                                className="grid grid-rows-[max-content_auto] w-[140px] overflow-hidden m-[10px] rounded-md shadow-md border text-[14px]"
+                                className="grid grid-rows-[max-content_auto] overflow-hidden m-2 rounded-md bg-slate-100 border text-[12px]"
                             >
                                 <img
                                     alt=""
@@ -68,7 +67,7 @@ class ProfileFlats extends React.Component {
                                     src={server + item.img}
                                 ></img>
 
-                                <div className="grid text h-max p-[10px]">
+                                <div className="grid text h-max p-2">
                                     <label className="name font-bold">
                                         {item.name}
                                     </label>

@@ -1,24 +1,13 @@
 import axios from "axios";
 import React from "react";
 
-import { BiCheck, BiSave, BiTime } from "react-icons/bi";
-import { server } from "../static";
-import "./admin.css";
+import { server } from "../../static";
 import { BiMap } from "react-icons/bi";
-import { FcCheckmark, FcCancel } from "react-icons/fc";
-import { FiEye, FiEyeOff } from "react-icons/fi";
-import LocationSelector from "./LocationSelector";
+import LocationSelector from "../LocationSelector";
 import { AiFillCheckCircle, AiFillDelete } from "react-icons/ai";
-import {
-    MdCancel,
-    MdDelete,
-    MdImage,
-    MdPending,
-    MdPlusOne,
-    MdTimer,
-} from "react-icons/md";
+import { MdCancel, MdClose, MdImage, MdPlusOne, MdTimer } from "react-icons/md";
 
-import { MdAnnouncement, MdCheck, MdSave, MdWarning } from "react-icons/md";
+import { MdCheck, MdSave, MdWarning } from "react-icons/md";
 import { IoMdEye, IoMdTrash } from "react-icons/io";
 import { FiArrowUp } from "react-icons/fi";
 
@@ -37,12 +26,11 @@ class FlatDetail extends React.Component {
             location_id: "",
             price: "",
             phone: "",
+            description: "",
 
             auth: {
-                auth: {
-                    username: localStorage.getItem("admin_username"),
-                    password: localStorage.getItem("admin_password"),
-                },
+                username: localStorage.getItem("admin_username"),
+                password: localStorage.getItem("admin_password"),
             },
         };
 
@@ -63,14 +51,14 @@ class FlatDetail extends React.Component {
         const id = pathname.split("/")[3];
 
         axios
-            .get(server + "/api/admin/flats/" + id, this.state.auth)
+            .get(server + "/api/admin/flats/" + id, { auth: this.state.auth })
             .then((resp) => {
                 this.setState({
                     name: resp.data.title_tm,
                     location_name: resp.data.location,
                     location_id: resp.data.location_id,
                     viewed: resp.data.viewed,
-                    detail: resp.data.detail,
+                    description: resp.data.description,
                     img: resp.data.img,
                     id: resp.data.id,
                     exprire_at: resp.data.exprire_at,
@@ -102,7 +90,7 @@ class FlatDetail extends React.Component {
 
     deleteFlat() {
         let result = window.confirm("Bozmaga ynamyňyz barmy?");
-        if (result == false) {
+        if (result === false) {
             return null;
         }
 
@@ -153,7 +141,7 @@ class FlatDetail extends React.Component {
     }
 
     deleteImage(id) {
-        if (window.confirm("Bozmaga ynamyňyz barmy?") == true)
+        if (window.confirm("Bozmaga ynamyňyz barmy?") === true)
             axios
                 .post(server + "/mob/flats/img/delete/" + id)
                 .then((resp) => {
@@ -174,11 +162,9 @@ class FlatDetail extends React.Component {
         }
 
         axios
-            .put(
-                server + "/mob/flats/" + this.state.id,
-                formdata,
-                this.state.auth
-            )
+            .put(server + "/mob/flats/" + this.state.id, formdata, {
+                auth: this.state.auth,
+            })
             .then((resp) => {
                 alert("Ýatda saklandy");
                 this.setData();
@@ -189,7 +175,10 @@ class FlatDetail extends React.Component {
     }
 
     save() {
-        if ((this.state.location_name == "") | (this.state.location_id == "")) {
+        if (
+            (this.state.location_name === "") |
+            (this.state.location_id === "")
+        ) {
             alert("Ýerleşýän ýerini hökman görkezmeli");
             return null;
         }
@@ -244,11 +233,9 @@ class FlatDetail extends React.Component {
         formdata.append("location", this.state.location_id);
 
         axios
-            .put(
-                server + "/api/admin/flats/" + this.state.id + "/",
-                formdata,
-                this.state.auth
-            )
+            .put(server + "/api/admin/flats/" + this.state.id + "/", formdata, {
+                auth: this.state.auth,
+            })
             .then((resp) => {
                 alert("Ýatda saklandy");
                 this.setData();
@@ -260,7 +247,7 @@ class FlatDetail extends React.Component {
 
     render() {
         return (
-            <div className="flat_detail">
+            <div className="grid justify-center">
                 <div className="flex flex-wrap text-slate-600">
                     <button
                         onClick={() => {
@@ -422,26 +409,26 @@ class FlatDetail extends React.Component {
                     <div className="images">
                         {this.state.images.map((item) => {
                             return (
-                                <div className="grid m-1 overflow-hidden rounded-lg">
+                                <div className="grid m-1 overflow-hidden  ">
                                     <a href={server + item.img} target="_blank">
                                         <img
                                             alt=""
-                                            className="object-cover w-full h-full"
+                                            className="object-cover w-full h-full rounded-lg"
                                             defaultValue={"/default.png"}
-                                            src={server + item.img_s}
+                                            src={server + item.img}
                                         ></img>
                                     </a>
-                                    <div className="text-slate-600 grid grid-cols-2 w-full items-center">
+                                    <div className="flex items-center text-slate-800">
                                         <AiFillDelete
                                             size={25}
-                                            className="bg-slate-300 w-full p-[2px] hover:bg-slate-500/50"
+                                            className="hover:text-slate-600"
                                             onClick={() => {
                                                 this.removeImage(item.id);
                                             }}
                                         ></AiFillDelete>
                                         <AiFillCheckCircle
-                                            className="bg-slate-300 w-full p-[2px] hover:bg-slate-500/50"
                                             size={25}
+                                            className="hover:text-slate-600"
                                             onClick={() => {
                                                 this.setMainImage(item.id);
                                             }}
@@ -466,10 +453,10 @@ class FlatDetail extends React.Component {
                 </div>
 
                 <div className="textData">
-                    <div className="fields">
+                    <div className="grid max-w-[600px]">
                         <div className="rdbtns">
                             <label>Kärende</label>
-                            {this.state.for_rent == true ? (
+                            {this.state.for_rent === true ? (
                                 <input
                                     checked
                                     id="for_rent"
@@ -485,7 +472,7 @@ class FlatDetail extends React.Component {
                             )}
 
                             <label>Satlyk</label>
-                            {this.state.for_rent == false ? (
+                            {this.state.for_rent === false ? (
                                 <input
                                     checked
                                     id="for-sale"
@@ -515,15 +502,27 @@ class FlatDetail extends React.Component {
                             type="number"
                         ></input>
 
-                        <div>
+                        <div className="border rounded-lg flex items-center p-2">
                             <BiMap
+                                className="hover:text-slate-600"
+                                size={25}
                                 onClick={() => {
                                     this.setState({
                                         locationSelectorOpen: true,
                                     });
                                 }}
                             ></BiMap>
-                            {this.state.location_name}
+                            <label>{this.state.location_name}</label>
+                            <MdClose
+                                className="hover:text-slate-600"
+                                onClick={() => {
+                                    this.setState({
+                                        location_id: "",
+                                        location_name: "",
+                                    });
+                                }}
+                                size={25}
+                            ></MdClose>
                         </div>
 
                         {this.state.locationSelectorOpen == true && (
@@ -628,7 +627,7 @@ class FlatDetail extends React.Component {
                         <label>Goşmaça maglumat</label>
                         <textarea
                             id="detail"
-                            defaultValue={this.state.detail}
+                            defaultValue={this.state.description}
                         ></textarea>
                     </div>
                     <div></div>

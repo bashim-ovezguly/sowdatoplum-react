@@ -13,7 +13,7 @@ import {
 import { MdMail, MdMenu, MdPhone, MdSettings } from "react-icons/md";
 import AddProduct from "../add/AddProduct";
 import ProfileEdit from "./ProfileEdit";
-import ProfileStores from "./ProfileStores";
+import ProfileOrdersIn from "./ProfileOrdersIn";
 import ProfileProducts from "./ProfileProducts";
 import ProfileCars from "./ProfileCars";
 import AddCar from "../add/AddCar";
@@ -22,6 +22,7 @@ import ProfileParts from "./ProfileParts";
 import AddPart from "../add/AddPart";
 import { BsArrowDown, BsArrowUp, BsShop, BsTools } from "react-icons/bs";
 import ProfileLenta from "./ProfileLenta";
+import ProfileOrdersOut from "./ProfileOrdersOut";
 
 class MyProfile extends React.Component {
     constructor(props) {
@@ -241,8 +242,8 @@ class MyProfile extends React.Component {
                         onClick={() => {
                             this.closeMenu();
                         }}
-                        className="profileMenu duration-300 z-10 sm:top-[0px] sm:fixed bg-white 
-                                grid m-[10px] h-max rounded-md sm:border p-[10px] sm:shadow-md"
+                        className="profileMenu duration-300 sm:top-[0px] sm:fixed bg-white 
+                                grid m-2 h-max rounded-md border p-2 shadow-md"
                     >
                         <label className="text-[20px] font-bold text-center">
                             Şahsy otag
@@ -257,38 +258,30 @@ class MyProfile extends React.Component {
                         <label className="text-[16px] font-bold text-center">
                             {this.state.name}
                         </label>
-                        <div className="grid items-center text-[12px] justify-center">
-                            <div className="flex items-center">
-                                <MdPhone></MdPhone>{" "}
+                        <div className="grid items-center text-[12px]">
+                            <div className="flex items-center justify-center">
                                 <label>+993{this.state.phone}</label>
                             </div>
-                            {this.state.email !== "" && (
-                                <div className="flex items-center">
-                                    <MdMail></MdMail>
-                                    <label>{this.state.email}</label>
-                                </div>
-                            )}
-
-                            <Link
-                                to="/my_profile/edit"
-                                className="flex items-center rounded-md  hover:bg-slate-200 duration-200 p-[5px]"
-                            >
-                                <button className="flex items-center w-max ">
-                                    <MdSettings
-                                        className="icon"
-                                        size={20}
-                                    ></MdSettings>
-                                    <label className="">Sazlamalar</label>
-                                </button>
-                            </Link>
                         </div>
 
                         <div className="grid items-center text-[15px] text-slate-600 ">
                             <Link
-                                to="/my_profile/announces"
-                                className="flex p-[2px] border-white hover:bg-slate-200 rounded-md m-[2px] items-center"
+                                to="/my_profile/edit"
+                                className="flex p-1/2 border-white hover:bg-slate-200 rounded-md items-center"
                             >
-                                <BiGift className="m-[5px]" size={20}></BiGift>
+                                <button className="flex items-center w-max ">
+                                    <MdSettings
+                                        className="m-2"
+                                        size={20}
+                                    ></MdSettings>
+                                    <label className="">Profil</label>
+                                </button>
+                            </Link>
+                            <Link
+                                to="/my_profile/announces"
+                                className="flex p-1/2 border-white hover:bg-slate-200 rounded-md items-center"
+                            >
+                                <BiGift className="m-2" size={20}></BiGift>
                                 <label className="">
                                     Harytlar {this.state.announce_count}{" "}
                                 </label>
@@ -296,9 +289,9 @@ class MyProfile extends React.Component {
 
                             <Link
                                 to="/my_profile/cars"
-                                className="flex p-[2px] border-white hover:bg-slate-200 rounded-md m-[2px] items-center"
+                                className="flex p-1/2 border-white hover:bg-slate-200 rounded-md items-center"
                             >
-                                <BiCar className="m-[5px]" size={20}></BiCar>
+                                <BiCar className="m-2" size={20}></BiCar>
                                 <label className="">
                                     Awtoulaglar {this.state.car_count}
                                 </label>
@@ -306,12 +299,9 @@ class MyProfile extends React.Component {
 
                             <Link
                                 to="/my_profile/parts"
-                                className="flex p-[2px] border-white hover:bg-slate-200 rounded-md m-[2px] items-center"
+                                className="flex p-1/2 border-white hover:bg-slate-200 rounded-md items-center"
                             >
-                                <BsTools
-                                    className="m-[5px]"
-                                    size={20}
-                                ></BsTools>
+                                <BsTools className="m-2" size={20}></BsTools>
                                 <label className="">
                                     Awtoşaýlar {this.state.part_count}
                                 </label>
@@ -319,9 +309,9 @@ class MyProfile extends React.Component {
 
                             <Link
                                 to="flats"
-                                className="flex p-[2px] border-white hover:bg-slate-200 rounded-md m-[2px] items-center"
+                                className="flex p-1/2 border-white hover:bg-slate-200 rounded-md items-center"
                             >
-                                <BiHome className="m-[5px]" size={20}></BiHome>
+                                <BiHome className="m-2" size={20}></BiHome>
                                 <label className="">
                                     Gozgalmaýan emläkler {this.state.flat_count}
                                 </label>
@@ -329,9 +319,9 @@ class MyProfile extends React.Component {
 
                             <Link
                                 to="lenta"
-                                className="flex p-[2px] border-white hover:bg-slate-200 rounded-md m-[2px] items-center"
+                                className="flex p-1/2 border-white hover:bg-slate-200 rounded-md items-center"
                             >
-                                <BiNews className="m-[5px]" size={20}></BiNews>
+                                <BiNews className="m-2" size={20}></BiNews>
                                 <label className="">
                                     Lenta {this.state.lenta_count}
                                 </label>
@@ -339,10 +329,10 @@ class MyProfile extends React.Component {
 
                             <Link
                                 to="/my_profile/orders_in"
-                                className="flex p-[2px] border-white hover:bg-slate-200 rounded-md m-[2px] items-center"
+                                className="flex p-1/2 border-white hover:bg-slate-200 rounded-md items-center"
                             >
                                 <BiShoppingBag
-                                    className="m-[5px]"
+                                    className="m-2"
                                     size={20}
                                 ></BiShoppingBag>
                                 <BsArrowDown></BsArrowDown>
@@ -353,10 +343,10 @@ class MyProfile extends React.Component {
 
                             <Link
                                 to="/my_profile/orders_out"
-                                className="flex p-[2px] border-white hover:bg-slate-200 rounded-md m-[2px] items-center"
+                                className="flex p-1/2 border-white hover:bg-slate-200 rounded-md items-center"
                             >
                                 <BiShoppingBag
-                                    className="m-[5px]"
+                                    className="m-2"
                                     size={20}
                                 ></BiShoppingBag>
                                 <BsArrowUp></BsArrowUp>
@@ -365,23 +355,29 @@ class MyProfile extends React.Component {
                                     Giden sargytlar {this.state.orders_out}{" "}
                                 </label>
                             </Link>
-                        </div>
 
-                        <button
-                            className="flex items-center hover:bg-slate-200 duration-200 p-[5px] border-t"
-                            onClick={() => {
-                                this.logout_click();
-                            }}
-                        >
-                            <BiLogOut size={20}></BiLogOut>
-                            <label className="">Çykmak</label>
-                        </button>
+                            <button
+                                className="flex p-1/2 border-white hover:bg-slate-200 rounded-md items-center"
+                                onClick={() => {
+                                    this.logout_click();
+                                }}
+                            >
+                                <BiLogOut className="m-2" size={20}></BiLogOut>
+                                <label className=" flex items-center">
+                                    Çykmak
+                                </label>
+                            </button>
+                        </div>
                     </div>
-                    <div className="menuContent p-[10px]">
+                    <div className="menuContent p-4 border shadow-md m-2 rounded-md">
                         <Routes>
                             <Route
-                                path="stores"
-                                element={<ProfileStores></ProfileStores>}
+                                path="orders_in"
+                                element={<ProfileOrdersIn></ProfileOrdersIn>}
+                            />
+                            <Route
+                                path="orders_out"
+                                element={<ProfileOrdersOut></ProfileOrdersOut>}
                             />
                             <Route
                                 path="announces"

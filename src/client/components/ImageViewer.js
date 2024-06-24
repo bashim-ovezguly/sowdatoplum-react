@@ -10,7 +10,7 @@ class ImageViewer extends React.Component {
             isLoading: true,
             images: this.props.images,
             currentIndex: 0,
-            show: true,
+            show: false,
             headers: {
                 token: localStorage.getItem("access_token"),
             },

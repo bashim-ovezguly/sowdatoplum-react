@@ -2,7 +2,6 @@ import axios from "axios";
 import React from "react";
 
 import { server } from "../static";
-import "./loginPageStyles.css";
 
 class AdminLoginPage extends React.Component {
     constructor(props) {

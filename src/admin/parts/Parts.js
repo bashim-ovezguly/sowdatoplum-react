@@ -1,19 +1,14 @@
 import axios from "axios";
 import React from "react";
 import { BiMap, BiPlus } from "react-icons/bi";
-import {
-    MdCheck,
-    MdClose,
-    MdDelete,
-    MdPerson,
-    MdRefresh,
-} from "react-icons/md";
-import { server } from "../static";
+import { MdCheck, MdDelete, MdPerson, MdRefresh } from "react-icons/md";
+import { server } from "../../static";
 import { AiOutlineShop } from "react-icons/ai";
-import LocationSelector from "./LocationSelector";
+import LocationSelector from "../LocationSelector";
 import Pagination from "@mui/material/Pagination";
 import { CircularProgress } from "@mui/material";
 import { Link } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
 class AdminCarParts extends React.Component {
     constructor(props) {
@@ -23,7 +18,6 @@ class AdminCarParts extends React.Component {
             isLoading: true,
             locations: [],
             all_locations: [],
-            statuses: [],
             page_size: "",
             current_page: 1,
             last_page: "",
@@ -32,23 +26,15 @@ class AdminCarParts extends React.Component {
             selected_images: [],
             categories: [],
             transmissions: [],
-            countries: [],
-            colors: [],
-            wds: [],
             models: [],
             marks: [],
-            fuels: [],
-            bodyTypes: [],
             stores: [],
-            location_id: "",
 
             datalist: [],
 
             auth: {
-                auth: {
-                    username: localStorage.getItem("admin_username"),
-                    password: localStorage.getItem("admin_password"),
-                },
+                username: localStorage.getItem("admin_username"),
+                password: localStorage.getItem("admin_password"),
             },
         };
 
@@ -101,7 +87,7 @@ class AdminCarParts extends React.Component {
             formdata.append("images", imageFiles[i]);
         }
 
-        if (this.props.stores == "all") {
+        if (this.props.stores === "all") {
             formdata.append("store", document.getElementById("store").value);
         } else {
             if (this.state.storeID != null) {
@@ -126,7 +112,7 @@ class AdminCarParts extends React.Component {
         }
         this.setState({ isLoading: true });
         axios
-            .post(server + "/mob/cars", formdata, this.state.auth)
+            .post(server + "/mob/cars", formdata, { auth: this.state.auth })
             .then((resp) => {
                 this.setState({ isLoading: false });
                 alert("Awtoulag üstünlikli goşuldy");
@@ -136,7 +122,7 @@ class AdminCarParts extends React.Component {
             });
     }
 
-    add() {
+    addModalForm() {
         if (this.state.newCarOpen === false) {
             return null;
         }
@@ -280,13 +266,13 @@ class AdminCarParts extends React.Component {
     }
 
     setPage(pageNumber) {
+        this.setState({ current_page: pageNumber });
         axios
-            .get(
-                server + "/api/admin/parts?page=" + pageNumber,
-                this.state.auth
-            )
+            .get(server + "/api/admin/parts?page=" + pageNumber, {
+                auth: this.state.auth,
+            })
             .then((resp) => {
-                this.setState({ stores: resp.data.data });
+                this.setState({ datalist: resp.data.data });
             });
     }
 
@@ -294,70 +280,78 @@ class AdminCarParts extends React.Component {
         let formdata = new FormData();
         formdata.append("status", "accepted");
         axios
-            .put(
-                server + "/api/admin/parts/" + id + "/",
-                formdata,
-                this.state.auth
-            )
+            .put(server + "/api/admin/parts/" + id + "/", formdata, {
+                auth: this.state.auth,
+            })
             .then((resp) => {
-                this.setState({ stores: resp.data.data });
+                this.setData();
+                toast.success("Kabul edildi");
             });
+    }
+
+    getLocations() {
+        axios.get(server + "/mob/index/locations/all").then((resp) => {
+            this.setState({ allLocations: resp.data });
+        });
     }
 
     setData() {
         this.setState({ isLoading: true });
+
+        this.getLocations();
+        this.getCustomers();
+
         let q = "";
-        if (this.state.selectedMark != undefined) {
+        if (this.state.selectedMark !== undefined) {
             q = "?mark=" + this.state.selectedMark;
         }
 
         axios.get(server + "/mob/index/part" + q).then((resp) => {
             this.setState({
-                categories: resp.data["categories"],
-                transmissions: resp.data["transmissions"],
-                countries: resp.data["made_in_countries"],
-                colors: resp.data["colors"],
-                wds: resp.data["wheel_drives"],
-                models: resp.data["models"],
-                marks: resp.data["marks"],
-                fuels: resp.data["fuels"],
-                bodyTypes: resp.data["body_types"],
+                categories: resp.data.categories,
+                transmissions: resp.data.transmissions,
+                countries: resp.data.made_in_countries,
+                colors: resp.data.colors,
+                wds: resp.data.wheel_drives,
+                models: resp.data.models,
+                marks: resp.data.marks,
+                fuels: resp.data.fuels,
+                bodyTypes: resp.data.body_types,
             });
             this.setState({ isLoading: false });
         });
 
-        axios.get(server + "/mob/index/locations/all").then((resp) => {
-            this.setState({ allLocations: resp.data });
-        });
-
         axios
-            .get(server + "/api/admin/stores?pagination=None", this.state.auth)
+            .get(server + "/api/admin/stores?pagination=None", {
+                auth: this.state.auth,
+            })
             .then((resp) => {
                 this.setState({ stores: resp.data });
             });
 
-        axios.get(server + "/mob/customers", this.state.auth).then((resp) => {
-            this.setState({ customers: resp.data });
-        });
-
         axios
-            .get(
-                server + "/api/admin/parts/?page=" + this.state.current_page,
-                this.state.auth
-            )
+            .get(server + "/api/admin/parts/?page=" + this.state.current_page, {
+                auth: this.state.auth,
+            })
             .then((resp) => {
                 this.setState({ locations: resp.data.data, isLoading: false });
-                this.setState({ last_page: resp.data["last_page"] });
-                this.setState({ page_size: resp.data["page_size"] });
-                this.setState({ total: resp.data["total"] });
+                this.setState({ last_page: resp.data.last_page });
+                this.setState({ page_size: resp.data.page_size });
+                this.setState({ total: resp.data.total });
                 this.setState({ datalist: resp.data.data });
                 this.setState({ isLoading: false });
             });
     }
 
+    getCustomers() {
+        axios.get(server + "/mob/customers", this.state.auth).then((resp) => {
+            this.setState({ customers: resp.data });
+        });
+    }
+
     deletePart(id) {
         let result = window.confirm("Bozmaga ynamyňyz barmy?");
-        if (result == false) {
+        if (result === false) {
             return null;
         }
 
@@ -370,29 +364,37 @@ class AdminCarParts extends React.Component {
 
     render() {
         return (
-            <div className="admin_parts">
-                <h3>Awtoşaýlar {this.state.total} </h3>
+            <div className="">
+                <ToastContainer
+                    autoClose={10000}
+                    closeOnClick={true}
+                ></ToastContainer>
+                <h3 className="border-b">Awtoşaýlar {this.state.total} </h3>
 
-                <div className="flex items-center">
-                    <MdRefresh
-                        size={30}
-                        className="rounded p-[5px] hover:bg-slate-300"
+                <div className="flex items-center text-[12px] text-sky-600 mr-2">
+                    <div
                         onClick={() => {
                             this.setData();
                         }}
-                    ></MdRefresh>
-                    <BiPlus
-                        size={30}
-                        className="rounded p-[5px] hover:bg-slate-300"
+                        className="flex items-center text-[12px] text-sky-600 m-2 hover:text-slate-500"
+                    >
+                        <label>Refresh</label>
+                        <MdRefresh size={20}></MdRefresh>
+                    </div>
+                    <div
                         onClick={() => {
                             this.setState({
                                 newCarOpen: !this.state.newCarOpen,
                             });
                         }}
-                    ></BiPlus>
+                        className="flex items-center text-[12px] text-sky-600 m-2 hover:text-slate-500"
+                    >
+                        <label>Goşmak</label>
+                        <BiPlus size={20} className="rounded "></BiPlus>
+                    </div>
                 </div>
 
-                {this.add()}
+                {this.addModalForm()}
 
                 {this.state.isLoading && <CircularProgress></CircularProgress>}
                 <Pagination
@@ -400,7 +402,7 @@ class AdminCarParts extends React.Component {
                     onChange={(event, page) => {
                         this.setPage(page);
                     }}
-                    count={this.state.last_page}
+                    count={Number(this.state.last_page)}
                     variant="outlined"
                     shape="rounded"
                 />
@@ -418,53 +420,63 @@ class AdminCarParts extends React.Component {
 
                         if (item.status === "pending") {
                             status = (
-                                <label className="status pending">
+                                <label className="bg-orange-600 text-white w-max rounded-lg p-1">
                                     Garaşylýar
                                 </label>
                             );
                         }
                         if (item.status === "canceled") {
                             status = (
-                                <label className="status canceled">
+                                <label className="bg-red-600 text-white w-max rounded-lg p-1">
                                     Gaýtarlan
                                 </label>
                             );
                         }
 
+                        if (item.status === "accepted") {
+                            status = (
+                                <label className="bg-green-600 text-white w-max rounded-lg p-1">
+                                    Kabul edilen
+                                </label>
+                            );
+                        }
+
                         return (
-                            <Link
-                                to={"/admin/parts/" + item.id}
+                            <div
                                 key={item.id}
-                                className="grid border p-1 border-slate-300 text-[14px] m-2 w-[150px] h-max"
+                                className="grid border rounded-lg overflow-hidden border-slate-300 m-2 w-[150px] text-[12px]"
                             >
-                                <img
-                                    className="h-[150px] object-cover"
-                                    alt=""
-                                    src={img}
-                                ></img>
-                                <div className="text grid p-[5px]">
-                                    <label>{item.name_tm}</label>
-                                    <label>{item.price}</label>
-                                    {status}
-                                    {item.active ? (
-                                        <label>Aktiw</label>
-                                    ) : (
-                                        <label>Aktiw däl</label>
-                                    )}
-
-                                    <div>
-                                        <AiOutlineShop></AiOutlineShop>
-                                        <label className="name">
-                                            {item.store}
+                                <div>
+                                    <Link to={"/admin/parts/" + item.id}>
+                                        <img
+                                            className="h-[150px] w-full object-cover"
+                                            alt=""
+                                            src={img}
+                                        ></img>
+                                    </Link>
+                                    <div className="text grid p-2">
+                                        <label className="font-bold">
+                                            {item.name_tm}
                                         </label>
+                                        <label className="text-sky-600 font-bold">
+                                            {item.price}
+                                        </label>
+                                        {status}
+                                        <div className="flex items-center">
+                                            <AiOutlineShop></AiOutlineShop>
+                                            <label className="name">
+                                                {item.store}
+                                            </label>
+                                        </div>
+
+                                        <div className="flex items-center">
+                                            <MdPerson></MdPerson>
+                                            <label className="name">
+                                                {item.customer_name}
+                                            </label>
+                                        </div>
                                     </div>
 
-                                    <div>
-                                        <MdPerson></MdPerson>
-                                        <label className="name">
-                                            {item.customer.name}
-                                        </label>
-                                    </div>
                                     <div className="flex items-center text-slate-600">
                                         <MdDelete
                                             size={30}
@@ -482,7 +494,7 @@ class AdminCarParts extends React.Component {
                                         ></MdCheck>
                                     </div>
                                 </div>
-                            </Link>
+                            </div>
                         );
                     })}
                 </div>

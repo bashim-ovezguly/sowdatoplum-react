@@ -21,7 +21,6 @@ import { Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FcCancel, FcCheckmark, FcUp } from "react-icons/fc";
-import VideoThumbnail from "react-video-thumbnail";
 
 import "react-toggle/style.css"; // for ES6 modules
 
@@ -103,6 +102,7 @@ class AdminStoreDetail extends React.Component {
             <div className="grid">
                 {this.VideoAddModal()}
                 {this.ProductAddForm()}
+                {this.videoPlayer()}
 
                 <div>
                     <Link
@@ -238,11 +238,12 @@ class AdminStoreDetail extends React.Component {
         }
 
         axios
-            .delete(server + "/api/admin/store_videos/" + id, {
+            .post(server + "/api/admin/videos/delete/" + id, {
                 auth: this.state.auth,
             })
             .then((resp) => {
                 toast.success("Video deleted");
+                this.setData();
             })
             .catch((err) => {
                 toast.error("Error");
@@ -264,12 +265,16 @@ class AdminStoreDetail extends React.Component {
 
         this.setState({ videoIsUploading: true });
         axios
-            .post(server + "/api/admin/store_videos/", fdata, {
+            .post(server + "/api/admin/videos/", fdata, {
                 auth: this.state.auth,
             })
             .then((resp) => {
                 toast.success("Video added");
-                this.setState({ videoIsUploading: true });
+                this.setState({
+                    videoIsUploading: false,
+                    videoAddModalisOpen: false,
+                });
+                this.setData();
             })
             .catch((err) => {
                 toast.error("Error");
@@ -330,7 +335,7 @@ class AdminStoreDetail extends React.Component {
 
     getVideos() {
         axios
-            .get(server + "/api/admin/store_videos?store=" + this.state.id, {
+            .get(server + "/api/admin/videos?store=" + this.state.id, {
                 auth: this.state.auth,
             })
             .then((resp) => {
@@ -343,23 +348,22 @@ class AdminStoreDetail extends React.Component {
             return null;
         }
         return (
-            <div className="grid m-auto absolute p-2 rounded-md shadow-lg border z-10 left-0 right-0 w-max overflow-hidden bg-white">
-                <video className="max-w-[400px] max-h-[400px]" controls>
+            <div className="grid m-auto absolute p-4 rounded-md shadow-2xl w-max border z-10 left-0 right-0  overflow-hidden bg-white">
+                <div className="flex justify-end">
+                    <MdClose
+                        className="m-2 hover:text-slate-600 duration-200"
+                        onClick={() => {
+                            this.setState({ videoPlayerIsOpen: false });
+                        }}
+                        size={30}
+                    ></MdClose>
+                </div>
+                <video className="max-w-[400px] h-[400px]" controls>
                     <source
                         src={this.state.videoPlayerUrl}
                         type="video/mp4"
                     ></source>
                 </video>
-
-                <div className="flex items-center">
-                    <button
-                        onClick={() => {
-                            this.setState({ videoPlayerIsOpen: false });
-                        }}
-                    >
-                        Ýapmak
-                    </button>
-                </div>
             </div>
         );
     }
@@ -367,21 +371,20 @@ class AdminStoreDetail extends React.Component {
     VideosTab() {
         return (
             <div className="grid">
-                {this.videoPlayer()}
                 <div className="flex items">
                     <button
                         onClick={() => {
                             this.setState({ videoAddModalisOpen: true });
                         }}
-                        className="flex mx-2 items-center hover:text-sky-600"
+                        className="flex mx-2 items-center hover:text-sky-600 bg-slate-200 p-1 rounded-md"
                     >
                         <BiPlus></BiPlus>
                         <label>Goşmak</label>
                     </button>
-                    <button className="flex mx-2 items-center hover:text-sky-600">
+                    {/* <button className="flex mx-2 items-center hover:text-sky-600">
                         <MdSort></MdSort>
                         <label>Tertibi</label>
-                    </button>
+                    </button> */}
                 </div>
                 <div className="flex flex-wrap justify-center">
                     {this.state.videos.map((item) => {
@@ -395,13 +398,14 @@ class AdminStoreDetail extends React.Component {
                                         });
                                     }}
                                     className="relative w-[150px] h-[150px] bg-slate-200 rounded-lg  overflow-hidden flex items-center justify-center
-                            text-slate-600 hover:bg-slate-300 duration-300 border"
+                                                    text-slate-600 hover:bg-slate-300 duration-300 border"
                                 >
-                                    <img
+                                    {/* <img
                                         className="absolute w-full h-full z-0 object-cover"
                                         src={item.thumbnail}
                                         alt=""
-                                    ></img>
+                                    ></img> */}
+                                    <video src={item.video}></video>
 
                                     <MdPlayCircle
                                         className="z-1 text-white drop-shadow-sm hover:text-slate-400 duration-300"
@@ -509,12 +513,12 @@ class AdminStoreDetail extends React.Component {
                     <BiPlus className="" size={35}></BiPlus>
                     <label>Goşmak</label>
                 </button> */}
-                <div className="flex  flex-wrap ">
+                <div className="flex  flex-wrap justify-center ">
                     {this.state.cars.map((item) => {
                         return (
                             <Link
                                 to={"/admin/cars/" + item.id}
-                                className="grid  overflow-hidden rounded-lg m-2 border text-[12px] w-[200px]"
+                                className="grid  overflow-hidden rounded-lg m-2 border text-[12px] w-[200px] shadow-md "
                             >
                                 <img
                                     alt=""
@@ -523,10 +527,12 @@ class AdminStoreDetail extends React.Component {
                                     src={server + item.img.img_s}
                                 ></img>
                                 <div className=" grid p-1">
-                                    <label>
+                                    <label className="font-bold">
                                         {item.mark} {item.model} {item.year}{" "}
                                     </label>
-                                    <label>{item.price}</label>
+                                    <label className="text-sky-600 font-bold">
+                                        {item.price}
+                                    </label>
                                     <label>{item.created_at}</label>
                                 </div>
                             </Link>
@@ -666,7 +672,6 @@ class AdminStoreDetail extends React.Component {
                 </select>
 
                 <label>Kategoriýasy</label>
-
                 <select id="category">
                     <option value={""}>(Saylanmadyk)</option>
 
@@ -680,6 +685,28 @@ class AdminStoreDetail extends React.Component {
                         } else {
                             return (
                                 <option value={item.id}>{item.name_tm}</option>
+                            );
+                        }
+                    })}
+                </select>
+
+                <label>Customer</label>
+                <select id="customer">
+                    <option value={""}>(Saylanmadyk)</option>
+                    {this.state.customers.map((item) => {
+                        if (this.state.customer_id === item.id) {
+                            return (
+                                <option selected value={item.id}>
+                                    {String(item.name).substring(0, 20)}{" "}
+                                    {item.phone}
+                                </option>
+                            );
+                        } else {
+                            return (
+                                <option value={item.id}>
+                                    {String(item.name).substring(0, 20)}{" "}
+                                    {item.phone}
+                                </option>
                             );
                         }
                     })}
@@ -777,10 +804,10 @@ class AdminStoreDetail extends React.Component {
                         return (
                             <Link
                                 to={"/admin/products/"}
-                                className="w-[200px] grid border m-2 rounded-lg "
+                                className="w-[200px] grid border m-2 rounded-lg  overflow-hidden"
                             >
                                 <img
-                                    className="w-full h-[200px] object-cover border"
+                                    className="w-full h-[200px] object-cover border overflow-hidden"
                                     alt=""
                                     defaultValue={"/default.png"}
                                     src={server + item.img}
@@ -928,6 +955,14 @@ class AdminStoreDetail extends React.Component {
             });
 
         axios
+            .get(server + "/api/admin/customers?pagination=None", {
+                auth: this.state.auth,
+            })
+            .then((resp) => {
+                this.setState({ customers: resp.data });
+            });
+
+        axios
             .get(server + "/api/admin/store_contacts?store=" + id, {
                 auth: this.state.auth,
             })
@@ -954,6 +989,7 @@ class AdminStoreDetail extends React.Component {
                     premium: resp.data.premium,
                     description: resp.data.description,
                     state: resp.data.state,
+                    customer_id: resp.data.customer_id,
                     isLoading: false,
                 });
 
@@ -1130,6 +1166,7 @@ class AdminStoreDetail extends React.Component {
         }
 
         formdata.append("category", document.getElementById("category").value);
+        formdata.append("customer", document.getElementById("customer").value);
         formdata.append("center", document.getElementById("tradeCenter").value);
         formdata.append("location", this.state.location_id);
 

@@ -105,30 +105,10 @@ class News extends React.Component {
         }
 
         return (
-            <div className="products grid p-4">
+            <div className="grid p-2">
                 <h3 className="text-[20px] text-sky-800 border-b">Habarlar</h3>
 
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center text-slate-700">
-                        <BiSearch
-                            className="hover:bg-slate-200 p-1 duration-200 rounded-md w-[35px] h-[35px] "
-                            onClick={() => {
-                                this.filter();
-                            }}
-                        ></BiSearch>
-                        <input
-                            onChange={() => {
-                                this.filter();
-                            }}
-                            id="search"
-                            type="search"
-                            placeholder="Gözleg"
-                            className="duration-200 rounded-lg "
-                        ></input>
-                    </div>
-                </div>
-
-                <div className="flex items-center flex-wrap whitespace-nowrap px-3">
+                <div className="flex items-center whitespace-nowrap px-3 overflow-x-auto">
                     <button
                         onClick={() => {
                             this.setState({ category: "" }, () => {
@@ -159,22 +139,18 @@ class News extends React.Component {
                     </div>
                 )}
 
-                <div className="flex flex-wrap justify-center">
+                <div className="grid grid-cols-3 sm:grid-cols-1">
                     {this.state.news.map((item) => {
-                        let text = String(item.body_tm).substring(0, 80);
-                        if (item.body_tm.length > 80) {
-                            text = text + " ...";
-                        }
                         return (
                             <div
-                                className="grid  grid-rows-[max-content_auto] w-[350px] sm:w-full  
-                                overflow-hidden m-[10px] text-[15px]  p-2"
+                                className="grid  grid-rows-[max-content_auto] shadow-md hover:shadow-lg rounded-lg border duration-200
+                                overflow-hidden m-2 text-[14px] "
                             >
                                 <div className="relative text-slate-50">
                                     <Link to={"/news/" + item.id}>
                                         <img
                                             alt=""
-                                            className="w-full sm:h-[200px] h-[200px] object-cover rounded-lg hover:shadow-lg duration-200"
+                                            className="w-full sm:h-[200px] h-[250px] object-cover "
                                             src={server + item.img}
                                         ></img>
 
@@ -193,10 +169,6 @@ class News extends React.Component {
                                 <div className="grid p-2 h-max">
                                     <label className="name text-[15px] font-bold text-slate-600">
                                         {item.title_tm}
-                                    </label>
-
-                                    <label className="name text-[12px] text-slate-600">
-                                        {text}
                                     </label>
 
                                     <div className="flex items-center text-slate-500">

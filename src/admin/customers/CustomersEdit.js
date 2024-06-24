@@ -1,6 +1,6 @@
 import axios from "axios";
 import React from "react";
-import { server } from "../static";
+import { server } from "../../static";
 import { CircularProgress } from "@mui/material";
 
 class CustomersEdit extends React.Component {

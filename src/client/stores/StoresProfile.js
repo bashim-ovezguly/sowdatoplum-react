@@ -3,7 +3,6 @@ import React from "react";
 import { BiCar, BiMap } from "react-icons/bi";
 import { IoMdShirt } from "react-icons/io";
 import { server } from "../../static";
-import "./storesDetail.css";
 import { MdCall, MdImage, MdInfo, MdLayers } from "react-icons/md";
 import { Routes, Route, Link } from "react-router-dom";
 import StoreImages from "./StoresImages";
@@ -11,6 +10,10 @@ import StoreProducts from "./StoresProducts";
 import StoreAbout from "./StoresAbout";
 import StoreCars from "./StoresCars";
 import StoreContacts from "./StoreContacts";
+import StoreVideos from "./StoresVideos";
+import MetaTags from "react-meta-tags";
+import StoreParts from "./StoreParts";
+import StoreBasket from "./StoreBasket";
 
 class StoreProfile extends React.Component {
     constructor(props) {
@@ -55,6 +58,17 @@ class StoreProfile extends React.Component {
         this.setData();
     }
 
+    basket() {
+        let productIds = localStorage.getItem("basket").split(",");
+
+        return (
+            <div className="absolute m-auto rounded-lg p-2 bg-white min-w-[200px] min-h-[200px] shadow-xl">
+                <label className="border-b">Sebet</label>
+                {}
+            </div>
+        );
+    }
+
     setData() {
         const pathname = window.location.pathname;
         const id = pathname.split("/")[2];
@@ -96,6 +110,10 @@ class StoreProfile extends React.Component {
         });
     }
 
+    componentDidMount() {
+        window.scrollTo(0, 0);
+    }
+
     setProductsPage(pageNumber) {
         this.setState({ isLoading: true });
 
@@ -118,6 +136,18 @@ class StoreProfile extends React.Component {
     render() {
         return (
             <div className="stores_detail grid p-[10px]">
+                {/* <MetaTags>
+                    <title>{this.state.name}</title>
+                    <meta name="description" content={this.state.category} />
+                    <meta property="og:title" content={this.state.name} />
+                    <meta
+                        property="og:image"
+                        content={server + this.state.img}
+                    />
+                </MetaTags> */}
+
+                {/* {this.basket()} */}
+
                 <div>
                     <div className="store_header flex text-blue-950">
                         <img
@@ -212,6 +242,13 @@ class StoreProfile extends React.Component {
                     >
                         Habarlaşmak üçin
                     </Link>
+
+                    <Link
+                        to={"basket"}
+                        className="text-[15px] flex items-center w-max text-nowrap rounded-lg  hover:bg-slate-100 duration-150 px-2 py-1"
+                    >
+                        Sebet
+                    </Link>
                 </div>
 
                 <div className="tab-content">
@@ -219,6 +256,10 @@ class StoreProfile extends React.Component {
                         <Route
                             path="/products"
                             element={<StoreProducts></StoreProducts>}
+                        />
+                        <Route
+                            path="/videos"
+                            element={<StoreVideos></StoreVideos>}
                         />
                         <Route
                             path="/images"
@@ -233,9 +274,19 @@ class StoreProfile extends React.Component {
                             path="/contacts"
                             element={<StoreContacts></StoreContacts>}
                         />
+
+                        <Route
+                            path="/parts"
+                            element={<StoreParts></StoreParts>}
+                        />
                         <Route
                             path="/*"
                             element={<StoreProducts></StoreProducts>}
+                        />
+
+                        <Route
+                            path="/basket"
+                            element={<StoreBasket></StoreBasket>}
                         />
                     </Routes>
                 </div>

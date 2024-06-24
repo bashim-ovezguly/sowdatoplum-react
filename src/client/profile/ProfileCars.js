@@ -1,7 +1,6 @@
 import axios from "axios";
 import React from "react";
 import { server } from "../../static";
-import "./profile_cars.css";
 import { BiMap, BiPlus } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
@@ -54,12 +53,12 @@ class ProfileCars extends React.Component {
                     </div>
                 )}
 
-                <div className="flex flex-wrap">
+                <div className="grid grid-cols-3 sm:grid-cols-2">
                     {this.state.cars.map((item) => {
                         return (
                             <Link
                                 to={"/cars/edit/" + item.id}
-                                className="grid w-[140px] overflow-hidden m-[10px] rounded-md shadow-md border text-[14px]"
+                                className="grid overflow-hidden m-[10px] rounded-md bg-slate-100 border text-[14px]"
                             >
                                 {item.img !== "" && (
                                     <img

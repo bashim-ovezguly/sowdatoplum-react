@@ -1,9 +1,9 @@
 import axios from "axios";
 import React from "react";
-import { server } from "../static";
-import "./admin.css";
+import { server } from "../../static";
+import "../admin.css";
 import { FcCheckmark } from "react-icons/fc";
-import LocationSelector from "./LocationSelector";
+import LocationSelector from "../LocationSelector";
 import { IoMdEye, IoMdTrash } from "react-icons/io";
 import {
     MdCancel,
@@ -16,6 +16,7 @@ import {
 } from "react-icons/md";
 import { FiArrowUp } from "react-icons/fi";
 import { BiMap, BiPlus } from "react-icons/bi";
+import { toast, ToastContainer } from "react-toastify";
 
 class AdminCarPartDetail extends React.Component {
     constructor(props) {
@@ -92,30 +93,32 @@ class AdminCarPartDetail extends React.Component {
             .get(server + "/api/admin/parts/" + id, this.state.auth)
             .then((resp) => {
                 this.setState({
-                    mark: resp.data["mark"],
-                    model: resp.data["model"],
-                    active: resp.data["active"],
-                    color: resp.data["color"],
-                    credit: resp.data["credit"],
-                    swap: resp.data["swap"],
+                    mark: resp.data.mark,
+                    model: resp.data.model,
+                    active: resp.data.active,
+                    color: resp.data.color,
+                    credit: resp.data.credit,
+                    swap: resp.data.swap,
                     on_slider: resp.data.on_slider,
-                    none_cash_pay: resp.data["none_cash_pay"],
-                    fuel: resp.data["fuel"],
-                    body_type: resp.data["body_type"],
-                    id: resp.data["id"],
-                    millage: resp.data["millage"],
-                    on_search: resp.data["on_search"],
-                    transmission: resp.data["transmission"],
-                    vin: resp.data["vin"],
-                    year: resp.data["year"],
-                    viewed: resp.data["viewed"],
-                    detail: resp.data["detail"],
+                    none_cash_pay: resp.data.none_cash_pay,
+                    fuel: resp.data.fuel,
+                    body_type: resp.data.body_type,
+                    id: resp.data.id,
+                    millage: resp.data.millage,
+                    on_search: resp.data.on_search,
+                    transmission: resp.data.transmission,
+                    vin: resp.data.vin,
+                    year: resp.data.year,
+                    viewed: resp.data.viewed,
+                    detail: resp.data.detail,
                     img: resp.data.img,
-                    created_at: resp.data["created_at"],
-                    images: resp.data["images"],
+                    created_at: resp.data.created_at,
+                    images: resp.data.images,
                     category: resp.data.category,
-                    phone: resp.data["phone"],
-                    country: resp.data["country"],
+                    category_id: resp.data.category.id,
+                    category_name: resp.data.category.name,
+                    phone: resp.data.phone,
+                    country: resp.data.country,
                     store_id: resp.data.store_id,
                     store_name: resp.data.store_name,
                     location_name: resp.data.location,
@@ -162,7 +165,44 @@ class AdminCarPartDetail extends React.Component {
             )
             .then((resp) => {
                 this.setData();
-                alert("status uytgedildi");
+                toast.success("status uytgedildi");
+            });
+    }
+
+    unsetMark() {
+        var formdata = new FormData();
+        formdata.append("mark", "");
+        axios
+            .put(
+                server + "/api/admin/parts/" + this.state.id + "/",
+                formdata,
+                this.state.auth
+            )
+            .then((resp) => {
+                alert("Ýatda saklandy");
+                this.setData();
+            })
+            .catch((err) => {
+                alert("Ýalňyşlyk ýüze çykdy");
+            });
+    }
+
+    unsetModel() {
+        var formdata = new FormData();
+        formdata.append("model", "");
+        axios
+            .put(
+                server + "/api/admin/parts/" + this.state.id + "/",
+
+                formdata,
+                this.state.auth
+            )
+            .then((resp) => {
+                alert("Ýatda saklandy");
+                this.setData();
+            })
+            .catch((err) => {
+                alert("Ýalňyşlyk ýüze çykdy");
             });
     }
 
@@ -229,9 +269,12 @@ class AdminCarPartDetail extends React.Component {
             document.getElementById("price").value.replace(" ", "")
         );
         formdata.append("phone", document.getElementById("phone").value);
+        formdata.append("name", document.getElementById("name").value);
+        formdata.append("name_tm", document.getElementById("name").value);
         formdata.append("detail", document.getElementById("detail").value);
         formdata.append("customer", document.getElementById("customer").value);
         formdata.append("store", document.getElementById("store").value);
+        formdata.append("category", document.getElementById("category").value);
 
         if (document.getElementById("mark").value !== "") {
             formdata.append("mark", document.getElementById("mark").value);
@@ -250,11 +293,11 @@ class AdminCarPartDetail extends React.Component {
                 this.state.auth
             )
             .then((resp) => {
-                alert("Ýatda saklandy");
+                toast.success("Ýatda saklandy");
                 this.setData();
             })
             .catch((err) => {
-                alert("Ýalňyşlyk ýüze çykdy");
+                toast.error("Ýalňyşlyk ýüze çykdy");
             });
     }
 
@@ -264,90 +307,77 @@ class AdminCarPartDetail extends React.Component {
         }
 
         return (
-            <div className="grid">
-                <div className="flex flex-wrap text-slate-600">
+            <div className="grid justify-center p-2">
+                <ToastContainer
+                    autoClose={10000}
+                    closeOnClick={true}
+                ></ToastContainer>
+
+                <div className="flex flex-wrap text-slate-600 text-[12px] my-2">
                     <button
                         onClick={() => {
                             this.changeStatus("accepted");
                         }}
-                        className="accept"
+                        className="flex items-center hover:text-slate-500 border rounded-md p-1 hover:bg-slate-100 m-1"
                     >
-                        <MdCheck
-                            className="border rounded-md hover:bg-slate-200 m-1 p-2"
-                            size={35}
-                        ></MdCheck>
+                        <label>Kabul etmek</label>
+                        <MdCheck className="" size={20}></MdCheck>
                     </button>
                     <button
                         onClick={() => {
                             this.changeStatus("canceled");
                         }}
-                        className="cancel"
+                        className="flex items-center hover:text-slate-500 border rounded-md p-1 hover:bg-slate-100 m-1"
                     >
-                        <MdCancel
-                            className="border rounded-md hover:bg-slate-200 m-1 p-2"
-                            size={35}
-                        ></MdCancel>
+                        <label>Gaýtarmak</label>
+                        <MdCancel size={20}></MdCancel>
                     </button>
                     <button
                         onClick={() => {
                             this.changeStatus("pending");
                         }}
-                        className="onCheck"
+                        className="flex items-center hover:text-slate-500 border rounded-md p-1 hover:bg-slate-100 m-1"
                     >
-                        <MdWarning
-                            className="border rounded-md hover:bg-slate-200 m-1 p-2"
-                            size={35}
-                        ></MdWarning>
+                        <label>Barlaga goýmak</label>
+                        <MdWarning size={20}></MdWarning>
                     </button>
-                    <button
-                        onClick={() => {
-                            this.setState({ add_product_open: true });
-                        }}
-                    >
-                        <BiPlus
-                            className="border rounded-md hover:bg-slate-200 m-1 p-2"
-                            size={35}
-                        ></BiPlus>
-                    </button>
+
                     <button
                         onClick={() => {
                             this.save();
                         }}
+                        className="flex items-center hover:text-slate-500 border rounded-md p-1 hover:bg-slate-100 m-1"
                     >
-                        <MdSave
-                            className="border rounded-md hover:bg-slate-200 m-1 p-2"
-                            size={35}
-                        ></MdSave>
+                        <label>Ýatda saklamak</label>
+                        <MdSave size={20}></MdSave>
                     </button>
                     <button
+                        className="flex items-center hover:text-slate-500 border rounded-md p-1 hover:bg-slate-100 m-1"
                         onClick={() => {
                             this.deleteProduct();
                         }}
                     >
-                        <IoMdTrash
-                            className="border rounded-md hover:bg-slate-200 m-1 p-2"
-                            size={35}
-                        ></IoMdTrash>
+                        <label>Bozmak</label>
+                        <IoMdTrash size={20}></IoMdTrash>
                     </button>
                     <button
+                        className="flex items-center hover:text-slate-500 border rounded-md p-1 hover:bg-slate-100 m-1"
                         onClick={() => {
                             document.getElementById("imgselector").click();
                         }}
                     >
-                        <MdImage
-                            className="border rounded-md hover:bg-slate-200 m-1 p-2"
-                            size={35}
-                        ></MdImage>
+                        <label>Surat goşmak</label>
+                        <MdImage size={20}></MdImage>
                     </button>
                     <button
+                        className="flex items-center hover:text-slate-500 border rounded-md p-1 hover:bg-slate-100 m-1"
                         onClick={() => {
                             this.moveUp();
                         }}
                     >
-                        <FiArrowUp
-                            className="border rounded-md hover:bg-slate-200 m-1 p-2"
-                            size={35}
-                        ></FiArrowUp>
+                        <label>Öňe süýşürmek</label>
+
+                        <FiArrowUp size={20}></FiArrowUp>
                     </button>
 
                     <div className="imageCard">
@@ -364,10 +394,10 @@ class AdminCarPartDetail extends React.Component {
                     </div>
                 </div>
 
-                <div className="flex h-max">
+                <div className="grid">
                     <img
                         alt=""
-                        className="w-[150px] h-[150px] rounded-md shadow-md object-cover"
+                        className="w-full h-[300px] rounded-md border object-contain mx-auto"
                         src={server + this.state.img}
                     ></img>
                     <div className="grid text-slate-700 px-[10px] h-max">
@@ -397,34 +427,31 @@ class AdminCarPartDetail extends React.Component {
                     </div>
                 </div>
 
-                <div className="images">
+                <div className="border">
                     {this.state.images.map((item) => {
                         return (
-                            <div className="imageCard">
+                            <div className="grid border w-max rounded-md m-1 p-1 ">
                                 <img
+                                    className="rounded-lg max-w-[100px] max-h-[100px]"
                                     alt=""
                                     defaultValue={"/default.png"}
                                     src={server + item.img_m}
                                 ></img>
-                                <div className="absolute flex items-center">
+                                <div className="flex items-center">
                                     <MdClose
-                                        className="cursor-pointer hover:shadow-lg hover:bg-slate-500 
-                                    duration-300  bg-red-600 rounded-[50%] p-[5px] 
-                                    text-white shadow-md right-[5px] top-[5px]"
+                                        className="text-red-600 hover:text-slate-600 rounded-md bg-slate-200 m-1"
                                         onClick={() => {
                                             this.removeImage(item.id);
                                         }}
-                                        size={30}
+                                        size={20}
                                     ></MdClose>
-                                    <FcCheckmark
-                                        size={30}
-                                        className="cursor-pointer hover:shadow-lg hover:bg-slate-500 
-                                            duration-300 bg-white rounded-[50%] p-[5px] 
-                                            text-white shadow-md right-[5px] top-[5px]"
+                                    <MdCheck
+                                        size={20}
+                                        className="hover:text-slate-600 text-green-600 rounded-md bg-slate-200 m-1"
                                         onClick={() => {
                                             this.setMainImage(item.id);
                                         }}
-                                    ></FcCheckmark>
+                                    ></MdCheck>
                                 </div>
                             </div>
                         );
@@ -433,55 +460,58 @@ class AdminCarPartDetail extends React.Component {
                     <div className="imageCard"></div>
                 </div>
 
-                <div className="grid">
-                    <div className="grid max-w-[400px]">
-                        <label>Dükany</label>
-                        <select id="store">
-                            <option value={""} hidden>
-                                {this.state.store_name}
-                            </option>
-                            <option value={""}></option>
-                            {this.state.stores.map((item) => {
-                                return (
-                                    <option value={item.id}>
-                                        {" "}
-                                        {item.name_tm}
-                                    </option>
-                                );
-                            })}
-                        </select>
+                <div className="grid text-[12px]">
+                    <label>Ady</label>
+                    <input defaultValue={this.state.name_tm} id="name"></input>
+                    <label>Dükany</label>
+                    <select id="store">
+                        <option value={this.state.store_id} hidden>
+                            {this.state.store_name}
+                        </option>
+                        <option value={""}></option>
+                        {this.state.stores.map((item) => {
+                            return (
+                                <option value={item.id}>
+                                    {" "}
+                                    {String(item.name_tm).substring(0, 20)}
+                                </option>
+                            );
+                        })}
+                    </select>
 
-                        <label>Ulanyjy</label>
-                        <select id="customer">
-                            <option value={this.state.customer_id} hidden>
-                                {this.state.customer_name}{" "}
-                                {this.state.customer_phone}{" "}
-                            </option>
-                            <option value={""}></option>
-                            {this.state.customers.map((item) => {
-                                return (
-                                    <option value={item.id}>
-                                        {item.phone} {item.name}
-                                    </option>
-                                );
-                            })}
-                        </select>
+                    <label>Customer</label>
+                    <select id="customer">
+                        <option value={this.state.customer_id} hidden>
+                            {this.state.customer_name}{" "}
+                            {this.state.customer_phone}{" "}
+                        </option>
+                        <option value={""}></option>
+                        {this.state.customers.map((item) => {
+                            return (
+                                <option value={item.id}>
+                                    {item.phone}{" "}
+                                    {String(item.name).substring(0, 20)}
+                                </option>
+                            );
+                        })}
+                    </select>
 
-                        <label>Kategoriýasy</label>
-                        <select id="category">
-                            <option hidden value={""}>
-                                {this.state.category.name}
-                            </option>
-                            {this.state.categories.map((item) => {
-                                return (
-                                    <option id={item.id} value={item.id}>
-                                        {item.name_tm}
-                                    </option>
-                                );
-                            })}
-                        </select>
+                    <label>Kategoriýasy</label>
+                    <select id="category">
+                        <option hidden value={this.state.category_id}>
+                            {this.state.category_name}
+                        </option>
+                        {this.state.categories.map((item) => {
+                            return (
+                                <option id={item.id} value={item.id}>
+                                    {item.name_tm}
+                                </option>
+                            );
+                        })}
+                    </select>
 
-                        <label>Marka</label>
+                    <label>Marka</label>
+                    <div className="grid items-center grid-cols-[auto_max-content]">
                         <select
                             onChange={() => {
                                 this.setState(
@@ -508,8 +538,18 @@ class AdminCarPartDetail extends React.Component {
                                 );
                             })}
                         </select>
+                        <MdClose
+                            onClick={() => {
+                                this.unsetMark();
+                            }}
+                            size={20}
+                            className="m-2"
+                        ></MdClose>
+                    </div>
 
-                        <label>Model</label>
+                    <label>Model</label>
+
+                    <div className="grid items-center grid-cols-[auto_max-content]">
                         <select id="model">
                             <option hidden value={""}>
                                 {this.state.model}
@@ -522,58 +562,62 @@ class AdminCarPartDetail extends React.Component {
                                 );
                             })}
                         </select>
-
-                        <label>Bahasy</label>
-                        <input
-                            id="price"
-                            defaultValue={this.state.price
-                                .replace("TMT", "")
-                                .replace(" ", "")}
-                        ></input>
-
-                        <div className="location border rounded-[5px] p-[10px] my-[5px] flex items-center">
-                            <BiMap
-                                size={25}
-                                className="hover:bg-slate-200 rounded-md p-[2px]"
-                                onClick={() => {
-                                    this.setState({
-                                        locationSelectorOpen: true,
-                                    });
-                                }}
-                            ></BiMap>
-                            <label>{this.state.location_name}</label>
-                            {this.state.location_name.length > 0 && (
-                                <MdClose
-                                    size={25}
-                                    className="border rounded-full"
-                                    onClick={() => {
-                                        this.setState({ location_name: "" });
-                                        this.setState({ location_id: "" });
-                                    }}
-                                ></MdClose>
-                            )}
-                        </div>
-
-                        {this.state.locationSelectorOpen && (
-                            <LocationSelector parent={this}></LocationSelector>
-                        )}
-
-                        <label>Goşmaça maglumat</label>
-                        <textarea
-                            id="detail"
-                            defaultValue={this.state.detail}
-                        ></textarea>
-
-                        <label>Telefon belgisi</label>
-                        <input
-                            id="phone"
-                            type={"tel"}
-                            defaultValue={this.state.phone}
-                        ></input>
+                        <MdClose
+                            onClick={() => {
+                                this.unsetModel();
+                            }}
+                            size={20}
+                            className="m-2"
+                        ></MdClose>
                     </div>
-                    <div></div>
 
-                    <div></div>
+                    <label>Bahasy</label>
+                    <input
+                        id="price"
+                        defaultValue={this.state.price
+                            .replace("TMT", "")
+                            .replace(" ", "")}
+                    ></input>
+
+                    <div className="location border rounded-[5px] p-2 my-2 flex items-center">
+                        <BiMap
+                            size={25}
+                            className="hover:bg-slate-200 rounded-md p-[2px]"
+                            onClick={() => {
+                                this.setState({
+                                    locationSelectorOpen: true,
+                                });
+                            }}
+                        ></BiMap>
+                        <label>{this.state.location_name}</label>
+                        {this.state.location_name.length > 0 && (
+                            <MdClose
+                                size={25}
+                                className="border rounded-full"
+                                onClick={() => {
+                                    this.setState({ location_name: "" });
+                                    this.setState({ location_id: "" });
+                                }}
+                            ></MdClose>
+                        )}
+                    </div>
+
+                    {this.state.locationSelectorOpen && (
+                        <LocationSelector parent={this}></LocationSelector>
+                    )}
+
+                    <label>Goşmaça maglumat</label>
+                    <textarea
+                        id="detail"
+                        defaultValue={this.state.detail}
+                    ></textarea>
+
+                    <label>Telefon belgisi</label>
+                    <input
+                        id="phone"
+                        type={"tel"}
+                        defaultValue={this.state.phone}
+                    ></input>
                 </div>
             </div>
         );

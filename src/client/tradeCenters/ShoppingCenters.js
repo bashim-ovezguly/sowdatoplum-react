@@ -5,7 +5,6 @@ import { BiMap } from "react-icons/bi";
 import Pagination from "@mui/material/Pagination";
 import Grow from "@mui/material/Grow";
 import { Link } from "react-router-dom";
-import "./shoppingCenters.css";
 import { CircularProgress } from "@mui/material";
 
 class ShoppingCenters extends React.Component {
@@ -41,13 +40,6 @@ class ShoppingCenters extends React.Component {
     }
 
     setData() {
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        const customer = urlParams.get("customer");
-
-        // const pathname = window.location.pathname
-        // const id = pathname.split('/')[2]
-
         axios
             .get(
                 server + "/mob/shopping_centers?page=" + this.state.current_page
@@ -69,23 +61,25 @@ class ShoppingCenters extends React.Component {
             <div className="shopping_centers grid p-[10px]">
                 <h3 className="text-[20px] font-bold">Söwda merkezler </h3>
 
-                <Pagination
-                    className="pagination"
-                    onChange={(event, page) => {
-                        this.setPage(page);
-                    }}
-                    count={this.state.total_page}
-                    variant="outlined"
-                    shape="rounded"
-                />
+                <div className="flex justify-center">
+                    <Pagination
+                        className="pagination"
+                        onChange={(event, page) => {
+                            this.setPage(page);
+                        }}
+                        count={this.state.total_page}
+                        variant="outlined"
+                        shape="rounded"
+                    />
+                </div>
 
                 {this.state.isLoading && (
-                    <div className="flex justify-center">
+                    <div className="">
                         <CircularProgress></CircularProgress>
                     </div>
                 )}
 
-                <div className="flex flex-wrap justify-center">
+                <div className="grid grid-cols-3 sm:grid-cols-2">
                     {this.state.bazarlar.map((item) => {
                         var img_url = server + item.img;
                         if (item.img == "/media/") {
@@ -101,7 +95,7 @@ class ShoppingCenters extends React.Component {
                                 <Link
                                     to={"/shopping_centers/" + item.id}
                                     className="grid grid-rows-[max-content_auto] overflow-hidden 
-                                    m-3 w-[300px] rounded-lg  hover:shadow-lg shadow-md duration-300"
+                                    m-2 rounded-lg  hover:shadow-lg shadow-md duration-300"
                                 >
                                     <img
                                         alt=""

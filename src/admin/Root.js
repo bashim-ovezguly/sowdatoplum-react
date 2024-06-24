@@ -10,11 +10,11 @@ import AdminStoreDetail from "./stores/StoreDetail";
 import Locations from "./Locations";
 import Stores from "./stores/Stores";
 import Products from "./products/Products";
-import Ads from "./Advs";
-import AdvsDetail from "./AdvDetail";
-import Customers from "./Customers";
+import Ads from "./banners/Advs";
+import AdvsDetail from "./banners/AdvDetail";
+import Customers from "./customers/Customers";
 import Admins from "./Admins";
-import CustomersEdit from "./CustomersEdit";
+import CustomersEdit from "./customers/CustomersEdit";
 import AdminDetail from "./AdminDetail";
 import {
     MdAdminPanelSettings,
@@ -27,8 +27,8 @@ import TradeCenters from "./tradeCenters/TradeCenters";
 import TradeCentersDetail from "./tradeCenters/TradeCentersDetail";
 import Stat from "./Stat";
 import Orders from "./Orders";
-import Flats from "./Flats";
-import FlatDetail from "./FlatDetail";
+import Flats from "./flats/Flats";
+import FlatDetail from "./flats/FlatDetail";
 import StoreCategories from "./StoreCategories";
 import {
     BiBookBookmark,
@@ -47,9 +47,9 @@ import {
     BiStore,
     BiSupport,
 } from "react-icons/bi";
-import LentaAdmin from "./LentaAdmin";
-import AdminCarParts from "./CarParts";
-import AdminCarPartDetail from "./CarPartDetail";
+import LentaAdmin from "./lenta/LentaAdmin";
+import AdminCarParts from "./parts/Parts";
+import AdminCarPartDetail from "./parts/PartDetail";
 import AppVersions from "./AppVersions";
 import Devices from "./Devices";
 import DeviceChat from "./DeviceChat";
@@ -213,23 +213,25 @@ class Root extends React.Component {
     render() {
         return (
             <div className="admin">
-                <ToastContainer />
                 <div
-                    className="bg-slate-700 text-white grid 
-                        grid-cols-[max-content_auto_max-content] items-center text-2xl p-1"
+                    className="bg-slate-700 text-white grid sticky top-0
+                        grid-cols-[max-content_auto_max-content] items-center text p-1 z-100"
                 >
                     <BiMenu
+                        className="hover:text-slate-600"
                         size={40}
                         onClick={() => {
                             this.menuClick();
                         }}
                     ></BiMenu>
-                    <label>AdminPage</label>
-
-                    <div className="flex justify-self-end ">
-                        <label className="mx-2">
+                    <div className="grid text-[12px]">
+                        <label>AdminPage</label>
+                        <label className="">
                             {localStorage.getItem("admin_username")}
                         </label>
+                    </div>
+
+                    <div className="flex justify-self-end ">
                         <MdEdit
                             size={25}
                             onClick={() => {
@@ -253,8 +255,8 @@ class Root extends React.Component {
                     onClick={() => {
                         this.closeMenu();
                     }}
-                    className="grid bg-slate-700 text-white max-h-[90%] scrollbar-none
-                        overflow-y-auto fixed shadow-lg duration-200 z-100 rounded-lg m-1 overflow-hidden"
+                    className="grid z-100 bg-slate-700 text-white max-h-[90%] scrollbar-none
+                        overflow-y-auto fixed shadow-lg duration-200  overflow-hidden"
                 >
                     <div className="grid h-max">
                         <Link

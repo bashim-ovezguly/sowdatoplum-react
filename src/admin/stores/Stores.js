@@ -245,19 +245,32 @@ class Stores extends React.Component {
                                     <label className="font-bold">
                                         {item.name}
                                     </label>
-                                    {/* <label className="flex items-center">
-                                        {" "}
+                                    <label className="flex items-center">
                                         <BiMap></BiMap> {item.location.name}
-                                    </label> */}
-                                    {}
+                                    </label>
 
-                                    {/* <div className="flex items-center">
+                                    <div className="flex items-center">
                                         <MdPerson></MdPerson>
                                         <label>
                                             {item.customer.name}{" "}
                                             {item.customer_phone}
                                         </label>
-                                    </div> */}
+                                    </div>
+                                    {item.status === "pending" && (
+                                        <label className="text-orange-600 font-bold">
+                                            Garaşylýar
+                                        </label>
+                                    )}
+                                    {item.status === "accepted" && (
+                                        <label className="text-green-600 font-bold">
+                                            Kabul edilen
+                                        </label>
+                                    )}
+                                    {item.status === "canceled" && (
+                                        <label className="text-red-600 font-bold">
+                                            Gaýtarlan
+                                        </label>
+                                    )}
                                 </div>
                             </Link>
                         );

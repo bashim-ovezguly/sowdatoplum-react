@@ -8,7 +8,7 @@ import {
     MdPerson,
     MdRefresh,
 } from "react-icons/md";
-import { server } from "../static";
+import { server } from "../../static";
 import Pagination from "@mui/material/Pagination";
 
 class LentaAdmin extends React.Component {

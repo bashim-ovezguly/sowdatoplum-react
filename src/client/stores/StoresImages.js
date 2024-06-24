@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, { createElement, createRef, useRef } from "react";
 import { server } from "../../static";
-import "./storesDetail.css";
 import ReactDOM from "react-dom";
 import ImageViewer from "../components/ImageViewer";
 
@@ -12,8 +11,7 @@ class StoreImages extends React.Component {
         this.state = {
             isLoading: true,
             id: "",
-            workStart: "",
-            workEnd: "",
+
             category: "",
             name: "",
             location: "",
@@ -37,17 +35,9 @@ class StoreImages extends React.Component {
             products_count: "",
             sliderImages: [],
             imgViewer: false,
-
-            auth: {
-                auth: {
-                    username: localStorage.getItem("username"),
-                    password: localStorage.getItem("password"),
-                },
-            },
         };
 
         this.setData();
-        const imgViewerRef = createRef();
     }
 
     setData() {
@@ -145,7 +135,7 @@ class StoreImages extends React.Component {
 
     render() {
         return (
-            <div className="store_imgs">
+            <div className="">
                 <ImageViewer
                     show={this.state.imgViewer}
                     parent={this}
@@ -153,23 +143,25 @@ class StoreImages extends React.Component {
                     src={this.state.imgViewerSrc}
                     images={this.state.sliderImages}
                 ></ImageViewer>
-                <div className="flex flex-wrap">
+                <div className="grid grid-cols-3 sm:grid-cols-2">
                     {this.state.images.map((item) => {
                         var img = server + item.img_m;
 
                         return (
-                            <img
-                                onClick={() => {
-                                    this.setState({
-                                        imgViewerSrc: server + item.img_m,
-                                        imgViewer: true,
-                                    });
-                                }}
-                                className="m-[10px] h-[150px] w-[150px] object-cover rounded-md"
-                                key={item.id}
-                                alt=""
-                                src={img}
-                            ></img>
+                            <div className="m-1">
+                                <img
+                                    onClick={() => {
+                                        this.setState({
+                                            imgViewerSrc: server + item.img_m,
+                                            imgViewer: true,
+                                        });
+                                    }}
+                                    className="max-h-[300px] border w-full object-contain rounded-md overflow-hidden"
+                                    key={item.id}
+                                    alt=""
+                                    src={img}
+                                ></img>
+                            </div>
                         );
                     })}
                 </div>

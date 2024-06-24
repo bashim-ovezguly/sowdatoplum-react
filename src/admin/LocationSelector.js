@@ -3,7 +3,6 @@ import React from "react";
 import { BiLeftArrowAlt, BiMap, BiRightArrowAlt } from "react-icons/bi";
 import { MdClose } from "react-icons/md";
 import { server } from "../static";
-import "./locationSelector.css";
 
 class LocationSelector extends React.Component {
     constructor(props) {

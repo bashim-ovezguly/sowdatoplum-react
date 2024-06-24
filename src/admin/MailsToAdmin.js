@@ -137,7 +137,7 @@ class MailsToAdmin extends React.Component {
                             .substring(0, 5);
                         return (
                             <div
-                                className="rounded-lg my-2 p-2 bg-slate-100 grid shadow-md border 
+                                className="rounded-lg my-2 p-2 bg-slate-100 grid shadow-md border text-[12px]
                                 grid-cols-[auto_max-content] hover:shadow-lg duration-150 hover:bg-sky-50"
                             >
                                 <div>
@@ -150,7 +150,7 @@ class MailsToAdmin extends React.Component {
                                     </div>
                                     <div className="flex flex-wrap">
                                         <Link
-                                            className="hover:text-sky-600 flex items-center mx-2 "
+                                            className="flex items-center mx-2 bg-sky-600 text-white p-1 rounded-md"
                                             to={
                                                 "/admin/devices/" +
                                                 item.device_id
@@ -162,7 +162,7 @@ class MailsToAdmin extends React.Component {
                                             onClick={() => {
                                                 this.delete(item.id);
                                             }}
-                                            className="mx-2 hover:text-sky-600  "
+                                            className="flex items-center mx-2 bg-sky-600 text-white p-1 rounded-md"
                                         >
                                             Bozmak
                                         </button>

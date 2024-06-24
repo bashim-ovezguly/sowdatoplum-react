@@ -1,7 +1,6 @@
 import axios from "axios";
 import React from "react";
 import { server } from "../../static";
-import "./storesDetail.css";
 import { MdCall } from "react-icons/md";
 
 class StoreContacts extends React.Component {

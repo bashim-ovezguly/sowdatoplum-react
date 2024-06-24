@@ -79,7 +79,7 @@ class Devices extends React.Component {
 
     render() {
         return (
-            <div className="vistors">
+            <div className="vistors grid">
                 <h3>
                     Devices {this.state.total}
                     {this.state.isLoading && (
@@ -87,12 +87,13 @@ class Devices extends React.Component {
                     )}
                 </h3>
 
-                <div className="managment">
+                <div className="flex items-center">
                     <button
                         onClick={() => {
                             this.setState({ isLoading: true });
                             this.setData();
                         }}
+                        className="flex items-center"
                     >
                         <label>Täzelemek</label>
                         <MdRefresh className="icon"></MdRefresh>
@@ -109,8 +110,8 @@ class Devices extends React.Component {
                     shape="rounded"
                 />
 
-                <table>
-                    <tr className="text-left">
+                <table className="text-[12px] border m-2 p-2">
+                    <tr className="text-left ">
                         <th>ID</th>
                         <th>App version</th>
                         <th>Code</th>
@@ -143,14 +144,13 @@ class Devices extends React.Component {
                                 </td>
                                 <td>{item.ip}</td>
                                 <td>
-                                    <button className="bg-sky-500 text-white flex items-center rounded-md p-1 hover:bg-slate-500">
-                                        <label>Bozmak</label>
-                                        <MdDelete
-                                            onClick={() => {
-                                                this.deleteItem(item.id);
-                                            }}
-                                        ></MdDelete>
-                                    </button>
+                                    <MdDelete
+                                        className=""
+                                        size={22}
+                                        onClick={() => {
+                                            this.deleteItem(item.id);
+                                        }}
+                                    ></MdDelete>
                                 </td>
                             </tr>
                         );

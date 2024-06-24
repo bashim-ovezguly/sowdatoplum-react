@@ -300,7 +300,7 @@ class AdminProductDetail extends React.Component {
         });
 
         return (
-            <div className="product_detail">
+            <div className="max-w-[600px] grid mx-auto">
                 {this.state.isLoading && (
                     <div>
                         <CircularProgress></CircularProgress>
@@ -312,7 +312,7 @@ class AdminProductDetail extends React.Component {
                         onClick={() => {
                             this.changeStatus("accepted");
                         }}
-                        className="border p-2 m-1 flex items-center text-[12px] hover:bg-slate-100"
+                        className="border p-1 m-1 flex items-center text-[12px] hover:bg-slate-100 rounded-md"
                     >
                         <MdCheck></MdCheck>
                         <label>Kabul etmek</label>
@@ -322,7 +322,7 @@ class AdminProductDetail extends React.Component {
                         onClick={() => {
                             this.changeStatus("canceled");
                         }}
-                        className="border p-2 m-1 flex items-center text-[12px] hover:bg-slate-100"
+                        className="border p-1 m-1 flex items-center text-[12px] hover:bg-slate-100 rounded-md"
                     >
                         <MdCancel></MdCancel>
                         <label>Gaýtarmak</label>
@@ -332,14 +332,14 @@ class AdminProductDetail extends React.Component {
                         onClick={() => {
                             this.changeStatus("pending");
                         }}
-                        className="border p-2 m-1 flex items-center text-[12px] hover:bg-slate-100"
+                        className="border p-1 m-1 flex items-center text-[12px] hover:bg-slate-100 rounded-md"
                     >
                         <MdWarning></MdWarning>
                         <label>Barlaga geçirmek</label>
                     </button>
 
                     <button
-                        className="border p-2 m-1 flex items-center text-[12px] hover:bg-slate-100"
+                        className="border p-1 m-1 flex items-center text-[12px] hover:bg-slate-100 rounded-md"
                         onClick={() => {
                             document.getElementById("imgselector").click();
                         }}
@@ -359,7 +359,7 @@ class AdminProductDetail extends React.Component {
                     ></input>
 
                     <button
-                        className="border p-2 m-1 flex items-center text-[12px] hover:bg-slate-100"
+                        className="border p-1 m-1 flex items-center text-[12px] hover:bg-slate-100 rounded-md"
                         onClick={() => {
                             this.save();
                         }}
@@ -371,49 +371,40 @@ class AdminProductDetail extends React.Component {
                         onClick={() => {
                             this.deleteProduct();
                         }}
-                        className="border p-2 m-1 flex items-center text-[12px] hover:bg-slate-100"
+                        className="border p-1 m-1 flex items-center text-[12px] hover:bg-slate-100 rounded-md"
                     >
                         <IoMdTrash></IoMdTrash>
                         <label>Bozmak</label>
                     </button>
                 </div>
 
-                <div className="grid grid-cols-[max-content_auto] sm:grid-cols-1">
-                    <img
-                        alt=""
-                        className="w-52 h-52 border my-3 object-cover rounded-md mx-2"
-                        src={server + this.state.img}
-                    ></img>
-                    {/* TEXT */}
-                    <div className="grid h-max m-2">
-                        <h2 className="text-3xl">{this.state.name}</h2>
-                        <div className="flex text-lg items-center">
-                            <IoMdEye></IoMdEye> {this.state.viewed}
-                            <BiCalendar></BiCalendar> {this.state.created_at}
-                        </div>
-                        <label>Statusy: {this.state.status} </label>
-                    </div>
-                </div>
+                <img
+                    alt=""
+                    className="w-full max-h-[300px] border my-2 object-contain "
+                    src={server + this.state.img}
+                ></img>
 
-                <div className="images">
+                <div className="flex overflow-x-auto">
                     {this.state.images.map((item) => {
                         return (
-                            <div className="imageCard overflow-hidden rounded-md">
+                            <div className="grid w-max m-1 rounded-lg">
                                 <img
                                     alt=""
                                     defaultValue={"/default.png"}
                                     src={server + item.img_s}
-                                    className="object-contain border"
+                                    className="object-contain border rounded-lg overflow-hidden w-[150px] h-[150px] max-w-none"
                                 ></img>
-                                <div className="grid grid-cols-2 content-center bg-slate-200 p-2">
+                                <div className="flex justify-center p-2 ">
                                     <AiFillDelete
-                                        className="hover:text-slate-300 duration-200"
+                                        size={25}
+                                        className="hover:text-slate-300 duration-200 text-red-600"
                                         onClick={() => {
                                             this.removeImage(item.id);
                                         }}
                                     ></AiFillDelete>
                                     <MdCheck
-                                        className="hover:text-slate-300 duration-200"
+                                        size={25}
+                                        className="hover:text-slate-300 duration-200 text-green-600"
                                         onClick={() => {
                                             this.setMainImage(item.id);
                                         }}
@@ -424,7 +415,16 @@ class AdminProductDetail extends React.Component {
                     })}
                 </div>
 
-                <div className="grid max-w-[600px]">
+                <div className="grid max-w-[600px] text-[12px]">
+                    <div className="grid h-max my-2">
+                        <h2 className="text-lg">{this.state.name}</h2>
+                        <div className="flex text-lg items-center">
+                            <IoMdEye></IoMdEye> {this.state.viewed}
+                            <BiCalendar></BiCalendar> {this.state.created_at}
+                        </div>
+                        <label>Statusy: {this.state.status} </label>
+                    </div>
+
                     <div>
                         <label>Slaýderde gorkez</label>
                         {this.state.on_slider ? (
@@ -457,7 +457,7 @@ class AdminProductDetail extends React.Component {
                     <label>Bahasy</label>
                     <input id="price" defaultValue={this.state.price}></input>
 
-                    <div className="border rounded-md my-1 p-[10px] flex items-center ">
+                    <div className="border rounded-md my-1 p-1 flex items-center ">
                         <BiMap
                             size={35}
                             className="p-2 hover:bg-slate-200 rounded"
@@ -468,7 +468,7 @@ class AdminProductDetail extends React.Component {
                         <label>{this.state.location_name}</label>
                         <MdClose
                             size={25}
-                            className="border p-1"
+                            className="border p-1 rounded-md"
                             onClick={() => {
                                 this.setState({
                                     location_id: "",
@@ -483,13 +483,16 @@ class AdminProductDetail extends React.Component {
                     )}
 
                     <label>Dükany</label>
-                    <select id="store">
+                    <select id="store" className="">
                         <option value={this.state.store_id} hidden>
                             {this.state.store_name}
                         </option>
                         {this.state.stores.map((item) => {
                             return (
-                                <option value={item.id}> {item.name_tm}</option>
+                                <option value={item.id}>
+                                    {" "}
+                                    {String(item.name_tm).substring(0, 20)}
+                                </option>
                             );
                         })}
                     </select>
@@ -497,14 +500,17 @@ class AdminProductDetail extends React.Component {
                     <label>Ulanyjy</label>
                     <select id="customer">
                         <option value={this.state.customer_id} hidden>
-                            {this.state.customer_id} {this.state.customer}
+                            {this.state.customer_id}{" "}
+                            {String(this.state.customer).substring(0, 20)}
                         </option>
                         <option value={""}>(Görkezilmedik)</option>
                         {this.state.customers.map((item) => {
                             return (
                                 <option value={item.id}>
                                     {" "}
-                                    {item.id} {item.name} {item.phone}
+                                    {item.id}{" "}
+                                    {String(item.name).substring(0, 20)}{" "}
+                                    {item.phone}
                                 </option>
                             );
                         })}

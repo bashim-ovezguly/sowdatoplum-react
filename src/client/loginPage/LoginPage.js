@@ -103,23 +103,26 @@ class LoginPage extends React.Component {
                 }}
                 className="grid "
             >
-                <div className="grid border shadow-md p-[20px] rounded-md max-w-[400px] mx-auto min-w-[300px] mt-[30px]">
+                <div className="grid border shadow-md p-4 rounded-lg max-w-[400px] mx-auto min-w-[300px] mt-[30px]">
                     <h2 className="p-[5px] font-bold text-[25px] text-sky-600">
                         Giriş
                     </h2>
+
                     <label className="text-[12px] pt-[5px]">
                         Telefon belgiňiz
                     </label>
-
-                    <input
-                        className="p-[10px]"
-                        onKeyUp={(event) => {
-                            this.enter_click(event);
-                        }}
-                        id="phone"
-                        type={"number"}
-                        placeholder="6x xxxxxx"
-                    ></input>
+                    <div className="grid grid-cols-[max-content_auto] items-center">
+                        <label className="mx-1">+993</label>
+                        <input
+                            className="p-2"
+                            onKeyUp={(event) => {
+                                this.enter_click(event);
+                            }}
+                            id="phone"
+                            type={"number"}
+                            placeholder="XX XXXXXX"
+                        ></input>
+                    </div>
 
                     <label className="text-[12px] pt-[5px]">Açar sözüňiz</label>
                     <input

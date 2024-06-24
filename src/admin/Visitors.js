@@ -5,8 +5,10 @@ import { MdDelete, MdRefresh } from "react-icons/md";
 import { server } from "../static";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Pagination from "@mui/material/Pagination";
 
 class Visitors extends React.Component {
+    visitorsUrl = "/api/admin/visitors/";
     constructor(props) {
         super(props);
 
@@ -25,43 +27,44 @@ class Visitors extends React.Component {
             newStoreOpen: false,
 
             auth: {
-                auth: {
-                    username: localStorage.getItem("admin_username"),
-                    password: localStorage.getItem("admin_password"),
-                },
+                username: localStorage.getItem("admin_username"),
+                password: localStorage.getItem("admin_password"),
             },
         };
 
-        document.title = "Myhmanlar";
+        document.title = "Visitors";
         this.setData();
     }
 
-    next_page() {
-        if (this.state.last_page >= this.state.current_page + 1) {
-            var next_page_number = this.state.current_page + 1;
-            this.setState({ current_page: next_page_number }, () => {
-                this.setData();
+    setPage(pageNumber) {
+        this.setState({ isLoading: true });
+        this.setState({ current_page: pageNumber });
+        axios
+            .get(
+                server +
+                    this.visitorsUrl +
+                    "?page_size=" +
+                    this.state.page_size +
+                    "&page=" +
+                    pageNumber,
+                { auth: this.state.auth }
+            )
+            .then((resp) => {
+                this.setState({ iplist: resp.data.data });
+                this.setState({ isLoading: false });
             });
-        }
-    }
-    prev_page() {
-        if (this.state.current_page - 1 != 0) {
-            this.setState({ current_page: this.state.current_page - 1 }, () => {
-                this.setData();
-            });
-        }
     }
 
     setData() {
         axios
             .get(
                 server + "/api/admin/visitors/?page=" + this.state.current_page,
-                this.state.auth
+                { auth: this.state.auth }
             )
             .then((resp) => {
-                this.setState({ last_page: resp.data["last_page"] });
-                this.setState({ page_size: resp.data["page_size"] });
-                this.setState({ total: resp.data["total"] });
+                this.setState({ last_page: Number(resp.data.last_page) });
+                this.setState({ page_size: resp.data.page_size });
+                this.setState({ total: resp.data.total });
                 this.setState({ iplist: resp.data.data });
                 this.setState({ isLoading: false });
             });
@@ -73,7 +76,13 @@ class Visitors extends React.Component {
             return null;
         }
         axios
-            .delete(server + "/api/admin/visitors/" + id, this.state.auth)
+            .post(
+                server + "/api/admin/visitors/delete/" + id,
+                {},
+                {
+                    auth: this.state.auth,
+                }
+            )
             .then((resp) => {
                 this.setData();
             });
@@ -86,6 +95,7 @@ class Visitors extends React.Component {
                     autoClose={10000}
                     closeOnClick={true}
                 ></ToastContainer>
+
                 <div className="flex items-center">
                     <label>
                         Myhmanlar
@@ -106,28 +116,18 @@ class Visitors extends React.Component {
                     ></MdRefresh>
                 </div>
 
-                <div className="pagination">
-                    <button
-                        onClick={() => {
-                            this.prev_page();
-                        }}
-                    >
-                        <BiLeftArrow></BiLeftArrow>
-                    </button>
-                    <label>
-                        Sahypa {this.state.current_page}/{this.state.last_page}{" "}
-                    </label>
-                    <button
-                        onClick={() => {
-                            this.next_page();
-                        }}
-                    >
-                        <BiRightArrow></BiRightArrow>
-                    </button>
-                </div>
+                <Pagination
+                    className="pagination"
+                    onChange={(event, page) => {
+                        this.setPage(page);
+                    }}
+                    count={Number(this.state.last_page)}
+                    variant="outlined"
+                    shape="rounded"
+                />
 
-                <table className="text-slate-600">
-                    <tr>
+                <table className="text-slate-600 w-full text-[12px]">
+                    <tr className="bg-slate-200">
                         <th>IP</th>
                         <th>device_id</th>
                         <th>App version</th>

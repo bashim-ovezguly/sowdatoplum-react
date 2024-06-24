@@ -34,6 +34,9 @@ class AdminCarDetail extends React.Component {
             colors: [],
             wds: [],
             price: "",
+            storeName: "",
+            storeID: "",
+
             locationSelectorOpen: false,
 
             auth: {
@@ -91,41 +94,43 @@ class AdminCarDetail extends React.Component {
             .get(server + "/api/admin/cars/" + id, this.state.auth)
             .then((resp) => {
                 this.setState({
-                    mark: resp.data["mark"],
-                    model: resp.data["model"],
-                    active: resp.data["active"],
-                    color: resp.data["color"],
-                    credit: resp.data["credit"],
-                    swap: resp.data["swap"],
+                    mark: resp.data.mark,
+                    model: resp.data.model,
+                    active: resp.data.active,
+                    color: resp.data.color,
+                    credit: resp.data.credit,
+                    swap: resp.data.swap,
                     on_slider: resp.data.on_slider,
-                    none_cash_pay: resp.data["none_cash_pay"],
-                    fuel: resp.data["fuel"],
-                    body_type: resp.data["body_type"],
-                    id: resp.data["id"],
-                    millage: resp.data["millage"],
-                    on_search: resp.data["on_search"],
-                    transmission: resp.data["transmission"],
-                    vin: resp.data["vin"],
-                    year: resp.data["year"],
-                    recolored: resp.data["recolored"],
-                    engine: resp.data["engine"],
-                    viewed: resp.data["viewed"],
-                    detail: resp.data["detail"],
+                    none_cash_pay: resp.data.none_cash_pay,
+                    fuel: resp.data.fuel,
+                    body_type: resp.data.body_type,
+                    id: resp.data.id,
+                    millage: resp.data.millage,
+                    on_search: resp.data.on_search,
+                    transmission: resp.data.transmission,
+                    vin: resp.data.vin,
+                    year: resp.data.year,
+                    recolored: resp.data.recolored,
+                    engine: resp.data.engine,
+                    viewed: resp.data.viewed,
+                    detail: resp.data.detail,
                     img: resp.data.img.img_m,
-                    created_at: resp.data["created_at"],
-                    images: resp.data["images"],
-                    category: resp.data["category"],
-                    phone: resp.data["phone"],
-                    country: resp.data["country"],
+                    created_at: resp.data.created_at,
+                    images: resp.data.images,
+                    category: resp.data.category,
+                    phone: resp.data.phone,
+                    country: resp.data.country,
                     store_id: resp.data.store.id,
                     store_name: resp.data.store.name,
                     location_name: resp.data.location,
                     location_id: resp.data.location_id,
-                    status: resp.data["status"],
-                    price: resp.data["price"],
+                    status: resp.data.status,
+                    price: resp.data.price,
                     customer_id: resp.data.customer.id,
                     customer_name: resp.data.customer.name,
                     customer_phone: resp.data.customer.phone,
+                    storeName: resp.data.store.name,
+                    storeID: resp.data.store.id,
                     wd: resp.data.wheel_drive,
                     isLoading: false,
                 });
@@ -178,11 +183,11 @@ class AdminCarDetail extends React.Component {
                 this.state.auth
             )
             .then((resp) => {
-                alert("Ýatda saklandy");
+                toast.success("Ýatda saklandy");
                 this.setData();
             })
             .catch((err) => {
-                alert("Ýalňyşlyk ýüze çykdy");
+                toast.error("Ýalňyşlyk ýüze çykdy");
             });
     }
 
@@ -233,8 +238,9 @@ class AdminCarDetail extends React.Component {
         formdata.append("millage", document.getElementById("millage").value);
         formdata.append("detail", document.getElementById("detail").value);
         formdata.append("customer", document.getElementById("customer").value);
-
+        formdata.append("store", document.getElementById("store").value);
         formdata.append("engine", document.getElementById("engine").value);
+        formdata.append("vin", document.getElementById("vin").value);
 
         if (document.getElementById("swap").checked) {
             formdata.append("swap", true);
@@ -416,23 +422,23 @@ class AdminCarDetail extends React.Component {
                 <div className="flex flex-wrap">
                     {this.state.images.map((item) => {
                         return (
-                            <div className="relative z-[-1] overflow-hidden m-2">
+                            <div className="overflow-hidden m-2">
                                 <img
                                     className="w-[120px] h-[120px] object-cover rounded-lg "
                                     alt=""
                                     defaultValue={"/default.png"}
                                     src={server + item.img_m}
                                 ></img>
-                                <div className="absolute z-1 top-1 left-1 flex items-center">
+                                <div className="top-1 left-1 flex items-center">
                                     <AiFillDelete
-                                        className="bg-red-600 text-white rounded-full p-1 shadow-lg hover:bg-slate-500"
+                                        className="rounded-full p-1 hover:bg-slate-300 text-red-600"
                                         size={25}
                                         onClick={() => {
                                             this.removeImage(item.id);
                                         }}
                                     ></AiFillDelete>
                                     <FcCheckmark
-                                        className="bg-white text-green-600 rounded-full p-1 shadow-lg hover:bg-slate-500"
+                                        className="rounded-full p-1 hover:bg-slate-300"
                                         size={25}
                                         onClick={() => {
                                             this.setMainImage(item.id);
@@ -444,7 +450,7 @@ class AdminCarDetail extends React.Component {
                     })}
                 </div>
 
-                <div className="textData max-w-[400px]">
+                <div className="textData max-w-[600px] mx-auto">
                     <div className="grid">
                         {this.state.status === "accepted" && (
                             <label>Kabul edilen </label>
@@ -527,6 +533,20 @@ class AdminCarDetail extends React.Component {
                                 {this.state.fuel}
                             </option>
                             {this.state.fuels.map((item) => {
+                                return (
+                                    <option value={item.id}>
+                                        {" "}
+                                        {item.name_tm}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                        <label>Store</label>
+                        <select id="store">
+                            <option value={this.state.storeID} hidden>
+                                {this.state.storeName}
+                            </option>
+                            {this.state.stores.map((item) => {
                                 return (
                                     <option value={item.id}>
                                         {" "}
@@ -640,6 +660,13 @@ class AdminCarDetail extends React.Component {
                             id="phone"
                             type={"tel"}
                             defaultValue={this.state.phone}
+                        ></input>
+
+                        <label>VIN</label>
+                        <input
+                            id="vin"
+                            type={"text"}
+                            defaultValue={this.state.vin}
                         ></input>
 
                         <div>

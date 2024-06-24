@@ -1,7 +1,6 @@
 import axios from "axios";
 import React from "react";
 import { server } from "../../static";
-import "./shoppingCenters.css";
 import { Link } from "react-router-dom";
 import { BiMap } from "react-icons/bi";
 
@@ -31,10 +30,6 @@ class ShoppingCenterDetail extends React.Component {
     }
 
     setData() {
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        const customer = urlParams.get("customer");
-
         const pathname = window.location.pathname;
         const id = pathname.split("/")[2];
 
@@ -61,7 +56,7 @@ class ShoppingCenterDetail extends React.Component {
 
                 <h4 className="">Dükanlar {this.state.stores.length} sany</h4>
 
-                <div className="items flex flex-wrap">
+                <div className="grid grid-cols-4 sm:grid-cols-2">
                     {this.state.stores.map((item) => {
                         return (
                             <Link
@@ -70,10 +65,10 @@ class ShoppingCenterDetail extends React.Component {
                             >
                                 <img
                                     alt=""
-                                    className="rounded border"
+                                    className="rounded-md w-full h-[200px] sm:h-[150px] object-cover"
                                     src={server + item.img}
                                 ></img>
-                                <label>{item.name}</label>
+                                <label className="my-1">{item.name}</label>
                             </Link>
                         );
                     })}
