@@ -2,9 +2,10 @@ import axios from "axios";
 import React from "react";
 import { FiEye } from "react-icons/fi";
 import { server } from "../../static";
-import { BiCalendar, BiPhone } from "react-icons/bi";
+import { BiCalendar, BiMap, BiPhone } from "react-icons/bi";
 import { Link } from "react-router-dom";
-import ImageViewer from "../components/ImageViewer";
+import Carousel from "react-multi-carousel";
+// import { Carousel } from "react-responsive-carousel";
 
 class CarDetail extends React.Component {
     constructor(props) {
@@ -12,25 +13,8 @@ class CarDetail extends React.Component {
 
         this.state = {
             isLoading: true,
-            productID: "",
-            category: "",
-            name: "",
-            location: "",
-            img: "",
-            created_at: "",
             images: [],
-            store_id: "",
-            customer_name: "",
             sliderImages: [],
-            sliderIndex: 0,
-            imgViewer: false,
-
-            auth: {
-                auth: {
-                    username: localStorage.getItem("username"),
-                    password: localStorage.getItem("password"),
-                },
-            },
         };
 
         this.setData();
@@ -53,41 +37,46 @@ class CarDetail extends React.Component {
 
         axios.get(server + "/mob/cars/" + id).then((resp) => {
             document.title =
-                resp.data.mark + " " + resp.data.model + " " + resp.data.year;
+                resp.data.mark.name +
+                " " +
+                resp.data.model.name +
+                " " +
+                resp.data.year;
 
             this.setState({
-                mark: resp.data.mark,
-                model: resp.data.model,
+                id: resp.data.id,
+                mark: resp.data.mark.name,
+                model: resp.data.model.name,
                 price: resp.data.price,
-                color: resp.data.color,
+                color: resp.data.color.name,
                 credit: resp.data.credit,
                 swap: resp.data.swap,
                 none_cash_pay: resp.data.none_cash_pay,
-                fuel: resp.data.fuel,
-                body_type: resp.data.body_type,
-                id: resp.data.id,
+                fuel: resp.data.fuel.name,
+                body_type: resp.data.body_type.name,
                 millage: resp.data.millage,
-                on_search: resp.data.on_search,
-                transmission: resp.data.transmission,
+                transmission: resp.data.transmission.name,
                 vin: resp.data.vin,
                 year: resp.data.year,
                 recolored: resp.data.recolored,
                 engine: resp.data.engine,
-                location: resp.data.location,
+                location: resp.data.location.name,
                 viewed: resp.data.viewed,
                 detail: resp.data.detail,
                 img: resp.data.img.img_m,
                 created_at: resp.data.created_at,
                 images: resp.data.images,
                 phone: resp.data.phone,
-                country: resp.data.country,
-                store_id: resp.data.store.id,
                 store_name: resp.data.store.name,
-                store_img: resp.data.store.img,
-                customer_id: resp.data.customer.id,
-                customer_name: resp.data.customer.name,
+                store_id: resp.data.store.id,
+                store_logo: resp.data.store.logo,
                 isLoading: false,
             });
+
+            try {
+                this.setState({ wd: resp.data.wd.name });
+            } catch (error) {}
+
             const images = [];
             resp.data.images.map((item) => {
                 images.push(server + item.img_m);
@@ -96,62 +85,47 @@ class CarDetail extends React.Component {
         });
     }
 
-    setSliderImg(src) {
-        document.getElementById("sliderMainImg").src = server + src;
+    componentDidMount() {
+        window.scrollTo(0, 0);
     }
 
     render() {
+        const responsive = {
+            superLargeDesktop: {
+                // the naming can be any, depends on you.
+                breakpoint: { max: 4000, min: 3000 },
+                items: 1,
+            },
+            desktop: {
+                breakpoint: { max: 3000, min: 1024 },
+                items: 1,
+            },
+            tablet: {
+                breakpoint: { max: 1024, min: 464 },
+                items: 1,
+            },
+            mobile: {
+                breakpoint: { max: 400, min: 0 },
+                items: 1,
+            },
+        };
         return (
-            <div className="p-4 grid-cols-2 grid sm:grid-cols-1">
-                <div className="grid h-max m-2">
-                    <ImageViewer
-                        parent={this}
-                        src={this.state.imgViewerSrc}
-                        show={this.state.imgViewer}
-                        images={this.state.sliderImages}
-                        index={this.state.sliderIndex}
-                    ></ImageViewer>
-
-                    <img
-                        onClick={() => {
-                            this.setState({
-                                imgViewer: true,
-                                sliderIndex: 0,
-                            });
-                        }}
-                        id="sliderMainImg"
-                        alt=""
-                        ref={"sliderMainImg"}
-                        className="mainImg w-full border my-2 sm:h-[250px] h-[400px] object-cover 
-                            overflow-hidden rounded-lg"
-                        src={server + this.state.img}
-                    ></img>
-
-                    <div className="grid grid-cols-3 sm:grid-cols-2 h-max">
-                        {this.state.images.map((item, index) => {
+            <div className=" grid-cols-2 grid sm:grid-cols-1 not-sm:p-2">
+                <div className="grid h-max m-2 p-2">
+                    <Carousel className="border" responsive={responsive}>
+                        {this.state.images.map((item) => {
                             return (
-                                <div className="m-2" key={item.id}>
-                                    <img
-                                        alt=""
-                                        className="max-w-none overflow-hidden hover:shadow-2xl duration-200 
-                                                    object-cover h-[150px] w-full rounded-lg"
-                                        onClick={() => {
-                                            this.setState({
-                                                imgViewerSrc:
-                                                    server + item.img_m,
-                                                imgViewer: true,
-                                                sliderIndex: index,
-                                            });
-                                        }}
-                                        src={server + item.img_s}
-                                    ></img>
-                                </div>
+                                <img
+                                    alt=""
+                                    className="h-[500px] sm:h-[300px] object-cover w-full overflow-hidden"
+                                    src={server + item.img_m}
+                                ></img>
                             );
                         })}
-                    </div>
+                    </Carousel>
                 </div>
 
-                <div className="grid h-max text-slate-700 py-[10px] shadow-md border rounded-lg p-2 m-4">
+                <div className="grid h-max text-slate-700 py-[10px] p-4  text-[14px] max-w-[400px]">
                     <div className="flex items-center flex-wrap">
                         <label className="font-bold text-[22px]">
                             {this.state.mark} {this.state.model}{" "}
@@ -159,9 +133,25 @@ class CarDetail extends React.Component {
                         </label>
                     </div>
 
-                    <label className="text-[22px] font-bold text-sky-400 py-[2] ">
-                        {this.state.price}
+                    <label className="text-[22px] font-bold text-sky-600 py-[2] ">
+                        {this.state.price} TMT
                     </label>
+
+                    <div className="flex justify-start items-center">
+                        <BiMap size={20}></BiMap>
+                        <label>{this.state.location}</label>
+                    </div>
+
+                    <div className="flex items-center mr-[10px]">
+                        <FiEye size={20}></FiEye>
+                        <label className="mx-1"> {this.state.viewed} </label>
+                    </div>
+                    <div className="flex items-center mr-[10px]">
+                        <BiCalendar size={20}></BiCalendar>
+                        <label id="created_at" className="mx-1">
+                            {this.state.created_at}
+                        </label>
+                    </div>
 
                     {(this.state.detail !== "") |
                         (this.state.detail !== undefined) && (
@@ -170,37 +160,39 @@ class CarDetail extends React.Component {
 
                     {this.state.store_name !== undefined && (
                         <Link
-                            to={"/stores/" + this.state.store_id}
-                            className="store flex items-center rounded-md border my-2 duration-100 text-[16px] hover:bg-slate-100"
+                            to={"/stores/" + this.state.store_id + "/cars"}
+                            className="store flex items-center border my-2 duration-100 text-[16px] hover:shadow-xl"
                         >
                             <img
                                 alt=""
-                                src={server + this.state.store_img}
-                                className="store_img w-[50px] h-[50px] overflow-hidden rounded-full m-1"
+                                src={server + this.state.store_logo}
+                                className="store_img w-[50px] h-[50px] overflow-hidden rounded-2xl m-1"
                             ></img>
                             <div className="grid h-max">
-                                <div className="hover:text-sky-300">
-                                    {this.state.store_name}
-                                </div>
+                                <label className="text-[13px]">Dükan</label>
+                                <div className="">{this.state.store_name}</div>
                             </div>
                         </Link>
                     )}
 
-                    <div className="view flex items-center justify-end">
-                        <div className="flex items-center mr-[10px]">
-                            <FiEye size={20}></FiEye>
-                            <label> {this.state.viewed} </label>
-                        </div>
-                        <div className="flex items-center mr-[10px]">
-                            <BiCalendar size={20}></BiCalendar>
-                            <label className="created_at">
-                                {this.state.created_at}
-                            </label>
-                        </div>
-                    </div>
+                    {this.state.phone !== "" && (
+                        <a
+                            href={"tel:" + this.state.phone}
+                            className="bg-green-600 rounded-lg my-2 text-white p-2 flex items-center 
+                            justify-center text-[16px] duration-300 hover:bg-sky-600"
+                        >
+                            <BiPhone
+                                className="mx-[2px] rounded-full p-[5px] "
+                                size={30}
+                            ></BiPhone>
+                            <label>{this.state.phone} </label>
+                        </a>
+                    )}
 
-                    <div className="my-3">
-                        <label>Häsiýetnamasy</label>
+                    <div className="my-3 shadow-md rounded-lg border p-4">
+                        <label className="font-bold text-sky-600">
+                            Häsiýetnamasy
+                        </label>
                         <div className="flex justify-between border-b py-2">
                             <label className="key">Marka we model:</label>
                             <label className="value ml-[10px] font-bold">
@@ -217,7 +209,7 @@ class CarDetail extends React.Component {
                         <div className="flex justify-between border-b py-2">
                             <label className="key">Bahasy:</label>
                             <label className="value ml-[10px] font-bold">
-                                {this.state.price}
+                                {this.state.price} TMT
                             </label>
                         </div>
 
@@ -239,12 +231,7 @@ class CarDetail extends React.Component {
                                 {this.state.transmission}
                             </label>
                         </div>
-                        <div className="flex justify-between border-b py-2">
-                            <label className="key">VIN kody:</label>
-                            <label className="value ml-[10px] font-bold">
-                                {this.state.vin}
-                            </label>
-                        </div>
+
                         <div className="flex justify-between border-b py-2">
                             <label className="key">Ýerleşýän ýeri:</label>
                             <label className="value ml-[10px] font-bold">
@@ -265,23 +252,20 @@ class CarDetail extends React.Component {
                             </label>
                         </div>
                         <div className="flex justify-between border-b py-2">
+                            <label className="key">Ýörediji görnüşi:</label>
+                            <label className="value ml-[10px] font-bold">
+                                {this.state.wd}
+                            </label>
+                        </div>
+                        <div className="flex justify-between border-b py-2">
                             <label className="key">Motory:</label>
                             <label className="value ml-[10px] font-bold">
                                 {this.state.engine}
                             </label>
                         </div>
-                        <div className="flex justify-between border-b py-2">
-                            <label className="key">Satyjy:</label>
-                            <Link
-                                className="value ml-[10px] font-bold"
-                                to={"/customers/" + this.state.customer_id}
-                            >
-                                {this.state.customer_name}
-                            </Link>
-                        </div>
 
                         <div className="flex justify-between border-b py-2">
-                            <label className="key">Çalşyk:</label>
+                            <label className="key">Obmen:</label>
                             <label className="value ml-[10px] font-bold">
                                 {this.state.swap === true ? "Hawa" : "Ýok"}
                             </label>
@@ -292,36 +276,12 @@ class CarDetail extends React.Component {
                                 {this.state.credit === true ? "Bar" : "Ýok"}
                             </label>
                         </div>
-                        <div className="flex justify-between border-b py-2">
-                            <label className="key">Nagt däl töleg:</label>
-                            <label className="value ml-[10px] font-bold">
-                                {this.state.none_cash_pay === true
-                                    ? "Bar"
-                                    : "Ýok"}
-                            </label>
-                        </div>
-                        <div className="flex justify-between border-b py-2">
-                            <label className="key">Reňki üýtgedilen:</label>
-                            <label className="value ml-[10px] font-bold">
-                                {this.state.recolored === true ? "Hawa" : "Ýok"}
-                            </label>
-                        </div>
 
-                        <div className="flex items-center justify-between border-b py-2">
-                            <label>Telefon belgisi:</label>
-                            {this.state.phone !== "" && (
-                                <a
-                                    href={"tel:" + this.state.phone}
-                                    className="text-green-500 font-bold duration-100  hover:text-green-700
-                                            my-1 flex items-center border rounded-md justify-center w-max px-2"
-                                >
-                                    <BiPhone
-                                        className="mx-[2px] rounded-full p-[5px] "
-                                        size={30}
-                                    ></BiPhone>
-                                    <label>{this.state.phone} </label>
-                                </a>
-                            )}
+                        <div className="flex justify-between border-b py-2">
+                            <label className="key">VIN kody:</label>
+                            <label className="value ml-[10px] font-bold">
+                                {this.state.vin}
+                            </label>
                         </div>
                     </div>
                 </div>

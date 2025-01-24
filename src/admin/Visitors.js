@@ -6,9 +6,10 @@ import { server } from "../static";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Pagination from "@mui/material/Pagination";
+import ProgressIndicator from "./ProgressIndicator";
 
 class Visitors extends React.Component {
-    visitorsUrl = "/api/admin/visitors/";
+    visitorsUrl = "/api/adm/visitors/";
     constructor(props) {
         super(props);
 
@@ -58,7 +59,7 @@ class Visitors extends React.Component {
     setData() {
         axios
             .get(
-                server + "/api/admin/visitors/?page=" + this.state.current_page,
+                server + "/api/adm/visitors/?page=" + this.state.current_page,
                 { auth: this.state.auth }
             )
             .then((resp) => {
@@ -77,7 +78,7 @@ class Visitors extends React.Component {
         }
         axios
             .post(
-                server + "/api/admin/visitors/delete/" + id,
+                server + "/api/adm/visitors/delete/" + id,
                 {},
                 {
                     auth: this.state.auth,
@@ -90,21 +91,18 @@ class Visitors extends React.Component {
 
     render() {
         return (
-            <div className="vistors">
+            <div className="vistors p-2">
                 <ToastContainer
                     autoClose={10000}
                     closeOnClick={true}
                 ></ToastContainer>
 
                 <div className="flex items-center">
-                    <label>
+                    <label className="text-lg font-bold">
                         Myhmanlar
-                        {this.state.isLoading && (
-                            <span className="loader">
-                                {" "}
-                                - Maglumat ýüklenýär... Garaşyň
-                            </span>
-                        )}
+                        <ProgressIndicator
+                            open={this.state.isLoading}
+                        ></ProgressIndicator>
                     </label>
                     <MdRefresh
                         onClick={() => {
@@ -126,12 +124,13 @@ class Visitors extends React.Component {
                     shape="rounded"
                 />
 
-                <table className="text-slate-600 w-full text-[12px]">
+                <table className="text-slate-600 w-full text-[12px] border my-2">
                     <tr className="bg-slate-200">
+                        <th>ID</th>
+                        <th>TIME</th>
                         <th>IP</th>
                         <th>device_id</th>
                         <th>App version</th>
-                        <th>TIME</th>
                         <th>Browser</th>
                         <th>OS</th>
                         <th></th>
@@ -139,13 +138,23 @@ class Visitors extends React.Component {
                     {this.state.iplist.map((item) => {
                         return (
                             <tr className="hover:bg-slate-100">
-                                <td>{item.ip}</td>
-                                <td>{item.device_id}</td>
-                                <td>{item.app_version}</td>
-                                <td>{item.created_at}</td>
-                                <td>{item.browser}</td>
-                                <td>{item.os}</td>
-                                <td>
+                                <td className="px-2 border-b m-1">{item.id}</td>
+                                <td className="px-2 border-b m-1">
+                                    {item.created_at}
+                                </td>
+                                <td className="px-2 border-b m-1">{item.ip}</td>
+                                <td className="px-2 border-b m-1">
+                                    {item.device_id}
+                                </td>
+                                <td className="px-2 border-b m-1">
+                                    {item.app_version}
+                                </td>
+
+                                <td className="px-2 border-b m-1">
+                                    {item.browser}
+                                </td>
+                                <td className="px-2 border-b m-1">{item.os}</td>
+                                <td className="px-2 border-b m-1">
                                     <MdDelete
                                         className="hover:text-slate-500"
                                         size={25}

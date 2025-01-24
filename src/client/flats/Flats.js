@@ -127,8 +127,8 @@ class Flats extends React.Component {
                         return (
                             <Link
                                 to={"/flats/" + item.id}
-                                className="grid grid-rows-[max-content_auto] bg-slate-100 duration-200
-                                            hover:shadow-lg rounded-md text-slate-600 sm:w-[150px] m-2 overflow-hidden border"
+                                className="grid grid-rows-[max-content_auto] duration-200 hover:shadow-lg 
+                                shadow-md rounded-md text-slate-600 sm:w-[150px] m-2 overflow-hidden border"
                             >
                                 <img
                                     className="h-[200px] object-cover sm:h-[150px] w-full"

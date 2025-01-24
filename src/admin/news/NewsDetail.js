@@ -10,6 +10,7 @@ import VideoThumbnail from "react-video-thumbnail";
 import { MdArrowLeft, MdOutlineArrowLeft, MdVideocam } from "react-icons/md";
 import { AiOutlineArrowLeft } from "react-icons/ai";
 import { Link } from "react-router-dom";
+import ProgressIndicator from "../ProgressIndicator";
 
 class AdminNewsDetail extends React.Component {
     constructor(props) {
@@ -58,11 +59,7 @@ class AdminNewsDetail extends React.Component {
         fdata.append("created_at", this.state.created_at);
 
         axios
-            .put(
-                server + "/api/admin/news/" + id + "/",
-                fdata,
-                this.state.config
-            )
+            .put(server + "/api/adm/news/" + id + "/", fdata, this.state.config)
             .then((resp) => {
                 this.initState();
                 toast.success("Kabul edildi");
@@ -80,11 +77,8 @@ class AdminNewsDetail extends React.Component {
         fdata.append("created_at", this.state.created_at);
 
         axios
-            .put(
-                server + "/api/admin/news/" + id + "/",
-                fdata,
-                this.state.config
-            )
+            .put(server + "/api/adm/news/" + id + "/", fdata, this.state.config)
+
             .then((resp) => {
                 this.initState();
                 toast.success("Gaýtaryldy");
@@ -97,16 +91,13 @@ class AdminNewsDetail extends React.Component {
         this.setState({ id: id });
 
         axios
-            .get(server + "/api/admin/news_imgs/?news=" + id, this.state.config)
+            .get(server + "/api/adm/news_imgs/?news=" + id, this.state.config)
             .then((resp) => {
                 this.setState({ images: resp.data.data });
             });
 
         axios
-            .get(
-                server + "/api/admin/news_videos/?news=" + id,
-                this.state.config
-            )
+            .get(server + "/api/adm/news_videos/?news=" + id, this.state.config)
             .then((resp) => {
                 this.setState({ videos: resp.data.data });
             });
@@ -118,10 +109,10 @@ class AdminNewsDetail extends React.Component {
             });
 
         axios
-            .get(server + "/api/admin/news/" + id, this.state.config)
+            .get(server + "/api/adm/news/" + id, this.state.config)
             .then((resp) => {
                 this.setState({ newsItem: resp.data });
-                this.setState({ title_tm: resp.data.title_tm });
+                this.setState({ tm: resp.data.title_tm });
                 this.setState({ status: resp.data.status });
                 this.setState({ title_ru: resp.data.title_ru });
                 this.setState({ title_en: resp.data.title_en });
@@ -150,7 +141,7 @@ class AdminNewsDetail extends React.Component {
 
         this.setState({ isLoading: true });
         axios
-            .post(server + "/api/admin/news_videos/", fdata, {
+            .post(server + "/api/adm/news_videos/", fdata, {
                 auth: this.state.auth,
             })
             .then((resp) => {
@@ -167,7 +158,7 @@ class AdminNewsDetail extends React.Component {
         }
 
         axios
-            .delete(server + "/api/admin/news/" + id, this.state.config)
+            .delete(server + "/api/adm/news/" + id, this.state.config)
             .then((resp) => {
                 toast.success("Habar bozuldy");
                 window.history.back();
@@ -177,7 +168,7 @@ class AdminNewsDetail extends React.Component {
     deleteImage(id) {
         axios
             .post(
-                server + "/api/admin/news/img/delete/" + id,
+                server + "/api/adm/news/img/delete/" + id,
                 {},
                 this.state.config
             )
@@ -214,10 +205,10 @@ class AdminNewsDetail extends React.Component {
         }
 
         axios
-            .post(server + "/api/admin/news_imgs/", formdata, this.state.config)
+            .post(server + "/api/adm/news_imgs/", formdata, this.state.config)
             .then((resp) => {
                 this.initState();
-                toast.promise("Suratlar yuklenyar");
+                toast.promise("S/adm/ yuklenyar");
             })
             .catch((err) => {
                 toast.error("Surat yuklenende yalňyşlyk ýüze çykdy");
@@ -237,7 +228,7 @@ class AdminNewsDetail extends React.Component {
 
         axios
             .put(
-                server + "/api/admin/news/" + this.state.id + "/",
+                server + "/api/adm/news/" + this.state.id + "/",
                 fdata,
                 this.state.config
             )
@@ -257,18 +248,18 @@ class AdminNewsDetail extends React.Component {
     render() {
         if (this.state.isLoading) {
             return (
-                <div className="flex justify-center">
-                    <label>Ýüklenýär...</label>
-                </div>
+                <ProgressIndicator
+                    open={this.state.isLoading}
+                ></ProgressIndicator>
             );
         }
 
         return (
-            <div className="news grid max-w-[600px] mx-auto">
+            <div className="news grid max-w-[900px] mx-auto">
                 <ToastContainer closeOnClick autoClose={5000} />
 
                 <Link
-                    to={"/admin/news"}
+                    to={"/superuser/news"}
                     className="flex items-center my-2 hover:text-sky-600 w-max"
                 >
                     <AiOutlineArrowLeft></AiOutlineArrowLeft>
@@ -316,25 +307,25 @@ class AdminNewsDetail extends React.Component {
                 <div className="flex flex-wrap">
                     {this.state.images.map((item) => {
                         return (
-                            <div className="grid rounded-md overflow-hidden m-2 w-max">
+                            <div className="grid rounded-md overflow-hidden m-2 w-max relative">
                                 <img
-                                    className="w-[150px] h-[150px] object-contain border"
+                                    className="w-[150px] h-[150px] object-cover rounded-lg border"
                                     alt=""
                                     src={item.img_l}
                                 ></img>
-                                <div className="grid text-slate-600 bg-slate-100 content-center grid-cols-2">
-                                    <IoMdTrash
-                                        className=" mx-auto hover:text-slate-300"
-                                        onClick={() => {
-                                            this.deleteImage(item.id);
-                                        }}
-                                        size={25}
-                                    ></IoMdTrash>
+                                <div className="grid absolute top-1 left-1 grid-cols-2">
+                                    <button className="bg-white rounded-full p-1 text-red-600 shadow-lg mr-1">
+                                        <IoMdTrash
+                                            onClick={() => {
+                                                this.deleteImage(item.id);
+                                            }}
+                                            size={25}
+                                        ></IoMdTrash>
+                                    </button>
 
-                                    <BiCheck
-                                        className="mx-auto hover:text-slate-300 "
-                                        size={25}
-                                    ></BiCheck>
+                                    <button className="bg-white rounded-full p-1 text-green-600 shadow-lg">
+                                        <BiCheck size={25}></BiCheck>
+                                    </button>
                                 </div>
                             </div>
                         );
@@ -351,7 +342,7 @@ class AdminNewsDetail extends React.Component {
                     // accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*"
                     type="file"
                 ></input>
-                <label>Wideo</label>
+                {/* <label>Wideo</label>
 
                 <input
                     onChange={() => {
@@ -359,7 +350,7 @@ class AdminNewsDetail extends React.Component {
                     }}
                     id="videoInput"
                     type="file"
-                ></input>
+                ></input> */}
 
                 {this.state.status === "active" ? (
                     <label>Aktiw</label>

@@ -10,15 +10,7 @@ class ProfileProducts extends React.Component {
         super(props);
         this.state = {
             isLoading: true,
-
             products: [],
-
-            auth: {
-                auth: {
-                    username: localStorage.getItem("username"),
-                    password: localStorage.getItem("password"),
-                },
-            },
         };
 
         document.title = "Profile";
@@ -27,7 +19,7 @@ class ProfileProducts extends React.Component {
 
     setData() {
         let id = localStorage.getItem("user_id");
-        axios.get(server + "/mob/products?customer=" + id).then((resp) => {
+        axios.get(server + "/products?customer=" + id).then((resp) => {
             this.setState({ isLoading: false, products: resp.data.data });
         });
     }
@@ -36,13 +28,14 @@ class ProfileProducts extends React.Component {
         return (
             <div className="profile_products">
                 <div className="flex items-center">
-                    <label>Harytlar {this.state.products.length} </label>
-                    <Link to="/products/add">
-                        {" "}
-                        <BiPlus
-                            className="p-[5px] border m-[2px] my-[5px] rounded-md"
-                            size={25}
-                        ></BiPlus>
+                    <label className="font-bold text-appColor m-2">
+                        Harytlar {this.state.products.length}
+                    </label>
+                    <Link
+                        to="/products/add"
+                        className="flex items-center rounded-md px-2 border bg-slate-200 mx-2"
+                    >
+                        <BiPlus size={25}></BiPlus>
                     </Link>
                 </div>
 
@@ -51,39 +44,29 @@ class ProfileProducts extends React.Component {
                         <CircularProgress></CircularProgress>
                     </div>
                 )}
-
-                <div className="grid grid-cols-3 sm:grid-cols-2">
+                <div className="flex flex-wrap not-sm:justify-center">
                     {this.state.products.map((item) => {
                         return (
                             <Link
                                 to={"/products/edit/" + item.id}
-                                className="grid grid-rows-[max-content_auto] overflow-hidden m-2 bg-slate-100
-                                        rounded-md border text-[12px]"
+                                className="grid w-[150px] grid-rows-[max-content_auto] overflow-hidden shadow-md border p-2 rounded-md hover:shadow-lg duration-200
+                                m-2 text-[12px]"
                             >
-                                {item.img === "" && (
-                                    <img
-                                        alt=""
-                                        className="w-[100%] h-[150px] object-cover"
-                                        src="/default.png"
-                                    ></img>
-                                )}
-                                {item.img !== "" && (
-                                    <img
-                                        alt=""
-                                        className="w-[100%] h-[150px] object-cover"
-                                        src={server + item.img}
-                                    ></img>
-                                )}
+                                <img
+                                    alt=""
+                                    className="w-full aspect-square rounded-md border object-cover"
+                                    src={server + item.img}
+                                ></img>
 
-                                <div className="grid text-[14px] p-[5px] items-start h-max sm:text-[11px]">
+                                <div className="grid py-1 items-start h-max sm:text-[11px]">
                                     <label className="font-bold ">
                                         {item.name}
                                     </label>
                                     <label className="price font-bold text-sky-500">
-                                        {item.price}
+                                        {item.price} TMT
                                     </label>
                                     {item.status === "pending" && (
-                                        <label className="status pending">
+                                        <label className="text-orange-600">
                                             Garaşylýar
                                         </label>
                                     )}

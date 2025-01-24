@@ -2,7 +2,7 @@ import axios from "axios";
 import React from "react";
 import { FcCheckmark } from "react-icons/fc";
 import { MdCheck, MdClose } from "react-icons/md";
-import { server } from "../../static";
+import { productUrl, server } from "../../static";
 import { CircularProgress } from "@mui/material";
 import { BiMap } from "react-icons/bi";
 import LocationSelector from "../../admin/LocationSelector";
@@ -39,39 +39,28 @@ class ProductEdit extends React.Component {
     }
 
     setData() {
-        // const queryString = window.location.search;
-        // const urlParams = new URLSearchParams(queryString);
-        // const id = urlParams.get('id')
-
         const pathname = window.location.pathname;
         const id = pathname.split("/")[3];
 
-        axios.get(server + "/mob/products/" + id).then((resp) => {
+        axios.get(productUrl + "/" + id).then((resp) => {
             this.setState({
-                name: resp.data.name_tm,
-                location: resp.data.location,
-                detail_text: resp.data.body_tm,
+                name: resp.data.name,
+                location_id: resp.data.location.id,
+                location_name: resp.data.location.name,
+                description: resp.data.description,
                 img: resp.data.img,
                 amount: resp.data.amount,
                 images: resp.data.images,
-                category: resp.data.category,
+                category: resp.data.category.name,
+                category_id: resp.data.category.id,
                 address: resp.data.address,
                 phone: resp.data.phone,
-                brand: resp.data.brand,
-                customer_id: resp.data.customer_id,
-                customer: resp.data.customer,
-                street: resp.data.street,
                 id: resp.data.id,
-                unit: resp.data.unit,
-                factory: resp.data.factory,
                 created_at: resp.data.created_at,
                 price: resp.data.price,
-                made_in: resp.data.made_in,
-                location_name: resp.data.location,
-                location_id: resp.data.location_id,
                 isLoading: false,
             });
-            document.title = resp.data.name_tm;
+            document.title = resp.data.name;
         });
 
         axios.get(server + "/mob/index/product").then((resp) => {
@@ -81,10 +70,6 @@ class ProductEdit extends React.Component {
         axios.get(server + "/mob/index/locations/all").then((resp) => {
             this.setState({ locations: resp.data });
             this.setState({ isLoading: false });
-        });
-
-        axios.get(server + "/mob/customers").then((resp) => {
-            this.setState({ customers: resp.data });
         });
     }
 
@@ -145,7 +130,10 @@ class ProductEdit extends React.Component {
             );
         }
 
-        formdata.append("body_tm", document.getElementById("body_tm").value);
+        formdata.append(
+            "description",
+            document.getElementById("description").value
+        );
         formdata.append("phone", document.getElementById("phone").value);
         formdata.append("price", document.getElementById("price").value);
         formdata.append("amount", document.getElementById("amount").value);
@@ -226,7 +214,7 @@ class ProductEdit extends React.Component {
                             className="w-full h-[300px] border object-contain"
                             src={main_img}
                         ></img>
-                        <div className="flex flex-wrap overflow-x-auto w-full p-2 border my-2 ">
+                        <div className="flex flex-wrap overflow-x-auto w-full p-1 border my-2 ">
                             {this.state.images.map((item) => {
                                 var img = server + item.img_s;
                                 if (item.img_m === "") {
@@ -234,10 +222,7 @@ class ProductEdit extends React.Component {
                                 }
 
                                 return (
-                                    <div
-                                        className="relative m-[5px]"
-                                        key={item.id}
-                                    >
+                                    <div className="relative m-1" key={item.id}>
                                         <img
                                             alt=""
                                             className="h-[90px] w-[90px] object-cover rounded-md "
@@ -299,43 +284,26 @@ class ProductEdit extends React.Component {
                     </div>
 
                     <div className="grid max-w-[400px] text-[14px] h-max mx-[10px]">
-                        <div className="grid m-[10px] h-max">
-                            <label className="text-[20px] font-bold">
-                                {this.state.name}
-                            </label>
-                            <label className="text-sky-600 font-bold text-[20px]">
-                                {this.state.price} TMT
-                            </label>
-                            <label>{this.state.created_at}</label>
-                            <label>{this.state.category}</label>
-                            <div className="flex items-center">
-                                <BiMap></BiMap>
-                                <label>{this.state.location}</label>
-                            </div>
-                        </div>
                         <label className="">Ady</label>
                         <input id="name" defaultValue={this.state.name}></input>
-
                         <label className="">Bahasy</label>
                         <input
                             id="price"
                             type="number"
                             defaultValue={this.state.price}
                         ></input>
-
                         <label className="">Ammardaky sany</label>
                         <input
                             id="amount"
                             type="number"
                             defaultValue={this.state.amount}
                         ></input>
-
                         <label className="">Telefon belgisi</label>
                         <input
+                            type="number"
                             id="phone"
                             defaultValue={this.state.phone}
                         ></input>
-
                         <label className="">Kategoriýasy</label>
                         <select id="category">
                             <option value={""}>{this.state.category}</option>
@@ -347,12 +315,11 @@ class ProductEdit extends React.Component {
                                 );
                             })}
                         </select>
-
                         <label className="">Ýerleşýän ýeri</label>
-                        <div className="location border rounded-[5px] p-[10px] m-5px flex items-center">
+                        <div className="border p-1 flex items-center rounded-md">
                             <BiMap
                                 size={25}
-                                className="hover:bg-slate-200 rounded-md "
+                                className="hover:bg-slate-100 rounded-full mx-2 "
                                 onClick={() => {
                                     this.setState({
                                         locationSelectorOpen: true,
@@ -360,10 +327,10 @@ class ProductEdit extends React.Component {
                                 }}
                             ></BiMap>
                             <label>{this.state.location_name}</label>
-                            {this.state.location_name.length > 0 && (
+                            {this.state.location_name != undefined && (
                                 <MdClose
                                     size={25}
-                                    className="border rounded-circle hover:bg-slate-400 rounded-md"
+                                    className="border hover:bg-slate-400 mx-2 rounded-full"
                                     onClick={() => {
                                         this.setState({ location_name: "" });
                                         this.setState({ location_id: "" });
@@ -371,23 +338,21 @@ class ProductEdit extends React.Component {
                                 ></MdClose>
                             )}
                         </div>
-
                         {this.state.locationSelectorOpen && (
                             <LocationSelector parent={this}></LocationSelector>
                         )}
-
                         <label className="">Giňişleýin maglumat</label>
                         <textarea
-                            id="body_tm"
-                            defaultValue={this.state.detail_text}
+                            className="min-h-[200px]"
+                            id="description"
+                            defaultValue={this.state.description}
                         ></textarea>
-
-                        <div className="">
+                        <div className="grid grid-cols-2">
                             <button
                                 onClick={() => {
                                     this.save();
                                 }}
-                                className="bg-green-600 text-white p-1 rounded-lg m-1 hover:bg-slate-400 duration-150"
+                                className="bg-green-600 text-white p-2 rounded-md m-1 hover:bg-slate-400 duration-150"
                             >
                                 Ýatda saklamak
                             </button>
@@ -395,7 +360,7 @@ class ProductEdit extends React.Component {
                                 onClick={() => {
                                     this.delete();
                                 }}
-                                className="bg-red-600 text-white p-1 rounded-lg m-1 hover:bg-slate-400 duration-150"
+                                className="bg-red-600 text-white p-2 rounded-md m-1 hover:bg-slate-400 duration-150"
                             >
                                 Bozmak
                             </button>

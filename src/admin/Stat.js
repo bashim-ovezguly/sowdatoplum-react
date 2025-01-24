@@ -1,6 +1,7 @@
 import axios from "axios";
 import React from "react";
 import { server } from "../static";
+import ProgressIndicator from "./ProgressIndicator";
 
 class Stat extends React.Component {
     constructor(props) {
@@ -24,7 +25,7 @@ class Stat extends React.Component {
     }
 
     setData() {
-        axios.get(server + "/api/admin/stat", this.state.auth).then((resp) => {
+        axios.get(server + "/api/adm/stat", this.state.auth).then((resp) => {
             this.setState({ visitors: resp.data.last_30_day_visitors });
             this.setState({ counts: resp.data });
             this.setState({ isLoading: false });
@@ -34,23 +35,21 @@ class Stat extends React.Component {
     render() {
         return (
             <div className="stat p-2">
-                <label className="font-bold text-[22px]">
+                <label className="font-bold text-[20px] my-2">
                     Statistika
-                    {this.state.isLoading && (
-                        <span className="loader"> - Ýüklenýär...</span>
-                    )}
+                    <ProgressIndicator
+                        open={this.state.isLoading}
+                    ></ProgressIndicator>
                 </label>
 
                 <div className="grid">
                     <label>Dükanlar: {this.state.counts.store}</label>
                     <label>Harytlary: {this.state.counts.product}</label>
                     <label>Söwda merkezleri: {this.state.counts.bazar}</label>
-                    <label>Emläkler: {this.state.counts.flat}</label>
                     <label>Awtoulaglar: {this.state.counts.car}</label>
-                    <label>Awtoşaýlar: {this.state.counts.part}</label>
                 </div>
 
-                <label className="font-bold text-[22px]">
+                <label className="font-bold text-[17px] my-2">
                     Soňky 30 gündäki saýta giren adamlaryň sany
                 </label>
 

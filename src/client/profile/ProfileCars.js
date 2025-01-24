@@ -37,13 +37,15 @@ class ProfileCars extends React.Component {
         return (
             <div className="">
                 <div className="flex items-center">
-                    <label>Awtoulaglar </label>
-                    <Link to="/cars/add">
+                    <label className="font-bold m-2">
+                        Awtoulaglar {this.state.cars.length}
+                    </label>
+                    <Link
+                        to="/cars/add"
+                        className="flex items-center rounded-md px-2 border bg-slate-200 mx-2"
+                    >
                         {" "}
-                        <BiPlus
-                            className="p-[5px] border m-[2px] my-[5px] rounded-md"
-                            size={25}
-                        ></BiPlus>
+                        <BiPlus className="" size={25}></BiPlus>
                     </Link>
                 </div>
 
@@ -53,33 +55,25 @@ class ProfileCars extends React.Component {
                     </div>
                 )}
 
-                <div className="grid grid-cols-3 sm:grid-cols-2">
+                <div className="flex flex-wrap">
                     {this.state.cars.map((item) => {
                         return (
                             <Link
                                 to={"/cars/edit/" + item.id}
-                                className="grid overflow-hidden m-[10px] rounded-md bg-slate-100 border text-[14px]"
+                                className="grid w-[150px] overflow-hidden m-2 text-[12px] shadow-md border p-2 rounded-md hover:shadow-lg duration-200 "
                             >
-                                {item.img !== "" && (
-                                    <img
-                                        alt=""
-                                        className="w-[100%] h-[150px]  object-cover"
-                                        src={server + item.img}
-                                    ></img>
-                                )}
-                                {item.img === "" && (
-                                    <img
-                                        alt=""
-                                        className="w-[100%] h-[150px]  object-cover"
-                                        src={"/default.png"}
-                                    ></img>
-                                )}
+                                <img
+                                    alt=""
+                                    className="w-full aspect-square object-cover border rounded-md"
+                                    src={server + item.img}
+                                ></img>
+
                                 <div className="grid p-[5px] sm:text-[11px]">
                                     <label className="font-bold">
                                         {item.mark} {item.model} {item.year}
                                     </label>
                                     <label className="text-sky-600 font-bold">
-                                        {item.price}
+                                        {item.price} TMT
                                     </label>
                                     <div className="flex items-center">
                                         <BiMap></BiMap>

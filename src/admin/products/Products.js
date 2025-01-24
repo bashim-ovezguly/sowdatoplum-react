@@ -2,22 +2,15 @@ import axios from "axios";
 import React from "react";
 import { BiPlus } from "react-icons/bi";
 import { server } from "../../static";
-import {
-    MdCheck,
-    MdDelete,
-    MdPerson,
-    MdRefresh,
-    MdSearch,
-} from "react-icons/md";
+import { MdCheck, MdDelete, MdRefresh, MdSearch } from "react-icons/md";
 import { AiOutlineShop } from "react-icons/ai";
-import { CircularProgress } from "@mui/material";
 import { Link } from "react-router-dom";
 import { Pagination } from "@mui/material";
-
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ProgressIndicator from "../ProgressIndicator";
 
-class Products extends React.Component {
+class AdminProducts extends React.Component {
     constructor(props) {
         super(props);
 
@@ -35,12 +28,13 @@ class Products extends React.Component {
             loadingLocation: false,
 
             filterOpen: false,
-            newProductOpen: false,
+            newProductOpen: true,
 
             uploadedFileSize: 0,
             categories: [],
 
             products: [],
+            stores: [],
 
             auth: {
                 username: localStorage.getItem("admin_username"),
@@ -72,7 +66,7 @@ class Products extends React.Component {
         axios
             .get(
                 server +
-                    "/api/admin/products?page_size=50&page=" +
+                    "/api/adm/products?page_size=50&page=" +
                     this.state.current_page,
                 { params: this.state.url_params, auth: this.state.auth }
             )
@@ -85,27 +79,17 @@ class Products extends React.Component {
             });
     }
 
-    // setFilter(){
-
-    //     let params={
-    //         'name':document.getElementById('filter_name').value,
-    //         'status':document.getElementById('filter_check_state').value,
-    //         'category': document.getElementById('filter_category').value,
-    //     };
-
-    //     window.location.href = '/admin/stores'
-
-    //     this.setState({url_params : params, current_page:1}, ()=>{
-    //         this.setData()
-    //     })
-
-    // }
-
-    deleteProduct(id) {
+    deleteProduct(item) {
         if (window.confirm("Bozmaga ynamyňyz barmy?") === true) {
-            axios.post(server + "/mob/products/delete/" + id).then((resp) => {
-                this.setData();
-            });
+            axios
+                .post(server + "/mob/products/delete/" + item.id)
+                .then((resp) => {
+                    var array = this.state.products;
+                    var index = array.indexOf(item);
+                    array.splice(index, 1);
+                    this.setState({ products: array });
+                    this.setData();
+                });
         }
     }
 
@@ -119,63 +103,6 @@ class Products extends React.Component {
         }
 
         this.setState({ uploadedFileSize: Math.floor(totalSize / 1024) });
-    }
-
-    newProductModal() {
-        if (this.state.newProductOpen === false) {
-            return null;
-        }
-        return (
-            <div className="newProduct_modal">
-                <h3>Täze haryt</h3>
-                <div className="newProduct_fields">
-                    <div>
-                        <input id="active" type="checkbox"></input>{" "}
-                        <label>Aktiw</label>
-                    </div>
-
-                    <label>Ady</label>
-                    <input id="new_product_name" type="text"></input>
-
-                    <label>Dükany</label>
-                    <select id="store">
-                        <option value=""></option>
-                        {this.state.stores.map((item) => {
-                            return (
-                                <option value={item.id}> {item.name_tm}</option>
-                            );
-                        })}
-                    </select>
-
-                    <input
-                        onChange={() => {
-                            this.onSelectImages();
-                        }}
-                        id="imgSelector"
-                        multiple
-                        accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*"
-                        type="file"
-                    ></input>
-                    <label>Size: {this.state.uploadedFileSize} KB</label>
-                </div>
-                <div>
-                    <button
-                        onClick={() => {
-                            this.saveNewProduct();
-                        }}
-                    >
-                        Goşmak
-                    </button>
-                    <button
-                        onClick={() => {
-                            this.setState({ newProductOpen: false });
-                        }}
-                    >
-                        Ýapmak
-                    </button>
-                </div>
-            </div>
-        );
     }
 
     saveNewProduct() {
@@ -206,7 +133,7 @@ class Products extends React.Component {
         }
 
         axios
-            .post(server + "/api/admin/products", formdata, {
+            .post(server + "/api/adm/products/", formdata, {
                 auth: this.state.auth,
             })
             .then((resp) => {
@@ -219,8 +146,9 @@ class Products extends React.Component {
     }
 
     setFilter() {
+        this.setState({ isLoading: true });
         let params = {
-            name_tm: document.getElementById("filter_name").value,
+            name: document.getElementById("filter_name").value,
             status: document.getElementById("filter_status").value,
         };
         this.setState({ url_params: params, current_page: 1 }, () => {
@@ -239,7 +167,7 @@ class Products extends React.Component {
         fdata.append("status", statusValue);
         this.setState({ isLoading: true });
         axios
-            .put(server + "/api/admin/products/" + id + "/", fdata, {
+            .put(server + "/api/adm/products/" + id + "/", fdata, {
                 auth: this.state.auth,
             })
             .then((resp) => {
@@ -253,7 +181,7 @@ class Products extends React.Component {
 
     setPage(pageNumber) {
         axios
-            .get(server + "/api/admin/products?page=" + pageNumber, {
+            .get(server + "/api/adm/products?page=" + pageNumber, {
                 auth: this.state.auth,
             })
             .then((resp) => {
@@ -263,44 +191,48 @@ class Products extends React.Component {
 
     render() {
         return (
-            <div className="products">
+            <div className="products p-2 text-[12px]">
                 <ToastContainer autoClose={5000} closeOnClick={true} />
-                {this.newProductModal()}
-
-                <h3 className="text-2xl">
-                    Harytlar {this.state.total}
-                    <div className="downloader">
-                        {this.state.isLoading && (
-                            <CircularProgress></CircularProgress>
-                        )}
-                    </div>
-                </h3>
-
-                <div className="flex flex-wrap">
+                <ProgressIndicator
+                    open={this.state.isLoading}
+                ></ProgressIndicator>
+                <div className="flex items-center flex-wrap">
+                    <h3 className="text-[18px] font-bold">
+                        Harytlar ({this.state.total} sany)
+                    </h3>
                     <button
                         onClick={() => {
                             this.setState({ newProductOpen: true });
                         }}
-                        className="add"
+                        className="p-1 text-slate-400 hover:bg-slate-200 border ml-1 rounded-md"
                     >
-                        <BiPlus
-                            size={25}
-                            className="text-slate-400 hover:bg-slate-200 rounded-md"
-                        ></BiPlus>
+                        <BiPlus size={20} className=""></BiPlus>
                     </button>
+
                     <button
                         onClick={() => {
                             this.setState({ isLoading: true });
                             this.setData();
                         }}
-                        className="add"
+                        className="p-1 text-slate-400 hover:bg-slate-200 border ml-1 rounded-md"
                     >
-                        <MdRefresh
-                            size={25}
-                            className="text-slate-400 hover:bg-slate-200 rounded-md"
-                        ></MdRefresh>
+                        <MdRefresh size={20} className=""></MdRefresh>
                     </button>
+                    <select className="mx-1" id="filter_status">
+                        <option value={"all"}>Hemmesi</option>
+                        <option value={"pending"}> Garaşylýanlar</option>
+                        <option value={"accepted"}>Kabul edilenler</option>
+                        <option value={"canceled"}>Gaýtarlanlar</option>
+                    </select>
 
+                    <select className="mx-1" id="filter_category">
+                        <option value={""}>Hemmesi</option>
+                        {this.state.categories.map((item) => {
+                            return (
+                                <option value={item.id}>{item.name_tm}</option>
+                            );
+                        })}
+                    </select>
                     <input
                         onChange={() => {
                             this.setFilter();
@@ -309,22 +241,6 @@ class Products extends React.Component {
                         type="search"
                         placeholder="Ady boýunça gözleg"
                     ></input>
-
-                    <select id="filter_status">
-                        <option value={"all"}>Hemmesi</option>
-                        <option value={"pending"}> Garaşylýanlar</option>
-                        <option value={"accepted"}>Kabul edilenler</option>
-                        <option value={"canceled"}>Gaýtarlanlar</option>
-                    </select>
-
-                    <select id="filter_category">
-                        <option value={""}>Hemmesi</option>
-                        {this.state.categories.map((item) => {
-                            return (
-                                <option value={item.id}>{item.name_tm}</option>
-                            );
-                        })}
-                    </select>
                     <button
                         onClick={() => {
                             this.setFilter();
@@ -347,45 +263,40 @@ class Products extends React.Component {
                     shape="rounded"
                 />
 
-                <div className="products flex flex-wrap justify-center">
+                <div className="flex flex-wrap justify-center">
                     {this.state.products.map((item, index) => {
                         return (
                             <div
                                 key={item.id}
-                                className="item text-[12px] grid grid-rows-[max-content_auto] border text-slate-600
-                                w-[200px] sm:w-[150px] m-2 overflow-hidden rounded-md duration-200 hover:shadow-md"
+                                className="item text-[12px] grid grid-rows-[max-content_auto] border 
+                                text-slate-600 p-2
+                                w-[120px] m-2 overflow-hidden rounded-md shadow-md"
                             >
-                                <Link to={"/admin/products/" + item.id}>
+                                <Link to={"/superuser/products/" + item.id}>
                                     {item.img === "" ? (
                                         <img
                                             alt=""
-                                            className="w-full h-[200px] sm:h-[100px] object-cover"
+                                            className="w-full h-[120px] sm:h-[100px] object-contain border"
                                             src="/default.png'"
                                         ></img>
                                     ) : (
                                         <img
                                             alt=""
-                                            className="w-full h-52 object-cover"
+                                            className="w-full h-[120px] object-cover"
                                             src={server + item.img}
                                         ></img>
                                     )}
                                 </Link>
 
-                                <div className="text grid p-2 h-max">
-                                    <label className="name font-bold">
-                                        {item.name_tm}
+                                <div className="text grid p-1 h-max">
+                                    <label className="name line-clamp-1">
+                                        {item.name}
                                     </label>
-                                    <label className="price font-bold text-sky-600">
+
+                                    <label className="price rounded-md text-sky-600">
                                         {item.price} TMT
                                     </label>
 
-                                    {item.status === "accepted" ? (
-                                        <label className="text-green-600">
-                                            Barlanan
-                                        </label>
-                                    ) : (
-                                        ""
-                                    )}
                                     {item.status === "pending" ? (
                                         <label className="text-orange-600">
                                             Garaşylýar
@@ -402,22 +313,18 @@ class Products extends React.Component {
                                     )}
 
                                     <div className="flex items-center">
-                                        <AiOutlineShop></AiOutlineShop>
-                                        <label className="store text-[12px]">
-                                            {item.store_name}
+                                        <AiOutlineShop
+                                            size={18}
+                                        ></AiOutlineShop>
+                                        <label className="store text-[12px] line-clamp-1">
+                                            {item.store.name}
                                         </label>
                                     </div>
 
-                                    <div className="flex items-center">
-                                        <MdPerson></MdPerson>
-                                        <label className="customer text-[12px]">
-                                            {item.customer}
-                                        </label>
-                                    </div>
                                     <div className="grid grid-cols-2">
                                         <button
                                             onClick={() => {
-                                                this.deleteProduct(item.id);
+                                                this.deleteProduct(item);
                                             }}
                                         >
                                             <MdDelete
@@ -448,4 +355,4 @@ class Products extends React.Component {
     }
 }
 
-export default Products;
+export default AdminProducts;

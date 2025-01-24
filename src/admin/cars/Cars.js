@@ -6,6 +6,7 @@ import { server } from "../../static";
 import LocationSelector from "../LocationSelector";
 import { Link } from "react-router-dom";
 import Pagination from "@mui/material/Pagination";
+import ProgressIndicator from "../ProgressIndicator";
 
 class AdminCars extends React.Component {
     constructor(props) {
@@ -120,7 +121,10 @@ class AdminCars extends React.Component {
         }
 
         return (
-            <div className="newCar absolute mx-auto left-0 right-0 bg-white p-4 shadow-lg grid max-w-[600px]">
+            <div
+                style={{ zIndex: 10 }}
+                className="newCar h-[90vh] overflow-y-auto rounded-xl absolute mx-auto left-0 right-0 bg-white p-4 shadow-lg grid max-w-[600px]"
+            >
                 <label>
                     Saýlanan surat jemi: {this.state.selected_images.length}{" "}
                     sany{" "}
@@ -384,16 +388,12 @@ class AdminCars extends React.Component {
         });
 
         axios
-            .get(server + "/api/admin/stores?pagination=None", {
+            .get(server + "/api/adm/stores?pagination=None", {
                 auth: this.state.auth,
             })
             .then((resp) => {
                 this.setState({ stores: resp.data });
             });
-
-        axios.get(server + "/mob/customers", this.state.auth).then((resp) => {
-            this.setState({ customers: resp.data });
-        });
 
         axios.get(server + "/mob/index/car").then((resp) => {
             this.setState({ categories: resp.data.categories });
@@ -401,14 +401,14 @@ class AdminCars extends React.Component {
         });
 
         axios
-            .get(server + "/api/admin/cars/?page=" + this.state.current_page, {
+            .get(server + "/api/adm/cars/?page=" + this.state.current_page, {
                 auth: this.state.auth,
             })
             .then((resp) => {
                 this.setState({ locations: resp.data.data, isLoading: false });
-                this.setState({ last_page: resp.data["last_page"] });
-                this.setState({ page_size: resp.data["page_size"] });
-                this.setState({ total: resp.data["total"] });
+                this.setState({ last_page: resp.data.last_page });
+                this.setState({ page_size: resp.data.page_size });
+                this.setState({ total: resp.data.total });
                 this.setState({ cars: resp.data.data });
                 this.setState({ isLoading: false });
             });
@@ -471,7 +471,7 @@ class AdminCars extends React.Component {
     setPage(pageNumber) {
         this.setState({ current_page: pageNumber });
         axios
-            .get(server + "/api/admin/cars?page=" + pageNumber, {
+            .get(server + "/api/adm/cars?page=" + pageNumber, {
                 auth: this.state.auth,
             })
             .then((resp) => {
@@ -482,12 +482,14 @@ class AdminCars extends React.Component {
     render() {
         return (
             <div className="grid">
-                <h3>
-                    Awtoulaglar ({this.state.total} sany)
-                    {this.state.isLoading && <label> Ýüklenýär...</label>}
-                </h3>
+                <ProgressIndicator
+                    open={this.state.isLoading}
+                ></ProgressIndicator>
 
                 <div className="flex items-center">
+                    <h3 className="text-[18px] font-bold">
+                        Awtoulaglar ({this.state.total} sany)
+                    </h3>
                     <button
                         onClick={() => {
                             this.setState({ isLoading: true });
@@ -495,8 +497,7 @@ class AdminCars extends React.Component {
                         }}
                         className="flex items-center text-[12px] border rounded-md m-1 p-1 hover:bg-slate-200"
                     >
-                        <label>Refresh</label>
-                        <MdRefresh></MdRefresh>
+                        <MdRefresh size={20}></MdRefresh>
                     </button>
 
                     <button
@@ -505,8 +506,7 @@ class AdminCars extends React.Component {
                         }}
                         className="flex items-center text-[12px] border rounded-md m-1 p-1 hover:bg-slate-200"
                     >
-                        <label>Goşmak</label>
-                        <BiPlus></BiPlus>
+                        <BiPlus size={20}></BiPlus>
                     </button>
                 </div>
 
@@ -522,42 +522,37 @@ class AdminCars extends React.Component {
                     shape="rounded"
                 />
 
-                <div className="grid grid-cols-6 sm:grid-cols-2 ">
+                <div className="flex flex-wrap">
                     {this.state.cars.map((item, index) => {
+                        var model = "";
+                        var mark = "";
+                        if (item.model != "") {
+                            model = item.model.name;
+                        }
+                        if (item.mark != "") {
+                            mark = item.mark.name;
+                        }
                         return (
                             <Link
-                                to={"/admin/cars/" + item.id}
+                                to={"/superuser/cars/" + item.id}
                                 key={item.id}
-                                className="item m-2 shadow-md rounded-md overflow-hidden border"
+                                className="w-[150px] text-[12px] m-2 shadow-md rounded-md overflow-hidden border"
                             >
                                 <img
-                                    className="w-full h-[200px] sm:h-[150px] object-cover"
+                                    className="w-full h-[150px] sm:h-[150px] object-cover"
                                     src={server + item.img.img_s}
                                     alt=""
                                 ></img>
 
-                                <div className="text grid text-[14px] p-[5px]">
+                                <div className="text grid text-[11px] p-2">
                                     <label className="font-bold">
-                                        {item.mark} {item.model} {item.year}
+                                        {mark} {model} {item.year}
                                     </label>
-                                    <label className="text-blue-700 font-bold">
-                                        {item.price}
+                                    <label className="text-blue-600 font-bold">
+                                        {item.price} TMT
                                     </label>
 
-                                    {item.customer !== "" && (
-                                        <div className="flex items-center">
-                                            <img
-                                                src={server + item.customer.img}
-                                                alt=""
-                                                className="w-[20px] h-[20px] rounded-full border m-1"
-                                            ></img>
-                                            <label className="name">
-                                                {item.customer.name}
-                                            </label>
-                                        </div>
-                                    )}
-
-                                    <label className="text-[12px]">
+                                    <label className="">
                                         {item.created_at}
                                     </label>
                                     {item.status === "canceled" && (
@@ -571,9 +566,21 @@ class AdminCars extends React.Component {
                                         </label>
                                     )}
                                     {item.status === "accepted" && (
-                                        <label className="text-green-600 font-bold text-[12px]">
+                                        <label className="text-green-600 font-bold">
                                             Kabul edilen
                                         </label>
+                                    )}
+                                    {item.store !== "" && (
+                                        <div className="flex items-center my-1 ">
+                                            <img
+                                                src={server + item.store.logo}
+                                                alt=""
+                                                className="w-[20px] h-[20px] rounded-full border"
+                                            ></img>
+                                            <label className="name line-clamp-1 px-1">
+                                                {item.store.name}
+                                            </label>
+                                        </div>
                                     )}
                                 </div>
                             </Link>

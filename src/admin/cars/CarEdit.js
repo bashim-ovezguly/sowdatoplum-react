@@ -51,16 +51,12 @@ class AdminCarDetail extends React.Component {
     }
 
     setData() {
-        axios.get(server + "/mob/index/locations/all").then((resp) => {
+        axios.get(server + "/index/locations/all").then((resp) => {
             this.setState({ allLocations: resp.data });
         });
 
-        axios.get(server + "/mob/index/stores/all").then((resp) => {
+        axios.get(server + "/index/stores/all").then((resp) => {
             this.setState({ stores: resp.data });
-        });
-
-        axios.get(server + "/mob/customers").then((resp) => {
-            this.setState({ customers: resp.data });
         });
 
         let q = "";
@@ -68,46 +64,36 @@ class AdminCarDetail extends React.Component {
             q = "?mark=" + this.state.selectedMark;
         }
 
-        axios.get(server + "/mob/index/car" + q).then((resp) => {
+        axios.get(server + "/index/car" + q).then((resp) => {
             this.setState({
-                categories: resp.data["categories"],
-                transmissions: resp.data["transmissions"],
-                countries: resp.data["countries"],
-                colors: resp.data["colors"],
-                wds: resp.data["wheel_drives"],
-                models: resp.data["models"],
-                marks: resp.data["marks"],
-                fuels: resp.data["fuels"],
-                body_types: resp.data["body_types"],
+                categories: resp.data.categories,
+                transmissions: resp.data.transmissions,
+                countries: resp.data.countries,
+                colors: resp.data.colors,
+                wds: resp.data.wheel_drives,
+                models: resp.data.models,
+                marks: resp.data.marks,
+                fuels: resp.data.fuels,
+                body_types: resp.data.body_types,
             });
             this.setState({ isLoading: false });
         });
-
-        // const queryString = window.location.search;
-        // const urlParams = new URLSearchParams(queryString);
-        // const id = urlParams.get('id')
 
         const pathname = window.location.pathname;
         const id = pathname.split("/")[3];
 
         axios
-            .get(server + "/api/admin/cars/" + id, this.state.auth)
+            .get(server + "/api/adm/cars/" + id, this.state.auth)
             .then((resp) => {
                 this.setState({
-                    mark: resp.data.mark,
-                    model: resp.data.model,
                     active: resp.data.active,
-                    color: resp.data.color,
                     credit: resp.data.credit,
                     swap: resp.data.swap,
                     on_slider: resp.data.on_slider,
                     none_cash_pay: resp.data.none_cash_pay,
-                    fuel: resp.data.fuel,
-                    body_type: resp.data.body_type,
                     id: resp.data.id,
                     millage: resp.data.millage,
                     on_search: resp.data.on_search,
-                    transmission: resp.data.transmission,
                     vin: resp.data.vin,
                     year: resp.data.year,
                     recolored: resp.data.recolored,
@@ -117,23 +103,58 @@ class AdminCarDetail extends React.Component {
                     img: resp.data.img.img_m,
                     created_at: resp.data.created_at,
                     images: resp.data.images,
-                    category: resp.data.category,
                     phone: resp.data.phone,
-                    country: resp.data.country,
                     store_id: resp.data.store.id,
                     store_name: resp.data.store.name,
-                    location_name: resp.data.location,
-                    location_id: resp.data.location_id,
+                    location_name: resp.data.location.name,
+                    location_id: resp.data.location.id,
                     status: resp.data.status,
                     price: resp.data.price,
-                    customer_id: resp.data.customer.id,
-                    customer_name: resp.data.customer.name,
-                    customer_phone: resp.data.customer.phone,
-                    storeName: resp.data.store.name,
-                    storeID: resp.data.store.id,
-                    wd: resp.data.wheel_drive,
                     isLoading: false,
                 });
+
+                if (resp.data.mark != undefined) {
+                    this.setState({
+                        mark: resp.data.mark.name,
+                        markId: resp.data.mark.id,
+                    });
+                }
+                if (resp.data.model != undefined) {
+                    this.setState({
+                        model: resp.data.model.name,
+                        modelId: resp.data.model.id,
+                    });
+                }
+                if (resp.data.color != undefined) {
+                    this.setState({
+                        color: resp.data.color.name,
+                        colorId: resp.data.color.id,
+                    });
+                }
+                if (resp.data.body_type != undefined) {
+                    this.setState({
+                        body_type_name: resp.data.body_type.name,
+                        body_type_id: resp.data.body_type.id,
+                    });
+                }
+                if (resp.data.fuel != undefined) {
+                    this.setState({
+                        fuel_name: resp.data.fuel.name,
+                        fuel_id: resp.data.fuel.id,
+                    });
+                }
+                if (resp.data.transmission != undefined) {
+                    this.setState({
+                        transmission_name: resp.data.transmission.name,
+                        transmission_id: resp.data.transmission.id,
+                    });
+                }
+                if (resp.data.wd != undefined) {
+                    this.setState({
+                        wd_name: resp.data.wd.name,
+                        wd_id: resp.data.wd.id,
+                    });
+                }
             });
     }
 
@@ -145,7 +166,7 @@ class AdminCarDetail extends React.Component {
 
         axios
             .post(
-                server + "/api/admin/cars/delete/" + this.state.id,
+                server + "/api/adm/cars/delete/" + this.state.id,
                 {},
                 this.state.auth
             )
@@ -161,7 +182,7 @@ class AdminCarDetail extends React.Component {
 
         axios
             .put(
-                server + "/api/admin/cars/" + this.state.id + "/",
+                server + "/api/adm/cars/" + this.state.id + "/",
                 fdata,
                 this.state.auth
             )
@@ -177,11 +198,7 @@ class AdminCarDetail extends React.Component {
         formdata.append("img", id);
 
         axios
-            .put(
-                server + "/mob/cars/" + this.state.id,
-                formdata,
-                this.state.auth
-            )
+            .put(server + "/cars/" + this.state.id, formdata, this.state.auth)
             .then((resp) => {
                 toast.success("Ýatda saklandy");
                 this.setData();
@@ -194,7 +211,7 @@ class AdminCarDetail extends React.Component {
     removeImage(id) {
         if (window.confirm("Bozmaga ynamyňyz barmy?") === true)
             axios
-                .post(server + "/mob/cars/img/delete/" + id, this.state.auth)
+                .post(server + "/cars/img/delete/" + id, this.state.auth)
                 .then((resp) => {
                     this.setData();
                 })
@@ -212,11 +229,7 @@ class AdminCarDetail extends React.Component {
         }
 
         axios
-            .put(
-                server + "/mob/cars/" + this.state.id,
-                formdata,
-                this.state.auth
-            )
+            .put(server + "/cars/" + this.state.id, formdata, this.state.auth)
             .then((resp) => {
                 alert("Ýatda saklandy");
                 this.setData();
@@ -237,7 +250,6 @@ class AdminCarDetail extends React.Component {
         formdata.append("year", document.getElementById("year").value);
         formdata.append("millage", document.getElementById("millage").value);
         formdata.append("detail", document.getElementById("detail").value);
-        formdata.append("customer", document.getElementById("customer").value);
         formdata.append("store", document.getElementById("store").value);
         formdata.append("engine", document.getElementById("engine").value);
         formdata.append("vin", document.getElementById("vin").value);
@@ -289,7 +301,9 @@ class AdminCarDetail extends React.Component {
             formdata.append("model", document.getElementById("model").value);
         }
 
-        formdata.append("location", this.state.location_id);
+        if (this.state.location_id != undefined) {
+            formdata.append("location", this.state.location_id);
+        }
 
         if (document.getElementById("fuel").value !== "") {
             formdata.append("fuel", document.getElementById("fuel").value);
@@ -304,7 +318,7 @@ class AdminCarDetail extends React.Component {
 
         axios
             .put(
-                server + "/api/admin/cars/" + this.state.id + "/",
+                server + "/api/adm/cars/" + this.state.id + "/",
                 formdata,
                 this.state.auth
             )
@@ -319,7 +333,7 @@ class AdminCarDetail extends React.Component {
 
     render() {
         return (
-            <div className="carDetail">
+            <div className="mx-auto text-[12px] p-2">
                 <ToastContainer
                     closeOnClick={true}
                     autoClose={5000}
@@ -330,70 +344,60 @@ class AdminCarDetail extends React.Component {
                         onClick={() => {
                             this.changeStatus("accepted");
                         }}
-                        className="text-[12px] hover:bg-slate-200 m-1 p-1 flex items-center border rounded-md"
+                        className="text-[12px] hover:bg-slate-500 m-1 p-1 px-1 bg-appColor text-white flex items-center border rounded-md "
                     >
                         <label>Kabul etmek</label>
-                        <MdCheck size={20}></MdCheck>
-                    </button>
-
-                    <button
-                        onClick={() => {
-                            this.changeStatus("canceled");
-                        }}
-                        className="text-[12px] hover:bg-slate-200 m-1 p-1 flex items-center border rounded-md"
-                    >
-                        <label>Gaýtarmak</label>
-                        <MdCancel size={20}></MdCancel>
+                        <MdCheck size={18}></MdCheck>
                     </button>
 
                     <button
                         onClick={() => {
                             this.changeStatus("pending");
                         }}
-                        className="text-[12px] hover:bg-slate-200 m-1 p-1 flex items-center border rounded-md"
+                        className="text-[12px] hover:bg-slate-500 m-1 p-1 px-1 bg-appColor text-white flex items-center border rounded-md "
                     >
                         <label>Barlaga goymak</label>
-                        <MdWarning size={20}></MdWarning>
+                        <MdWarning size={18}></MdWarning>
                     </button>
 
                     <button
                         onClick={() => {
                             this.save();
                         }}
-                        className="text-[12px] hover:bg-slate-200 m-1 p-1 flex items-center border rounded-md"
+                        className="text-[12px] hover:bg-slate-500 m-1 p-1 px-1 bg-appColor text-white flex items-center border rounded-md "
                     >
                         <label>Yatda sakla</label>
-                        <MdSave size={20}></MdSave>
+                        <MdSave size={18}></MdSave>
                     </button>
 
                     <button
                         onClick={() => {
                             this.deleteCar();
                         }}
-                        className="text-[12px] hover:bg-slate-200 m-1 p-1 flex items-center border rounded-md"
+                        className="text-[12px] hover:bg-slate-500 m-1 p-1 px-1 bg-appColor text-white flex items-center border rounded-md "
                     >
                         <label>Bozmak</label>
-                        <BiTrash size={20}></BiTrash>
+                        <BiTrash size={18}></BiTrash>
                     </button>
 
                     <button
                         onClick={() => {
                             document.getElementById("imgselector").click();
                         }}
-                        className="text-[12px] hover:bg-slate-200 m-1 p-1 flex items-center border rounded-md"
+                        className="text-[12px] hover:bg-slate-500 m-1 p-1 px-1 bg-appColor text-white flex items-center border rounded-md "
                     >
                         <label>Surat goşmak</label>
-                        <MdImage size={20}></MdImage>
+                        <MdImage size={18}></MdImage>
                     </button>
 
                     <button
                         onClick={() => {
                             this.moveUp();
                         }}
-                        className="text-[12px] hover:bg-slate-200 m-1 p-1 flex items-center border rounded-md"
+                        className="text-[12px] hover:bg-slate-500 m-1 p-1 px-1 bg-appColor text-white flex items-center border rounded-md "
                     >
                         <label>Yokary galdyrmak</label>
-                        <FiArrowUp size={20}></FiArrowUp>
+                        <FiArrowUp size={18}></FiArrowUp>
                     </button>
 
                     <div className="imageCard">
@@ -419,26 +423,26 @@ class AdminCarDetail extends React.Component {
                     src={server + this.state.img}
                 ></img>
 
-                <div className="flex flex-wrap">
+                <div className="flex overflow-x-auto">
                     {this.state.images.map((item) => {
                         return (
-                            <div className="overflow-hidden m-2">
+                            <div className=" border m-1 rounded-xl relative">
                                 <img
-                                    className="w-[120px] h-[120px] object-cover rounded-lg "
+                                    className="w-[100px] h-[100px] object-cover rounded-md max-w-none "
                                     alt=""
                                     defaultValue={"/default.png"}
                                     src={server + item.img_m}
                                 ></img>
-                                <div className="top-1 left-1 flex items-center">
+                                <div className="top-1 left-1 flex items-center absolute">
                                     <AiFillDelete
-                                        className="rounded-full p-1 hover:bg-slate-300 text-red-600"
+                                        className="rounded-full p-1 hover:bg-slate-200 bg-white text-red-600"
                                         size={25}
                                         onClick={() => {
                                             this.removeImage(item.id);
                                         }}
                                     ></AiFillDelete>
                                     <FcCheckmark
-                                        className="rounded-full p-1 hover:bg-slate-300"
+                                        className="rounded-full p-1 hover:bg-slate-200 bg-white"
                                         size={25}
                                         onClick={() => {
                                             this.setMainImage(item.id);
@@ -450,10 +454,12 @@ class AdminCarDetail extends React.Component {
                     })}
                 </div>
 
-                <div className="textData max-w-[600px] mx-auto">
+                <div className="max-w-[600px] mx-auto">
                     <div className="grid">
                         {this.state.status === "accepted" && (
-                            <label>Kabul edilen </label>
+                            <label className="bg-green-600 rounded-md px-2 text-white w-max">
+                                Kabul edilen{" "}
+                            </label>
                         )}
                         {this.state.status === "pending" && (
                             <label>Garaşylýar </label>
@@ -462,7 +468,7 @@ class AdminCarDetail extends React.Component {
                             <label>Gaýtarlan </label>
                         )}
 
-                        <label>Marka</label>
+                        <label className="font-bold">Marka</label>
                         <select
                             onChange={() => {
                                 this.setState(
@@ -478,7 +484,7 @@ class AdminCarDetail extends React.Component {
                             }}
                             id="mark"
                         >
-                            <option hidden value={""}>
+                            <option hidden value={this.state.markId}>
                                 {this.state.mark}
                             </option>
                             {this.state.marks.map((item) => {
@@ -490,7 +496,7 @@ class AdminCarDetail extends React.Component {
                             })}
                         </select>
 
-                        <label>Model</label>
+                        <label className="font-bold">Model</label>
                         <select id="model">
                             <option hidden value={""}>
                                 {this.state.model}
@@ -504,7 +510,7 @@ class AdminCarDetail extends React.Component {
                             })}
                         </select>
 
-                        <label>Bahasy</label>
+                        <label className="font-bold">Bahasy</label>
                         <input
                             id="price"
                             defaultValue={this.state.price
@@ -512,25 +518,25 @@ class AdminCarDetail extends React.Component {
                                 .replace(" ", "")}
                         ></input>
 
-                        <label>Ýyly</label>
+                        <label className="font-bold">Ýyly</label>
                         <input id="year" defaultValue={this.state.year}></input>
 
-                        <label>Motory</label>
+                        <label className="font-bold">Motory</label>
                         <input
                             id="engine"
                             defaultValue={this.state.engine}
                         ></input>
 
-                        <label>Geçen ýoly</label>
+                        <label className="font-bold">Geçen ýoly</label>
                         <input
                             id="millage"
                             defaultValue={this.state.millage}
                         ></input>
 
-                        <label>Ýangyjy</label>
+                        <label className="font-bold">Ýangyjy</label>
                         <select id="fuel">
-                            <option value={""} hidden>
-                                {this.state.fuel}
+                            <option value={this.state.fuel_id} hidden>
+                                {this.state.fuel_name}
                             </option>
                             {this.state.fuels.map((item) => {
                                 return (
@@ -541,41 +547,25 @@ class AdminCarDetail extends React.Component {
                                 );
                             })}
                         </select>
-                        <label>Store</label>
+                        <label className="font-bold">Store</label>
                         <select id="store">
-                            <option value={this.state.storeID} hidden>
-                                {this.state.storeName}
+                            <option value={this.state.store_id} hidden>
+                                {this.state.store_name}
                             </option>
                             {this.state.stores.map((item) => {
                                 return (
                                     <option value={item.id}>
                                         {" "}
-                                        {item.name_tm}
+                                        {item.name}
                                     </option>
                                 );
                             })}
                         </select>
 
-                        <label>Customer</label>
-                        <select id="customer">
-                            <option value={this.state.customer_id} hidden>
-                                {this.state.customer_name}{" "}
-                                {this.state.customer_phone}{" "}
-                            </option>
-                            <option value={""}></option>
-                            {this.state.customers.map((item) => {
-                                return (
-                                    <option value={item.id}>
-                                        {item.phone} {item.name}
-                                    </option>
-                                );
-                            })}
-                        </select>
-
-                        <div className="flex items-center border rounded-md p-2">
+                        <div className="flex items-center border rounded-md p-1">
                             <BiMap
-                                size={30}
-                                className=" hover:bg-slate-300 rounded-md p-2"
+                                size={25}
+                                className=" hover:bg-slate-300 rounded-md   "
                                 onClick={() => {
                                     this.setState({
                                         locationSelectorOpen: true,
@@ -589,10 +579,10 @@ class AdminCarDetail extends React.Component {
                             <LocationSelector parent={this}></LocationSelector>
                         )}
 
-                        <label>Kuzow görnüşi</label>
+                        <label className="font-bold">Kuzow görnüşi</label>
                         <select id="body_type">
-                            <option value={""} hidden>
-                                {this.state.body_type}
+                            <option value={this.state.body_type_id} hidden>
+                                {this.state.body_type_name}
                             </option>
                             {this.state.body_types.map((item) => {
                                 return (
@@ -604,10 +594,10 @@ class AdminCarDetail extends React.Component {
                             })}
                         </select>
 
-                        <label>Korobka</label>
+                        <label className="font-bold">Korobka</label>
                         <select id="transmission">
-                            <option value={""} hidden>
-                                {this.state.transmission}
+                            <option value={this.state.transmission_id} hidden>
+                                {this.state.transmission_name}
                             </option>
                             {this.state.transmissions.map((item) => {
                                 return (
@@ -619,7 +609,7 @@ class AdminCarDetail extends React.Component {
                             })}
                         </select>
 
-                        <label>Reňki</label>
+                        <label className="font-bold">Reňki</label>
                         <select id="color">
                             <option value={""} hidden>
                                 {this.state.color}
@@ -634,10 +624,10 @@ class AdminCarDetail extends React.Component {
                             })}
                         </select>
 
-                        <label>Ýörediji</label>
+                        <label className="font-bold">Ýörediji</label>
                         <select id="wd">
-                            <option value={""} hidden>
-                                {this.state.wheel_drive}
+                            <option value={this.state.wd_id} hidden>
+                                {this.state.wd_name}
                             </option>
                             {this.state.wds.map((item) => {
                                 return (
@@ -649,28 +639,28 @@ class AdminCarDetail extends React.Component {
                             })}
                         </select>
 
-                        <label>Goşmaça maglumat</label>
+                        <label className="font-bold">Goşmaça maglumat</label>
                         <textarea
                             id="detail"
                             defaultValue={this.state.detail}
                         ></textarea>
 
-                        <label>Telefon belgisi</label>
+                        <label className="font-bold">Telefon belgisi</label>
                         <input
                             id="phone"
                             type={"tel"}
                             defaultValue={this.state.phone}
                         ></input>
 
-                        <label>VIN</label>
+                        <label className="font-bold">VIN</label>
                         <input
                             id="vin"
                             type={"text"}
                             defaultValue={this.state.vin}
                         ></input>
 
-                        <div>
-                            <label>Çalşyk</label>
+                        <div className="flex items-center">
+                            <label className="font-bold">Çalşyk</label>
                             {this.state.swap === true ? (
                                 <input
                                     id="swap"
@@ -682,8 +672,8 @@ class AdminCarDetail extends React.Component {
                             )}
                         </div>
 
-                        <div>
-                            <label>Kredit</label>
+                        <div className="flex items-center">
+                            <label className="font-bold">Kredit</label>
                             {this.state.credit === true ? (
                                 <input
                                     id="credit"
@@ -695,8 +685,8 @@ class AdminCarDetail extends React.Component {
                             )}
                         </div>
 
-                        <div>
-                            <label>Nagt däl töleg</label>
+                        <div className="flex items-center">
+                            <label className="font-bold">Nagt däl töleg</label>
                             {this.state.none_cash_pay === true ? (
                                 <input
                                     id="none_cash_pay"
@@ -711,8 +701,10 @@ class AdminCarDetail extends React.Component {
                             )}
                         </div>
 
-                        <div>
-                            <label>Slaýderde görkez</label>
+                        <div className="flex items-center">
+                            <label className="font-bold">
+                                Slaýderde görkez
+                            </label>
                             {this.state.on_slider === true ? (
                                 <input
                                     id="on_slider"

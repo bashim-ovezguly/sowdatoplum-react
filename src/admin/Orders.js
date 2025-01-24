@@ -1,9 +1,10 @@
 import axios from "axios";
 import React from "react";
-import { BiLeftArrow, BiRightArrow, BiTrash } from "react-icons/bi";
-import { MdDelete, MdRefresh, MdRemove } from "react-icons/md";
+import { BiTrash } from "react-icons/bi";
+import { MdRefresh } from "react-icons/md";
 import { server } from "../static";
 import { Link } from "react-router-dom";
+import ProgressIndicator from "./ProgressIndicator";
 
 class Orders extends React.Component {
     constructor(props) {
@@ -30,7 +31,7 @@ class Orders extends React.Component {
             },
         };
 
-        document.title = "Myhmanlar";
+        document.title = "Sargytlar";
         this.setData();
     }
 
@@ -38,7 +39,7 @@ class Orders extends React.Component {
         axios
             .get(
                 server +
-                    "/api/admin/orders/?page_size=50&page=" +
+                    "/api/adm/orders/?page_size=50&page=" +
                     this.state.current_page,
                 { auth: this.state.auth }
             )
@@ -47,12 +48,14 @@ class Orders extends React.Component {
                 this.setState({ page_size: resp.data["page_size"] });
                 this.setState({ total: resp.data["total"] });
                 this.setState({ datalist: resp.data.data });
-                this.setState({ isLoading: false });
             })
             .catch((err) => {
                 if (err.response.status === 403) {
-                    window.location.href = "/admin/login";
+                    window.location.href = "/superuser/login";
                 }
+            })
+            .finally((err) => {
+                this.setState({ isLoading: false });
             });
     }
 
@@ -60,9 +63,9 @@ class Orders extends React.Component {
         if (window.confirm("Bozmaga ynamyňyz barmy?") === true) {
             axios
                 .post(
-                    server + "/api/admin/orders/delete/" + id,
+                    server + "/api/adm/orders/delete/" + id,
                     {},
-                    this.state.auth
+                    { auth: this.state.auth }
                 )
                 .then((resp) => {
                     this.setData();
@@ -72,34 +75,31 @@ class Orders extends React.Component {
 
     render() {
         return (
-            <div className="orders w-full">
-                <h3>
-                    Sargytlar {this.state.total}
-                    {this.state.isLoading && (
-                        <span className="loader">
-                            {" "}
-                            - Maglumat ýüklenýär... Garaşyň
-                        </span>
-                    )}
-                </h3>
+            <div className="orders w-full text-[12px]">
+                <ProgressIndicator
+                    open={this.state.isLoading}
+                ></ProgressIndicator>
 
-                <div className="managment">
+                <div className=" flex flex-wrap items-center text-slate-600">
+                    <label className="text-lg">
+                        Sargytlar {this.state.total}
+                    </label>
+
                     <button
+                        className="px-2 "
                         onClick={() => {
                             this.setState({ isLoading: true });
                             this.setData();
                         }}
                     >
-                        <label>Täzelemek</label>
-                        <MdRefresh className="icon"></MdRefresh>
+                        <MdRefresh size={20} className=""></MdRefresh>
                     </button>
                 </div>
 
                 <table className="w-full text-[12px] border">
                     <tr className="bg-slate-200">
                         <th>ID</th>
-                        <th>Customer</th>
-                        <th>Store</th>
+                        <th>Sargyt ediji</th>
                         <th>Kabul ediji</th>
                         <th>Wagty</th>
                         <th>Summasy</th>
@@ -110,7 +110,10 @@ class Orders extends React.Component {
                         return (
                             <tr>
                                 <td>
-                                    <a href={"/admin/orders/" + item.id}>
+                                    <a
+                                        className="p-1"
+                                        href={"/superuser/orders/" + item.id}
+                                    >
                                         {item.id}{" "}
                                     </a>
                                 </td>
@@ -118,32 +121,23 @@ class Orders extends React.Component {
                                 <td>
                                     <Link
                                         to={
-                                            "/admin/customers/" +
-                                            item.customer.id
+                                            "/superuser/stores/" +
+                                            item.sender.id
                                         }
                                     >
-                                        {item.customer.name}{" "}
-                                        {item.customer.phone}
+                                        {item.sender.name}{" "}
                                     </Link>
-                                    {item.customer_deleted === "True" &&
-                                        " (Bozdy)"}
                                 </td>
+
                                 <td>
-                                    <a href={"/admin/stores/" + item.store_id}>
-                                        {item.store}
-                                    </a>
-                                </td>
-                                <td>
-                                    <a
-                                        href={
-                                            "/admin/customers/" +
-                                            item.store_customer_id
+                                    <Link
+                                        to={
+                                            "/superuser/stores/" +
+                                            item.accepter.id
                                         }
                                     >
-                                        {item.store_customer}
-                                    </a>
-                                    {item.accepter_deleted === "True" &&
-                                        " (Bozdy)"}
+                                        {item.accepter.name}
+                                    </Link>
                                 </td>
 
                                 <td>{item.created_at}</td>

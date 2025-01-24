@@ -1,54 +1,54 @@
 import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
-import "./main.css";
 import Products from "./products/Products";
 import StoreProfile from "./stores/StoresProfile";
-import { MdMail, MdPhone } from "react-icons/md";
+import {
+    MdCall,
+    MdHome,
+    MdLogin,
+    MdMail,
+    MdPhone,
+    MdReceipt,
+    MdStore,
+    MdSupport,
+} from "react-icons/md";
 import { BsArrowUp } from "react-icons/bs";
-import Register from "./registration/Register";
-import HomePage from "./home/HomePage";
-import LoginPage from "./loginPage/LoginPage";
+import Register from "./Register";
+import HomePage from "./HomePage";
+import LoginPage from "./LoginPage";
 import axios from "axios";
 import { server } from "../static";
-import Verification from "./verification/Verification";
+
 import Stores from "./stores/Stores";
 import ProductDetail from "./products/ProductDetail";
 import Cars from "./cars/Cars";
 import CarDetail from "./cars/CarDetail";
 import StoreEdit from "./stores/StoreEdit";
 import CarEdit from "./cars/CarEdit";
-import SendCode from "./SendCode";
-import RestorePassword from "./passwordRestore/RestorePassword";
-import Pharmacies from "./Pharmacies";
+import Restore from "./Restore";
+import NewPassword from "./NewPassword";
 import ProductEdit from "./products/ProductEdit";
 import AboutUs from "./AboutUs";
 import Rules from "./Rules";
-import { BiPlusCircle, BiUserCircle } from "react-icons/bi";
-import Lenta from "./lenta/Lenta";
-import LentaDetail from "./lenta/LentaDetail";
+import { BiUserCircle } from "react-icons/bi";
+import Lenta from "./aksiya/Aksiya";
+import LentaDetail from "./aksiya/AksiyaDetail";
 import AddProduct from "./add/AddProduct";
 import AddCar from "./add/AddCar";
-import AddFlat from "./add/AddFlat";
 import MyProfile from "./profile/Profile";
-import Parts from "./parts/Parts";
-import Flats from "./flats/Flats";
-import FlatEdit from "./flats/FlatEdit";
-import PartEdit from "./parts/PartEdit";
-import FlatDetail from "./flats/FlatDetail";
-import ShoppingCenters from "./tradeCenters/ShoppingCenters";
-import ShoppingCenterDetail from "./tradeCenters/ShoppingCentersDetail";
-import AddPart from "./add/AddPart";
 import CategorySelector from "./categorySelector/CategorySelector";
-import AddLenta from "./add/AddLenta";
-import LentaEdit from "./lenta/LentaEdit";
-import PartDetail from "./parts/PartDetail";
+import AddLenta from "./add/AddAksiya";
+import LentaEdit from "./aksiya/AksiyaEdit";
 import News from "./news/News";
 import NewsDetail from "./news/NewsDetail";
 import Videos from "./videos/Videos";
 import VideoDetail from "./videos/VideoDetail";
-import OrderOutDetail from "./OrderOutDetail";
-import OrderInDetail from "./OrderInDetail";
-import StoreBasket from "./stores/StoreBasket";
+import TradeCenters from "./tradeCenters/TradeCenters";
+import TradeCenterDetail from "./tradeCenters/TradeCentersDetail";
+import OrderDetail from "./profile/OrderDetail";
+import WriteToUs from "./WriteToUs";
+import Verification from "./Verification";
+import { user_is_authenticated } from "../App";
 
 class MainHeader extends React.Component {
     constructor(props) {
@@ -61,16 +61,8 @@ class MainHeader extends React.Component {
             phone: localStorage.getItem("user_phone"),
             name: localStorage.getItem("user_name"),
             postTypeSelectorShow: false,
-
-            auth: {
-                auth: {
-                    username: localStorage.getItem("username"),
-                    password: localStorage.getItem("password"),
-                },
-            },
         };
 
-        document.title = "Söwda toplumy - MarketPlace";
         this.setData();
 
         window.addEventListener("scroll", () => {
@@ -80,14 +72,6 @@ class MainHeader extends React.Component {
                 document.getElementById("goToTop").style.display = "block";
             }
         });
-    }
-
-    personIconClick() {
-        if (localStorage.getItem("user_phone") === null) {
-            window.location.href = "/login";
-        } else {
-            window.location.href = "/my_profile/";
-        }
     }
 
     setData() {
@@ -121,124 +105,142 @@ class MainHeader extends React.Component {
 
     render() {
         return (
-            <div className="home grid">
-                <div className="header text-white">
-                    <div className="px-[20px] sm:px-2 py-2 flex items-center justify-between">
-                        <Link className="logo" to="/">
-                            <img alt="" src="/logo_white.png"></img>
-                            <div className="text">
-                                <label className="company_name">
+            <div className="home grid max-w-[1400px] mx-auto">
+                <div className=" text-appColor bg-slate-100 rounded-lg">
+                    <div className="sm:p-0 flex items-center justify-between rounded-md border-appColor p-1">
+                        <Link className="flex items-center" to="/">
+                            <img
+                                className="w-[70px] h-[70px] sm:w-[50px] sm:h-[50px] m-2"
+                                alt=""
+                                src="/logo.png"
+                            ></img>
+                            <div className="grid">
+                                <label className="font-bold sm:text-[12px] text-[28px]">
                                     Söwda toplumy
                                 </label>
-                                <label className="company_name_tm">
+                                <label className="text-[16px] font-bold sm:text-[10px]">
                                     Marketplace
                                 </label>
                             </div>
                         </Link>
 
                         <div className="icons flex items-center ">
-                            {/* <button className="flex items-center p-[5px] m-[2px]">
-                                <MdLanguage size={30}></MdLanguage>
-                                <label className="sm:hidden">Türkmençe</label>
-                            </button> */}
-                            <button
-                                onClick={() => {
-                                    this.setState({
-                                        postTypeSelectorShow:
-                                            !this.state.postTypeSelectorShow,
-                                    });
-                                }}
-                                className="addPost flex relative rounded-md items-center p-[5px] m-[2px] h-max hover:bg-slate-300/20"
+                            <a
+                                href="tel: +99361324577"
+                                className="grid items-center grid-cols-[max-content_max-content]  
+                            w-max rounded-lg p-2 hover:bg-slate-200 duration-200"
                             >
-                                <BiPlusCircle size={30}></BiPlusCircle>
-                                <label className="text-[14px] sm:hidden">
-                                    Bildiriş goşmak
-                                </label>
+                                <MdCall size={30}></MdCall>
 
-                                {this.state.postTypeSelectorShow && (
-                                    <CategorySelector></CategorySelector>
-                                )}
-                            </button>
+                                <div className="grid sm:hidden">
+                                    <label>Tehniki goldaw</label>
+                                    <label>+99361324577</label>
+                                </div>
+                            </a>
+                            {user_is_authenticated() == false && (
+                                <Link
+                                    className="flex rounded-md items-center p-2 h-max hover:bg-slate-200 duration-200"
+                                    to={"/signup"}
+                                >
+                                    <MdStore
+                                        size={30}
+                                        className="mr-2"
+                                    ></MdStore>
+                                    <label className="text-[14px] sm:hidden ">
+                                        Hasap açmak
+                                    </label>
+                                </Link>
+                            )}
 
-                            <div
-                                onClick={() => {
-                                    this.personIconClick();
-                                }}
-                                className="flex rounded-md items-center p-[5px] m-[2px] h-max hover:bg-slate-300/20"
-                            >
-                                <BiUserCircle size={30}></BiUserCircle>
-                                <div className="flex items-center">
-                                    <label className="text-[14px] sm:hidden">
+                            {!user_is_authenticated() && (
+                                <Link
+                                    className="flex items-center uration-200  rounded-md  p-2 h-max 
+                                hover:bg-slate-200"
+                                    to={"/login"}
+                                >
+                                    <MdLogin
+                                        size={30}
+                                        className="mr-2"
+                                    ></MdLogin>
+                                    <label className="text-[14px] sm:hidden ">
+                                        Hasaba girmek
+                                    </label>
+                                </Link>
+                            )}
+
+                            {user_is_authenticated() && (
+                                <Link
+                                    className="flex rounded-md items-center p-[5px] m-[2px] h-max hover:bg-slate-200 duration-200"
+                                    to={"/profile"}
+                                >
+                                    <BiUserCircle size={30}></BiUserCircle>
+                                    <label className="text-[14px] sm:hidden font-bold">
                                         {this.state.name}
                                     </label>
-                                </div>
-                            </div>
+                                </Link>
+                            )}
                         </div>
                     </div>
                 </div>
-
                 <div
-                    className="bg-slate-100 text-sky-600 flex justify-center sm:justify-start
-                    overflow-x-auto whitespace-nowrap shadow-md  z-10 sticky top-0"
+                    className=" flex font-bold mx-auto text-[15px]  text-appColor w-full z-10 
+                        top-0 whitespace-nowrap sticky overflow-x-auto bg-white backdrop-blur-md"
                 >
                     <Link to="/">
-                        <button className="p-2 hover:text-slate-800 hover:bg-slate-300 rounded-lg duration-200">
+                        <button className="p-1 hover:text-slate-400 m-1 duration-200 flex items-center">
+                            <MdHome size={20}></MdHome>
                             Baş sahypa
                         </button>
                     </Link>
-                    <Link to="/news">
-                        <button className="p-2 hover:text-slate-800 hover:bg-slate-300 rounded-lg duration-200">
-                            Habarlar
-                        </button>
-                    </Link>
                     <Link to="/stores">
-                        <button className="p-2 hover:text-slate-800 hover:bg-slate-300 rounded-lg duration-200">
+                        <button className="p-1 hover:text-slate-400 m-1 duration-200">
                             Dükanlar
                         </button>
                     </Link>
+                    <Link to="/news">
+                        <button className="p-1 hover:text-slate-400 m-1 duration-200">
+                            Täzelikler
+                        </button>
+                    </Link>
+
                     <Link to="/products">
-                        <button className="p-2 hover:text-slate-800 hover:bg-slate-300 rounded-lg duration-200">
+                        <button className="p-1 hover:text-slate-400 m-1 duration-200">
                             Harytlar
                         </button>
                     </Link>
+                    <Link to="/lenta">
+                        <button className="p-1 hover:text-slate-400 m-1 duration-200">
+                            Aksiýalar
+                        </button>
+                    </Link>
                     <Link to="/cars">
-                        <button className="p-2 hover:text-slate-800 hover:bg-slate-300 rounded-lg duration-200">
+                        <button className="p-1 hover:text-slate-400 m-1 duration-200">
                             Awtoulaglar
                         </button>
                     </Link>
-                    <Link to="/parts">
-                        <button className="p-2 hover:text-slate-800 hover:bg-slate-300 rounded-lg duration-200">
-                            Awtoşaýlar
-                        </button>
-                    </Link>
-                    <Link to="/flats">
-                        <button className="p-2 hover:text-slate-800 hover:bg-slate-300 rounded-lg duration-200">
-                            Gozgalmaýan emläkler
-                        </button>
-                    </Link>
-                    <Link to="/shopping_centers">
-                        <button className="p-2 hover:text-slate-800 hover:bg-slate-300 rounded-lg duration-200">
+
+                    <Link to="/trade_centers">
+                        <button className="p-1 hover:text-slate-400 m-1 duration-200">
                             Söwda merkezler
                         </button>
                     </Link>
-                    <Link to="/lenta">
-                        <button className="p-2 hover:text-slate-800 hover:bg-slate-300 rounded-lg duration-200">
-                            Lenta
-                        </button>
-                    </Link>
+
                     <Link to="/videos">
-                        <button className="p-2 hover:text-slate-800 hover:bg-slate-300 rounded-lg duration-200">
+                        <button className="p-1 hover:text-slate-400 m-1 duration-200">
                             Wideolar
                         </button>
                     </Link>
                 </div>
 
-                <div className="content mx-auto max-w-[1200px] m-2 bg-white">
+                <div className="content mx-auto max-w-[1400px] w-full min-h-[600px]">
                     <Routes>
+                        <Route path="/" element={<HomePage></HomePage>} />
+
                         <Route
                             path="/login"
                             element={<LoginPage></LoginPage>}
                         />
+
                         <Route path="/about_us" element={<AboutUs></AboutUs>} />
                         <Route path="/rules" element={<Rules></Rules>} />
                         <Route
@@ -247,15 +249,15 @@ class MainHeader extends React.Component {
                         />
                         <Route path="/cars" element={<Cars></Cars>} />
                         <Route
-                            path="/cars/*"
+                            path="/cars/:id"
                             element={<CarDetail></CarDetail>}
                         />
                         <Route
-                            path="/cars/edit/*"
+                            path="/cars/edit/:id"
                             element={<CarEdit></CarEdit>}
                         />
                         <Route
-                            path="/my_profile/*"
+                            path="/profile/*"
                             element={<MyProfile></MyProfile>}
                         />
                         <Route
@@ -269,7 +271,7 @@ class MainHeader extends React.Component {
                         />
                         <Route
                             path="/send_code"
-                            element={<SendCode></SendCode>}
+                            element={<Restore></Restore>}
                         />
                         <Route path="/signup" element={<Register></Register>} />
                         <Route
@@ -286,19 +288,16 @@ class MainHeader extends React.Component {
                         />
                         <Route
                             path="/restore/password"
-                            element={<RestorePassword></RestorePassword>}
+                            element={<NewPassword></NewPassword>}
                         />
-                        <Route
-                            path="/pharmacies"
-                            element={<Pharmacies></Pharmacies>}
-                        />
+
                         <Route path="/lenta" element={<Lenta></Lenta>} />
                         <Route
-                            path="/lenta/*"
+                            path="/lenta/:id"
                             element={<LentaDetail></LentaDetail>}
                         />
                         <Route
-                            path="/lenta/edit/*"
+                            path="/lenta/edit/:id"
                             element={<LentaEdit></LentaEdit>}
                         />
 
@@ -311,48 +310,21 @@ class MainHeader extends React.Component {
                             path="/lenta/add"
                             element={<AddLenta></AddLenta>}
                         />
-                        <Route path="/parts" element={<Parts></Parts>} />
+
                         <Route
-                            path="/parts/*"
-                            element={<PartDetail></PartDetail>}
+                            path="/trade_centers"
+                            element={<TradeCenters></TradeCenters>}
                         />
+
                         <Route
-                            path="/parts/edit/*"
-                            element={<PartEdit></PartEdit>}
+                            path="/trade_centers/*"
+                            element={<TradeCenterDetail></TradeCenterDetail>}
                         />
-                        <Route
-                            path="/parts/add"
-                            element={<AddPart></AddPart>}
-                        />
-                        <Route
-                            path="/flats/add"
-                            element={<AddFlat></AddFlat>}
-                        />
-                        <Route path="/flats" element={<Flats></Flats>} />
-                        <Route
-                            path="/flats/*"
-                            element={<FlatDetail></FlatDetail>}
-                        />
-                        <Route
-                            path="/flats/edit/*"
-                            element={<FlatEdit></FlatEdit>}
-                        />
-                        <Route
-                            path="/shopping_centers"
-                            element={<ShoppingCenters></ShoppingCenters>}
-                        />
-                        <Route
-                            path="/shopping_centers/*"
-                            element={
-                                <ShoppingCenterDetail></ShoppingCenterDetail>
-                            }
-                        />
+
                         <Route
                             path="/add"
                             element={<CategorySelector></CategorySelector>}
                         />
-
-                        <Route path="/" element={<HomePage></HomePage>} />
 
                         <Route path="/news" element={<News></News>} />
                         <Route
@@ -367,56 +339,86 @@ class MainHeader extends React.Component {
                         />
 
                         <Route
-                            path="/orders_out/*"
-                            element={<OrderOutDetail></OrderOutDetail>}
-                        />
-                        <Route
-                            path="/orders_in/*"
-                            element={<OrderInDetail></OrderInDetail>}
+                            path="/orders/:id"
+                            element={<OrderDetail></OrderDetail>}
                         />
                     </Routes>
                 </div>
 
-                <div className="footer">
-                    <div className="links">
-                        <Link to="/about_us">Saýt barada</Link>
-                        <Link to="offers">Teklipler</Link>
-                        <Link to="rules">Düzgünler</Link>
-                    </div>
+                <div className="flex flex-wrap justify-center bg-slate-200 rounded-md my-2 text-appColor p-1">
+                    <div className="max-w-[1400px] flex flex-wrap justify-between w-full">
+                        {/* LINKS */}
+                        <div className="grid m-2 h-max font-bold">
+                            <Link
+                                className="hover:bg-slate-100/10 rounded-md p-2"
+                                to="/about_us"
+                            >
+                                Saýt barada
+                            </Link>
 
-                    <div className="mobile_apps">
-                        <label className="name">Mobil wersiýalar</label>
-
-                        <a
-                            href={
-                                "https://play.google.com/store/apps/details?id=com.sowdatoplumy.sowdatoplumy"
-                            }
-                        >
-                            <img
-                                alt=""
-                                className="google-play"
-                                src={"/google-play.png"}
-                            ></img>
-                        </a>
-
-                        <a className="apk" href={server + this.state.apk}>
-                            <img src="/apk.png"></img>
-                            <label>APK ýükläp al</label>
-                        </a>
-                    </div>
-
-                    <div className="contacts">
-                        <div className="name">
-                            <label>Habarlaşmak üçin</label>
+                            <Link
+                                className="hover:bg-slate-100/10 rounded-md p-2"
+                                to="rules"
+                            >
+                                Düzgünler
+                            </Link>
+                            <Link
+                                className="hover:bg-slate-100/10 rounded-md p-2"
+                                to="products"
+                            >
+                                Harytlar
+                            </Link>
+                            <Link
+                                className="hover:bg-slate-100/10 rounded-md p-2"
+                                to="cars"
+                            >
+                                Awtoulaglar
+                            </Link>
+                            <Link
+                                className="hover:bg-slate-100/10 rounded-md p-2"
+                                to="cars"
+                            >
+                                Söwda merkezler
+                            </Link>
                         </div>
-                        <div className="items">
-                            <div>
-                                <MdMail size={20}></MdMail>
-                                <label> sowdatoplum@mail.ru</label>
+                        <Link className="flex items-center" to="/">
+                            <img
+                                className="w-[120px] h-[120px] m-2  border overflow-hidden rounded-full"
+                                alt=""
+                                src="/logo.png"
+                            ></img>
+                            <div className="grid">
+                                <label className="font-bold sm:text-[16px] text-[22px] line-clamp-1">
+                                    Söwda toplumy
+                                </label>
+                                <label className="text-[18px] line-clamp-1">
+                                    Marketplace
+                                </label>
                             </div>
-                            <div>
-                                <MdPhone className="icon"></MdPhone>
-                                <label>+99361 324577</label>
+                        </Link>
+
+                        <div className="m-2 grid h-max">
+                            <div className="">
+                                <label>Habarlaşmak üçin</label>
+                            </div>
+                            <div className="items">
+                                <div className="flex items-center">
+                                    <MdMail
+                                        className="mr-2 my-2"
+                                        size={20}
+                                    ></MdMail>
+                                    <label> sowdatoplum@mail.ru</label>
+                                </div>
+                                <a
+                                    href="tel: +993 61 324577"
+                                    className="flex items-center"
+                                >
+                                    <MdPhone
+                                        size={20}
+                                        className="mr-2 my-2"
+                                    ></MdPhone>
+                                    <label>+993 61 324577</label>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -428,7 +430,7 @@ class MainHeader extends React.Component {
                     onClick={() => {
                         window.scrollTo({ top: 0, behavior: "smooth" });
                     }}
-                    className="fixed right-[10px] bottom-[10px] bg-cyan-800 p-[10px] text-white shadow-md hidden rounded-lg"
+                    className="fixed right-[10px] bottom-[10px] bg-appColor p-[10px] text-white shadow-md hidden rounded-lg"
                 >
                     <BsArrowUp size={25}></BsArrowUp>
                 </button>

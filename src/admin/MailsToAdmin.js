@@ -13,8 +13,6 @@ class MailsToAdmin extends React.Component {
 
         this.state = {
             isLoading: true,
-            locations: [],
-            all_locations: [],
 
             page_size: "",
             current_page: 1,
@@ -26,23 +24,20 @@ class MailsToAdmin extends React.Component {
             mails: [],
 
             auth: {
-                auth: {
-                    username: localStorage.getItem("admin_username"),
-                    password: localStorage.getItem("admin_password"),
-                },
+                username: localStorage.getItem("admin_username"),
+                password: localStorage.getItem("admin_password"),
             },
         };
 
-        document.title = "Devices";
+        document.title = "Mail to Admin";
         this.setData();
     }
 
     setData() {
         axios
-            .get(
-                server + "/api/admin/mails/?page=" + this.state.current_page,
-                this.state.auth
-            )
+            .get(server + "/api/adm/mails/?page=" + this.state.current_page, {
+                auth: this.state.auth,
+            })
             .then((resp) => {
                 this.setState({ last_page: resp.data.last_page });
                 this.setState({ page_size: resp.data.page_size });
@@ -52,30 +47,14 @@ class MailsToAdmin extends React.Component {
             });
     }
 
-    deleteItem(id) {
-        let result = window.confirm("Bozmaga ynamynyz barmy?");
-        if (result == false) {
-            return null;
-        }
-
-        this.setState({ isLoading: true });
-        axios
-            .delete(server + "/api/admin/devices/" + id, this.state.auth)
-            .then((resp) => {
-                this.setData();
-                this.setState({ isLoading: false });
-            });
-    }
-
     setPage(pageNumber) {
         this.setState({ isLoading: true });
         axios
-            .get(
-                server + "/api/admin/devices?page=" + pageNumber,
-                this.state.auth
-            )
+            .get(server + "/api/adm/mails?page=" + pageNumber, {
+                auth: this.state.auth,
+            })
             .then((resp) => {
-                this.setState({ deviceList: resp.data.data });
+                this.setState({ mails: resp.data.data });
                 this.setState({ isLoading: false });
             });
     }
@@ -86,7 +65,13 @@ class MailsToAdmin extends React.Component {
         }
 
         axios
-            .delete(server + "/api/admin/mails/" + id, this.state.auth)
+            .post(
+                server + "/api/adm/mails/delete/" + id,
+                {},
+                {
+                    auth: this.state.auth,
+                }
+            )
             .then((resp) => {
                 toast.success("Bozuldy");
                 this.setData();
@@ -100,14 +85,14 @@ class MailsToAdmin extends React.Component {
                     autoClose={5000}
                     closeOnClick={true}
                 ></ToastContainer>
-                <h3>
-                    Mails {this.state.total}
-                    {this.state.isLoading && (
-                        <CircularProgress></CircularProgress>
-                    )}
-                </h3>
 
-                <div className="managment">
+                <div className="flex items-center">
+                    <label>
+                        Mails {this.state.total}
+                        {this.state.isLoading && (
+                            <CircularProgress></CircularProgress>
+                        )}
+                    </label>
                     <button
                         className="text-[12px] rounded-md p-1 m-1 bg-slate-200"
                         onClick={() => {
@@ -115,8 +100,7 @@ class MailsToAdmin extends React.Component {
                             this.setData();
                         }}
                     >
-                        <label>Refresh</label>
-                        <MdRefresh className="icon"></MdRefresh>
+                        <MdRefresh size={25}></MdRefresh>
                     </button>
                 </div>
 
@@ -152,7 +136,7 @@ class MailsToAdmin extends React.Component {
                                         <Link
                                             className="flex items-center mx-2 bg-sky-600 text-white p-1 rounded-md"
                                             to={
-                                                "/admin/devices/" +
+                                                "/superuser/devices/" +
                                                 item.device_id
                                             }
                                         >

@@ -42,7 +42,7 @@ class DeviceChat extends React.Component {
 
         axios
             .get(
-                server + "/api/admin/mails?device_id=" + device_id,
+                server + "/api/adm/mails?device_id=" + device_id,
                 this.state.auth
             )
             .then((resp) => {
@@ -60,7 +60,7 @@ class DeviceChat extends React.Component {
             return null;
         }
         axios
-            .delete(server + "/api/admin/mails/" + id, this.state.auth)
+            .delete(server + "/api/adm/mails/" + id, this.state.auth)
             .then((resp) => {
                 this.setData();
             });
@@ -69,10 +69,7 @@ class DeviceChat extends React.Component {
     setPage(pageNumber) {
         this.setState({ isLoading: true });
         axios
-            .get(
-                server + "/api/admin/mails?page=" + pageNumber,
-                this.state.auth
-            )
+            .get(server + "/api/adm/mails?page=" + pageNumber, this.state.auth)
             .then((resp) => {
                 this.setState({ stores: resp.data.data });
                 this.setState({ isLoading: false });
@@ -92,7 +89,7 @@ class DeviceChat extends React.Component {
         formdata.append("sender", "admin");
 
         axios
-            .post(server + "/api/admin/mails/", formdata, this.state.auth)
+            .post(server + "/api/adm/mails/", formdata, this.state.auth)
             .then((resp) => {
                 this.setState({ stores: resp.data.data });
                 this.setState({ isLoading: false });

@@ -1,6 +1,7 @@
 import React from "react";
 import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
 import { MdClose } from "react-icons/md";
+import { MotionAnimate } from "react-motion-animate";
 
 class ImageViewer extends React.Component {
     constructor(props) {
@@ -56,6 +57,7 @@ class ImageViewer extends React.Component {
         }
 
         return (
+            // <MotionAnimate>
             <div
                 style={{ zIndex: 11 }}
                 className="fixed bg-slate-800/75 w-full h-full top-0 left-0 items-center z-11"
@@ -81,7 +83,7 @@ class ImageViewer extends React.Component {
                 >
                     <FiArrowRight
                         size={45}
-                        className="absolute right-2 top-[50%] bg-slate-300/50 p-2 rounded-full 
+                        className="absolute right-2 top-[50%] bg-slate-300/50 p-2 rounded-full z-10
                         hover:bg-slate-400 duration-200"
                     ></FiArrowRight>
                 </button>
@@ -98,12 +100,13 @@ class ImageViewer extends React.Component {
                     ></MdClose>
                 </button>
                 <img
-                    className="w-max h-max max-w-[80%] max-h-[80%] shadow-2xl object-contain rounded-lg
+                    className="w-max h-max max-w-[90%] max-h-[80%] shadow-2xl object-contain rounded-lg
                                 left-0 right-0 absolute top-0 bottom-0 m-auto"
                     src={this.state.images[this.state.currentIndex]}
                     alt=""
                 ></img>
             </div>
+            // </MotionAnimate>
         );
     }
 }

@@ -1,9 +1,11 @@
 import axios from "axios";
 import React from "react";
-import { BiLeftArrow, BiMap, BiRightArrow } from "react-icons/bi";
+import { BiLeftArrow, BiMap, BiPlus, BiRightArrow } from "react-icons/bi";
 import { server } from "../../static";
-import LocationSelector from "../../admin/LocationSelector";
+import LocationSelector from "../LocationSelector";
 import { Link } from "react-router-dom";
+import ProgressIndicator from "../ProgressIndicator";
+import { MdRefresh } from "react-icons/md";
 
 class TradeCenters extends React.Component {
     constructor(props) {
@@ -55,7 +57,7 @@ class TradeCenters extends React.Component {
         axios
             .get(
                 server +
-                    "/api/admin/trade_centers/?page=" +
+                    "/api/adm/trade_centers/?page=" +
                     this.state.current_page,
                 this.state.auth
             )
@@ -70,12 +72,11 @@ class TradeCenters extends React.Component {
 
     edit_img(id) {
         var fdata = new FormData();
-        fdata.append("img_l", document.getElementById("imgselector-").value);
-        var id = document.getElementById("id").value;
+        fdata.append("img_l", document.getElementById("imgselector").value);
 
         axios
             .put(
-                server + "/api/admin/trade_centers/" + id + "/",
+                server + "/api/adm/trade_centers/" + id + "/",
                 fdata,
                 this.state.auth
             )
@@ -91,7 +92,7 @@ class TradeCenters extends React.Component {
         if (result === true) {
             axios
                 .post(
-                    server + "/api/admin/trade_centers/delete/" + id,
+                    server + "/api/adm/trade_centers/delete/" + id,
                     {},
                     this.state.auth
                 )
@@ -117,11 +118,7 @@ class TradeCenters extends React.Component {
         }
 
         axios
-            .post(
-                server + "/api/admin/trade_centers/",
-                formdata,
-                this.state.auth
-            )
+            .post(server + "/api/adm/trade_centers/", formdata, this.state.auth)
             .then((resp) => {
                 this.setData();
             })
@@ -184,47 +181,35 @@ class TradeCenters extends React.Component {
     render() {
         return (
             <div className="grid">
-                <h3 className="p-2 border-b">
-                    Söwda merkezler {this.state.total} sany
-                </h3>
-                {this.state.isLoading && <h3>Ýüklenýär...</h3>}
+                <ProgressIndicator
+                    open={this.state.isLoading}
+                ></ProgressIndicator>
                 {this.NewTradeCenterModal()}
-
-                <div className="flex items-center flex-wrap text-[12px]">
+                <div className="flex items-center flex-wrap text-[12px] border-b ">
+                    <h3 className="p-2 text-[17px] font-bold">
+                        Söwda merkezler {this.state.total} sany
+                    </h3>
                     <button
-                        className="rounded-md bg-slate-500 text-white p-2 mx-1 hover:shadow-md"
+                        className="rounded-md border p-2 mx-1 hover:shadow-md"
                         onClick={() => {
                             this.setData();
                             this.setState({ isLoading: true });
                         }}
                     >
-                        Täzelemek
+                        <MdRefresh size={20}></MdRefresh>
                     </button>
                     <button
-                        className="rounded-md bg-slate-500 text-white p-2 mx-1 hover:shadow-md"
+                        className="rounded-md border p-2 mx-1 hover:shadow-md"
                         onClick={() => {
                             this.setState({ addOpen: true });
                         }}
                     >
-                        Täze goşmak
+                        <BiPlus size={20}></BiPlus>
                     </button>
-                    <button
-                        onClick={() => {
-                            this.setState({ locationSelectorOpen: true });
-                        }}
-                    >
-                        <BiMap></BiMap>
-                        <label>
-                            Ýerleşýän ýeri - {this.state.location_name}
-                        </label>
-                    </button>
+
                     {this.state.locationSelectorOpen && (
                         <LocationSelector parent={this}></LocationSelector>
                     )}
-                    <input
-                        type="search"
-                        placeholder="Ady boýunça gözleg"
-                    ></input>
                 </div>
 
                 <div className="pagination">
@@ -251,22 +236,34 @@ class TradeCenters extends React.Component {
                     {this.state.datalist.map((item) => {
                         return (
                             <Link
-                                to={"/admin/trade_centers/" + item.id}
-                                className="hover:bg-slate-200 duration-200 w-[250px] m-2 p-2 shadow-md rounded-md overflow-hidden grid border"
+                                to={"/superuser/trade_centers/" + item.id}
+                                className="hover:bg-slate-200 duration-200 w-[250px] m-2 p-2 shadow-md rounded-md text-[12px]
+                                overflow-hidden grid border"
                             >
-                                <img alt="" src={item.img_l}></img>
-                                <label className="text-[12px] font-bold">
+                                <img
+                                    className="w-full h-[150px] object-cover rounded-md"
+                                    alt=""
+                                    src={item.img_l}
+                                ></img>
+                                <label className=" font-bold">
                                     {item.name_tm}
                                 </label>
-                                <label className="text-[12px]">
+                                <label className="">
                                     Stores: {item.stores.length}
                                 </label>
                                 <div className="flex items-center">
                                     <BiMap className="location icon"></BiMap>
-                                    <label className="text-[12px]">
-                                        {item.location}
-                                    </label>
+                                    <label className="">{item.location}</label>
                                 </div>
+                                {item.active === "true" ? (
+                                    <label className="bg-green-600 text-white p-1 my-1 w-max rounded-md">
+                                        Aktiw
+                                    </label>
+                                ) : (
+                                    <label className="bg-orange-600 text-white p-1 my-1 w-max rounded-md">
+                                        Passiw
+                                    </label>
+                                )}
                             </Link>
                         );
                     })}

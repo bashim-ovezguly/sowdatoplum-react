@@ -37,7 +37,7 @@ class Notifications extends React.Component {
         axios
             .get(
                 server +
-                    "/api/admin/notifications/?page=" +
+                    "/api/adm/notifications/?page=" +
                     this.state.current_page,
                 this.state.auth
             )
@@ -56,7 +56,7 @@ class Notifications extends React.Component {
         }
         this.setState({ isLoading: true });
         axios
-            .delete(server + "/api/admin/notifications/" + id, this.state.auth)
+            .delete(server + "/api/adm/notifications/" + id, this.state.auth)
             .then((resp) => {
                 this.setData();
             });
@@ -77,7 +77,7 @@ class Notifications extends React.Component {
         fdata.append("status", "new");
 
         axios
-            .post(server + "/api/admin/notifications/", fdata, this.state.auth)
+            .post(server + "/api/adm/notifications/", fdata, this.state.auth)
             .then((resp) => {
                 this.setData();
             })

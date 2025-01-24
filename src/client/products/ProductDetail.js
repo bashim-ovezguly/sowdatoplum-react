@@ -1,13 +1,10 @@
 import axios from "axios";
-import React, { useEffect } from "react";
+import React from "react";
 import { FiEye } from "react-icons/fi";
 import { server } from "../../static";
 import { BiCalendar, BiPhone } from "react-icons/bi";
 import { Link } from "react-router-dom";
-
-// import { initLightboxJS } from "lightbox.js-react";
-import "lightbox.js-react/dist/index.css";
-import { SlideshowLightbox } from "lightbox.js-react";
+import Carousel from "react-multi-carousel";
 
 class ProductDetail extends React.Component {
     constructor(props) {
@@ -37,6 +34,8 @@ class ProductDetail extends React.Component {
 
     componentDidMount() {
         this.setData();
+        window.scrollTo(0, 0);
+
         // var elem = document.getElementById("og:title");
         // elem.setAttribute("content", this.state.name);
         // console.log(elem, this.state.name);
@@ -52,10 +51,10 @@ class ProductDetail extends React.Component {
 
         const resp = await axios.get(server + "/mob/products/" + id);
 
-        document.title = resp.data.name_tm;
+        document.title = resp.data.name;
 
         this.setState({
-            name: resp.data.name_tm,
+            name: resp.data.name,
             location: resp.data.location,
             viewed: resp.data.viewed,
             detail_text: resp.data.body_tm,
@@ -64,7 +63,8 @@ class ProductDetail extends React.Component {
             price: resp.data.price,
             created_at: resp.data.created_at,
             images: resp.data.images,
-            category: resp.data.category,
+            category_name: resp.data.category.name,
+            category_id: resp.data.category.id,
             address: resp.data.address,
             phone: resp.data.phone,
             made_in: resp.data.made_in,
@@ -73,68 +73,51 @@ class ProductDetail extends React.Component {
             amount: resp.data.amount,
             credit: resp.data.credit,
             none_cash_pay: resp.data.none_cash_pay,
-            customerID: resp.data.customer.id,
-            customer_name: resp.data.customer_name,
-            unit: resp.data.unit,
-            factory: resp.data.factory,
-            customer_id: resp.data.customer_id,
-            store_id: resp.data.store_id,
-            store_name: resp.data.store_name,
-            brand: resp.data.brand,
-            store_logo: resp.data.store_logo,
-            customer_photo: resp.data.customer_photo,
+            store_id: resp.data.store.id,
+            store_name: resp.data.store.name,
+            store_logo: resp.data.store.logo,
+
             isLoading: false,
         });
     }
 
     render() {
-        var default_img_url = "/default.png";
-        var main_img = server + this.state.img;
-
-        if (this.state.img === "") {
-            main_img = default_img_url;
-        }
-
         let date = this.state.created_at.split(" ")[0];
 
+        const responsive = {
+            superLargeDesktop: {
+                // the naming can be any, depends on you.
+                breakpoint: { max: 4000, min: 3000 },
+                items: 1,
+            },
+            desktop: {
+                breakpoint: { max: 3000, min: 1024 },
+                items: 1,
+            },
+            tablet: {
+                breakpoint: { max: 1024, min: 464 },
+                items: 1,
+            },
+            mobile: {
+                breakpoint: { max: 400, min: 0 },
+                items: 1,
+            },
+        };
+
         return (
-            <div className="product_detail grid grid-cols-2 sm:grid-cols-1 p-[20px]">
+            <div className="product_detail grid grid-cols-2 sm:grid-cols-1 p-2">
                 <div className="grid">
-                    {/* <SlideshowLightbox
-                        open={true}
-                        className="container grid grid-cols-3 gap-2 mx-auto"
-                    >
+                    <Carousel responsive={responsive}>
                         {this.state.images.map((item) => {
-                            console.log(server + item.img_m);
                             return (
                                 <img
-                                    className="rounded-md border w-[100px] h-[100px] m-[5px]"
                                     alt=""
+                                    className="h-[500px] sm:h-[300px] object-contain w-full overflow-hidden border rounded-lg"
                                     src={server + item.img_m}
                                 ></img>
                             );
                         })}
-                    </SlideshowLightbox> */}
-
-                    <img
-                        alt=""
-                        className="h-[400px] mx-auto w-full border object-contain "
-                        src={main_img}
-                    ></img>
-
-                    <div className="flex flex-wrap my-[10px]">
-                        {this.state.images.map((item) => {
-                            return (
-                                <a href={server + item.img_m} key={item.id}>
-                                    <img
-                                        className="rounded-md border w-[100px] h-[100px] m-[5px]"
-                                        alt=""
-                                        src={server + item.img_s}
-                                    ></img>
-                                </a>
-                            );
-                        })}
-                    </div>
+                    </Carousel>
                 </div>
 
                 <div className="grid h-max px-[10px]">
@@ -154,7 +137,7 @@ class ProductDetail extends React.Component {
                         {this.state.price} TMT
                     </label>
 
-                    <div className="py-[10px]">
+                    <div className="py-4">
                         {this.state.detail_text !== "" && (
                             <p>{this.state.detail_text}</p>
                         )}
@@ -162,39 +145,40 @@ class ProductDetail extends React.Component {
 
                     {this.state.store !== "" && (
                         <Link
-                            className="py-[5px] flex my-[2px] border-y hover:bg-slate-200 duration-200"
+                            className="py-[5px] flex my-[2px] duration-200 border-y"
                             to={"/stores/" + this.state.store_id}
                         >
                             <img
                                 alt="store-logo"
-                                className="w-[60px] border h-[60px] rounded-full object-cover mx-[5px] "
+                                className="w-[60px] border h-[60px] rounded-lg object-cover mx-2 "
                                 src={server + this.state.store_logo}
                             ></img>
-                            <div className="grid">
-                                <label className="text-[10px]">Dükan</label>
+                            <div className="grid my-auto h-max">
+                                <label className="text-[12px]">Dükan</label>
                                 <label className="font-bold">
-                                    {this.state.store}
+                                    {this.state.store_name}
                                 </label>
                             </div>
                         </Link>
                     )}
 
-                    {this.state.phone !== "" && (
-                        <a
-                            href={"tel:" + this.state.phone}
-                            className="flex border-y items-center py-[10px] text-green-600 "
-                        >
-                            <BiPhone
-                                className="rounded-full border-green-600 border p-[5px]"
-                                size={30}
-                            ></BiPhone>
-                            <label className="mx-[5px]">
-                                {this.state.phone}{" "}
-                            </label>
-                        </a>
-                    )}
+                    {this.state.phone !== "" ||
+                        (this.state.phone == undefined && (
+                            <a
+                                href={"tel:" + this.state.phone}
+                                className="flex border-y items-center py-[10px] text-green-600 "
+                            >
+                                <BiPhone
+                                    className="rounded-full border-green-600 border p-[5px]"
+                                    size={30}
+                                ></BiPhone>
+                                <label className="mx-[5px]">
+                                    {this.state.phone}{" "}
+                                </label>
+                            </a>
+                        ))}
 
-                    <div className="flex py-[10px]">
+                    <div className="flex py-4">
                         <div className="flex items-center mx-2">
                             <FiEye size={20}></FiEye>
                             <label> {this.state.viewed} </label>

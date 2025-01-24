@@ -3,8 +3,9 @@ import React from "react";
 import { server } from "../../static";
 import { BiSearch } from "react-icons/bi";
 import Pagination from "@mui/material/Pagination";
-import { CircularProgress } from "@mui/material";
 import { Link } from "react-router-dom";
+import ProgressIndicator from "../../admin/ProgressIndicator";
+import { MotionAnimate } from "react-motion-animate";
 
 class Products extends React.Component {
     constructor(props) {
@@ -52,13 +53,6 @@ class Products extends React.Component {
     }
 
     setData() {
-        // const queryString = window.location.search;
-        // const urlParams = new URLSearchParams(queryString);
-        // const customer = urlParams.get('customer')
-
-        // const pathname = window.location.pathname
-        // const id = pathname.split('/')[2]
-
         axios
             .get(server + "/mob/products?page=" + this.state.current_page)
             .then((resp) => {
@@ -81,86 +75,91 @@ class Products extends React.Component {
         }
 
         return (
-            <div className="products grid">
-                <div className="flex items-center justify-between mx-2">
-                    <h3 className="text-[20px] text-sky-800">
-                        Harytlar {this.state.count}
-                    </h3>
+            <MotionAnimate>
+                <div className="products grid">
+                    <div className="flex items-center justify-between mx-2">
+                        <h3 className="text-[15px] text-appColor font-bold">
+                            Harytlar {this.state.count}
+                        </h3>
 
-                    <div className="flex items-center text-slate-700">
-                        <BiSearch
-                            className="hover:bg-slate-200 p-[5px] duration-200 rounded-md w-[35px] h-[35px] "
-                            onClick={() => {
-                                this.filter();
-                            }}
-                        ></BiSearch>
-                        <input
-                            id="search"
-                            type="search"
-                            placeholder="Ady boýunça gözleg..."
-                        ></input>
+                        <div className="flex items-center text-slate-700">
+                            <BiSearch
+                                className="hover:bg-slate-200 p-[5px] duration-200 rounded-md w-[35px] h-[35px] "
+                                onClick={() => {
+                                    this.filter();
+                                }}
+                            ></BiSearch>
+                            <input
+                                id="search"
+                                className="p-1"
+                                type="search"
+                                placeholder="Ady boýunça gözleg..."
+                            ></input>
+                        </div>
+                    </div>
+
+                    <Pagination
+                        className="mx-auto my-4"
+                        onChange={(event, page) => {
+                            this.setPage(page);
+                        }}
+                        count={this.state.total_page}
+                        variant="outlined"
+                        shape="rounded"
+                    />
+
+                    {this.state.isLoading && (
+                        <ProgressIndicator
+                            open={this.state.open}
+                        ></ProgressIndicator>
+                    )}
+
+                    <div className="flex flex-wrap justify-center p-1">
+                        {this.state.products.map((item) => {
+                            var img_url = server + item.img;
+                            if (item.img === "") {
+                                img_url = default_img_url;
+                            }
+
+                            const date = item.created_at.split(" ")[0];
+
+                            return (
+                                <MotionAnimate>
+                                    <div
+                                        className="grid w-[200px] sm:w-[160px]  h-max text-[11px] grid-rows-[max-content_auto] shadow-md border 
+                                    relative overflow-hidden m-2 p-2 bg-white hover:shadow-2xl  duration-200 rounded-md"
+                                    >
+                                        <Link to={"/products/" + item.id}>
+                                            <img
+                                                alt=""
+                                                className="w-full sm:h-[180px] h-[180px] object-cover  rounded-lg"
+                                                src={img_url}
+                                            ></img>
+                                        </Link>
+                                        <div className="grid">
+                                            <label className="name font-bold text-slate-600 line-clamp-1">
+                                                {item.name}
+                                            </label>
+                                            <label className="font-bold w-max rounded-md text-sky-600">
+                                                {item.price} TMT
+                                            </label>
+                                            <label
+                                                className="rounded-full line-clamp-1 top-[135px] sm:top-[95px] left-1
+                                                        drop-shadow-2xl text-slate-600 w-max"
+                                            >
+                                                {item.store_name}
+                                            </label>
+                                            <label className="text-slate-700">
+                                                {date}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </MotionAnimate>
+                            );
+                        })}
                     </div>
                 </div>
-
-                <Pagination
-                    className="mx-auto"
-                    onChange={(event, page) => {
-                        this.setPage(page);
-                    }}
-                    count={this.state.total_page}
-                    variant="outlined"
-                    shape="rounded"
-                />
-
-                {this.state.isLoading && (
-                    <div className="flex justify-center m-10px">
-                        <CircularProgress></CircularProgress>
-                    </div>
-                )}
-
-                <div className="grid grid-cols-4 sm:grid-cols-2">
-                    {this.state.products.map((item) => {
-                        var img_url = server + item.img;
-                        if (item.img === "") {
-                            img_url = default_img_url;
-                        }
-
-                        const date = item.created_at.split(" ")[0];
-                        const time = item.created_at.split(" ")[1];
-
-                        return (
-                            <div
-                                className="grid grid-rows-[max-content_auto] 
-                                overflow-hidden m-3 rounded-lg bg-slate-100 border text-[12px]
-                                hover:shadow-lg duration-200"
-                            >
-                                <Link to={"/products/" + item.id}>
-                                    <img
-                                        alt=""
-                                        className="w-full sm:h-[150px] h-[200px] object-cover"
-                                        src={img_url}
-                                    ></img>
-                                </Link>
-
-                                <div className="grid p-2 h-max">
-                                    <label className="name  font-bold text-slate-600">
-                                        {item.name}
-                                    </label>
-                                    <label className="text-slate-600">
-                                        {item.store_name}
-                                    </label>
-                                    <label className="price text-blue-700 font-bold p-1">
-                                        {item.price}
-                                    </label>
-                                    <label className="text-slate-700 p-1">
-                                        {date}
-                                    </label>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
+            </MotionAnimate>
         );
     }
 }

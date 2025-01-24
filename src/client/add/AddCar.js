@@ -2,9 +2,11 @@ import axios from "axios";
 import React from "react";
 import { server } from "../../static";
 import LocationSelector from "../../admin/LocationSelector";
-import { BiMap, BiSave } from "react-icons/bi";
+import { BiMap, BiSave, BiTrash } from "react-icons/bi";
 import Loader from "../components/Loader";
-import { MdClose, MdSave } from "react-icons/md";
+import { MdClose } from "react-icons/md";
+import { toast, ToastContainer } from "react-toastify";
+import ProgressIndicator from "../../admin/ProgressIndicator";
 
 class AddCar extends React.Component {
     constructor(props) {
@@ -34,21 +36,6 @@ class AddCar extends React.Component {
     }
 
     setData() {
-        const customer_id = localStorage.getItem("user_id");
-
-        if (this.props.customers === "all") {
-            axios.get(server + "/mob/customers").then((resp) => {
-                this.setState({ customers: resp.data });
-            });
-        }
-
-        if (customer_id != null) {
-            axios.get(server + "/mob/customer/" + customer_id).then((resp) => {
-                this.setState({ customerName: resp.data.data["name"] });
-                this.setState({ customerID: customer_id });
-            });
-        }
-
         axios.get(server + "/mob/index/locations/all").then((resp) => {
             this.setState({ locations: resp.data });
         });
@@ -60,17 +47,17 @@ class AddCar extends React.Component {
 
         axios.get(server + "/mob/index/car" + q).then((resp) => {
             this.setState({
-                categories: resp.data["categories"],
-                transmissions: resp.data["transmissions"],
-                countries: resp.data["countries"],
-                colors: resp.data["colors"],
-                wds: resp.data["wheel_drives"],
-                models: resp.data["models"],
-                marks: resp.data["marks"],
-                fuels: resp.data["fuels"],
-                bodyTypes: resp.data["body_types"],
+                categories: resp.data.categories,
+                transmissions: resp.data.transmissions,
+                countries: resp.data.countries,
+                colors: resp.data.colors,
+                wds: resp.data.wheel_drives,
+                models: resp.data.models,
+                marks: resp.data.marks,
+                fuels: resp.data.fuels,
+                bodyTypes: resp.data.body_types,
+                isLoading: false,
             });
-            this.setState({ isLoading: false });
         });
     }
 
@@ -98,30 +85,12 @@ class AddCar extends React.Component {
     }
 
     save() {
-        let error = false;
-        let errorList = [];
-
-        if (document.getElementById("mark").value.length === 0) {
-            errorList.push("Markasyny hökman girizmeli");
-            error = true;
+        if (document.getElementById("mark").value.length == 0) {
+            toast.error("Marka hökman görkezmeli");
+            return null;
         }
-
-        if (document.getElementById("model").value.length === 0) {
-            errorList.push("Modelini hökman girizmeli");
-            error = true;
-        }
-
-        if (document.getElementById("year").value.length === 0) {
-            errorList.push("Ýylyny hökman girizmeli");
-            error = true;
-        }
-
-        if (error === true) {
-            let msg = "Ýalňyşyklaryň sanawy:";
-            for (let i = 0; i < errorList.length; i++) {
-                msg = msg + "\n - " + errorList[i];
-            }
-            alert(msg);
+        if (this.state.selected_images.length == 0) {
+            toast.error("Surat hökman saýlamaly");
             return null;
         }
 
@@ -137,6 +106,7 @@ class AddCar extends React.Component {
         formdata.append("model", document.getElementById("model").value);
         formdata.append("color", document.getElementById("color").value);
         formdata.append("fuel", document.getElementById("fuel").value);
+        formdata.append("store", localStorage.getItem("user_id"));
         formdata.append(
             "transmission",
             document.getElementById("transmission").value
@@ -146,7 +116,6 @@ class AddCar extends React.Component {
         formdata.append("wd", document.getElementById("wd").value);
         formdata.append("motor", document.getElementById("motor").value);
         formdata.append("price", document.getElementById("price").value);
-        // formdata.append('store', document.getElementById('store').value)
 
         for (let i = 0; i < this.state.selected_images.length; i++) {
             formdata.append("images", this.state.selected_images[i]);
@@ -169,22 +138,15 @@ class AddCar extends React.Component {
             formdata.append("credit", true);
         }
 
-        if (document.getElementById("none_cash_pay").checked === true) {
-            formdata.append("none_cash_pay", true);
-        }
-
-        if (document.getElementById("recolored").checked === true) {
-            formdata.append("recolored", true);
-        }
         this.setState({ isLoading: true });
         axios
             .post(server + "/mob/cars", formdata)
             .then((resp) => {
                 this.setState({ isLoading: false });
-                alert("Üstünlikli goşuldy. Moderator tassyklamasyna garaşyň");
+                toast.success("Üstünlikli goşuldy");
             })
             .catch((err) => {
-                alert("Ýalňyşlyk ýüze çykdy");
+                toast.error("Ýalňyşlyk ýüze çykdy");
             });
     }
 
@@ -204,21 +166,18 @@ class AddCar extends React.Component {
 
     render() {
         return (
-            <div className="grid max-w-[600px] m-2 mx-auto">
-                <Loader open={this.state.isLoading}></Loader>
-                <h3 className="font-bold text-[20px]">Täze awtoulag</h3>
-                <div className="grid">
-                    <input
-                        onChange={() => {
-                            this.onImgSelect();
-                        }}
-                        id="imgselector"
-                        multiple
-                        accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*"
-                        type="file"
-                    ></input>
-
+            <div className="grid max-w-[400px] p-4 mx-auto">
+                <ToastContainer
+                    autoClose={5000}
+                    closeOnClick={true}
+                ></ToastContainer>
+                <ProgressIndicator
+                    open={this.state.isLoading}
+                ></ProgressIndicator>
+                <h3 className="font-bold text-[20px]">Awtoulag</h3>
+                <div className="grid text-[12px]">
                     <select
+                        className="p-2"
                         onChange={() => {
                             this.setState(
                                 {
@@ -232,9 +191,7 @@ class AddCar extends React.Component {
                         }}
                         id="mark"
                     >
-                        <option hidden value={""}>
-                            Markasy
-                        </option>
+                        <option value={""}>Markasy</option>
                         {this.state.marks.map((item) => {
                             return (
                                 <option id={item.id} value={item.id}>
@@ -244,10 +201,8 @@ class AddCar extends React.Component {
                         })}
                     </select>
 
-                    <select id="model">
-                        <option hidden value={""}>
-                            Model
-                        </option>
+                    <select className="p-2" id="model">
+                        <option value={""}>Model</option>
                         {this.state.models.map((item) => {
                             return (
                                 <option id={item.id} value={item.id}>
@@ -259,11 +214,13 @@ class AddCar extends React.Component {
                     <input
                         id="year"
                         type={"number"}
+                        className="p-2"
                         min={1900}
                         placeholder="Ýyly"
                     ></input>
                     <input
                         id="price"
+                        className="p-2"
                         placeholder="Bahasy (TMT)"
                         type={"number"}
                         min={0}
@@ -271,6 +228,7 @@ class AddCar extends React.Component {
                     <input
                         id="motor"
                         type={"number"}
+                        className="p-2"
                         step={0.1}
                         min={0}
                         max={10}
@@ -278,18 +236,19 @@ class AddCar extends React.Component {
                     ></input>
                     <input
                         id="millage"
+                        className="p-2"
                         type={"number"}
                         min={0}
                         placeholder="Geçen ýoly (km)"
                     ></input>
 
-                    <div className="border border-solid border-slate-300 py-1 rounded-md   flex items-center">
+                    <div className="border border-solid border-slate-300 rounded-md flex items-center p-1">
                         <BiMap
                             onClick={() => {
                                 this.setState({ locationSelectorOpen: true });
                             }}
                             className="text-slate-600 hover:bg-slate-200 rounded-md m-1 duration-300 "
-                            size={30}
+                            size={25}
                         ></BiMap>
 
                         {this.state.location_name}
@@ -312,10 +271,8 @@ class AddCar extends React.Component {
                         <LocationSelector parent={this}></LocationSelector>
                     )}
 
-                    <select id="body_type">
-                        <option hidden value={""}>
-                            Kuzow görnüşi
-                        </option>
+                    <select className="p-2" id="body_type">
+                        <option value={""}>Kuzow</option>
                         {this.state.bodyTypes.map((item) => {
                             return (
                                 <option id={item.id} value={item.id}>
@@ -325,10 +282,8 @@ class AddCar extends React.Component {
                         })}
                     </select>
 
-                    <select id="color">
-                        <option hidden value={""}>
-                            Reňki
-                        </option>
+                    <select className="p-2" id="color">
+                        <option value={""}>Reňki</option>
                         {this.state.colors.map((item) => {
                             return (
                                 <option id={item.id} value={item.id}>
@@ -338,10 +293,8 @@ class AddCar extends React.Component {
                         })}
                     </select>
 
-                    <select id="fuel">
-                        <option hidden value={""}>
-                            Ýangyjy
-                        </option>
+                    <select className="p-2" id="fuel">
+                        <option value={""}>Ýangyjy</option>
                         {this.state.fuels.map((item) => {
                             return (
                                 <option id={item.id} value={item.id}>
@@ -351,10 +304,8 @@ class AddCar extends React.Component {
                         })}
                     </select>
 
-                    <select id="transmission">
-                        <option hidden value={""}>
-                            Transmissiýa (korobka)
-                        </option>
+                    <select className="p-2" id="transmission">
+                        <option value={""}>Korobka</option>
                         {this.state.transmissions.map((item) => {
                             return (
                                 <option id={item.id} value={item.id}>
@@ -364,10 +315,8 @@ class AddCar extends React.Component {
                         })}
                     </select>
 
-                    <select id="wd">
-                        <option hidden value={""}>
-                            Ýörediji görnüşi
-                        </option>
+                    <select className="p-2" id="wd">
+                        <option value={""}>Ýörediji görnüşi</option>
                         {this.state.wds.map((item) => {
                             return (
                                 <option id={item.id} value={item.id}>
@@ -377,102 +326,88 @@ class AddCar extends React.Component {
                         })}
                     </select>
 
-                    <textarea
-                        id="body_tm"
-                        placeholder="Giňişleýin maglumat..."
-                    ></textarea>
                     <input
                         id="phone"
-                        className="phone"
+                        className="p-2"
                         placeholder="Telefon belgisi"
                     ></input>
 
-                    <div
-                        className="checkbox flex items-center border border-solid hover:bg-slate-200 duration-300 
-                        border-slate-200 rounded-md my-2 p-2"
-                        onClick={() => {
-                            document.getElementById("swap").click();
-                        }}
-                    >
+                    <textarea
+                        id="body_tm"
+                        className="min-h-[100px] p-2"
+                        placeholder="Giňişleýin maglumat..."
+                    ></textarea>
+
+                    <div className="flex items-center duration-300 rounded-md my-2">
                         <input
-                            className="w-[20px] h-[20px]"
+                            className="h-[20px] w-[20px]"
                             id="swap"
                             type={"checkbox"}
                         ></input>
-                        <label className="mx-2">Çalşyk</label>
+                        <label className="mx-2">Obmen</label>
                     </div>
-                    <div
-                        className="checkbox flex items-center border border-solid hover:bg-slate-200 duration-300 
-                        border-slate-200 rounded-md my-2 p-2"
-                        onClick={() => {
-                            document.getElementById("credit").click();
-                        }}
-                    >
+                    <div className="flex items-center duration-300 rounded-md my-2">
                         <input
-                            className="w-[20px] h-[20px]"
+                            className="h-[20px] w-[20px]"
                             id="credit"
                             type={"checkbox"}
                         ></input>
                         <label className="mx-2">Kredit</label>
                     </div>
-                    <div
-                        className="checkbox flex items-center border border-solid hover:bg-slate-200 duration-300 
-                        border-slate-200 rounded-md my-2 p-2"
-                        onClick={() => {
-                            document.getElementById("none_cash_pay").click();
+
+                    <input
+                        hidden
+                        onChange={() => {
+                            this.onImgSelect();
                         }}
-                    >
-                        <input
-                            className="w-[20px] h-[20px]"
-                            id="none_cash_pay"
-                            type={"checkbox"}
-                        ></input>
-                        <label className="mx-2">Nagt däl töleg</label>
-                    </div>
-                    <div
-                        className="checkbox flex items-center border border-solid hover:bg-slate-200 duration-300 
-                                border-slate-200 rounded-md my-2 p-2"
-                        onClick={() => {
-                            document.getElementById("recolored").click();
-                        }}
-                    >
-                        <input
-                            className="w-[20px] h-[20px]"
-                            id="recolored"
-                            type={"checkbox"}
-                        ></input>
-                        <label className="mx-2">Reňki üýtgedilen</label>
+                        id="imgselector"
+                        multiple
+                        accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*"
+                        type="file"
+                    ></input>
+
+                    <div>
+                        <label>
+                            Saýlanan suratlar:{" "}
+                            {this.state.selected_images.length}
+                        </label>
                     </div>
 
-                    <div className="grid grid-cols-3 sm:grid-cols-2">
+                    <div className="flex overflow-x-auto my-2 py-2">
                         {this.state.selected_images.map((item) => {
                             return (
-                                <div className="item relative">
-                                    <MdClose
-                                        className="cursor-pointer hover:shadow-lg hover:bg-slate-500 
-                                            duration-300 absolute bg-red-600 rounded-[50%] p-[5px] 
-                                            text-white shadow-md right-[5px] top-[5px]"
-                                        onClick={() => {
-                                            this.removeImage(item);
-                                        }}
-                                        size={35}
-                                    ></MdClose>
-
+                                <div className="rounded-lg relative border h-[150px] w-[150px] min-w-[150px] overflow-hidden m-1 ">
                                     <img
+                                        className=" object-cover rounded-md w-full h-full"
                                         alt=""
                                         src={URL.createObjectURL(item)}
                                     ></img>
+                                    <BiTrash
+                                        size={30}
+                                        onClick={() => {
+                                            this.removeImage(item);
+                                        }}
+                                        className="m-1 text-red-600 shadow-lg hover:bg-slate-100 duration-200 absolute bg-white rounded-full p-1 top-1 left-1"
+                                    ></BiTrash>
                                 </div>
                             );
                         })}
                     </div>
+                    <button
+                        className="p-2 rounded-md bg-sky-600 my-1 text-white"
+                        onClick={() => {
+                            document.getElementById("imgselector").click();
+                        }}
+                    >
+                        Surat goşmak
+                    </button>
 
                     {this.state.isLoading === false && (
                         <button
                             onClick={() => {
                                 this.save();
                             }}
-                            className="flex items-center p-2 rounded-md w-max border shadow-md bg-sky-700 text-white 
+                            className="flex justify-center items-center p-2 my-4     rounded-md border shadow-md bg-green-600 text-white 
                                 duration-300 hover:bg-slate-500"
                         >
                             <BiSave size={25} className="mx-[5px]"></BiSave>

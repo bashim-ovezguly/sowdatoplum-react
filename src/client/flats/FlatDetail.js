@@ -30,6 +30,10 @@ class FlatDetail extends React.Component {
         this.setData();
     }
 
+    componentDidMount() {
+        window.scrollTo(0, 0);
+    }
+
     setData() {
         const pathname = window.location.pathname;
         const id = pathname.split("/")[2];
@@ -44,8 +48,9 @@ class FlatDetail extends React.Component {
                 floor: resp.data.floor,
                 room_count: resp.data.room_count,
                 at_floor: resp.data.at_floor,
-                category: resp.data.category,
-                location: resp.data.location,
+                category_name: resp.data.category.name,
+                location_name: resp.data.location.name,
+                location_id: resp.data.location.id,
                 viewed: resp.data.viewed,
                 description: resp.data.description,
                 img: resp.data.img,
@@ -54,9 +59,7 @@ class FlatDetail extends React.Component {
                 phone: resp.data.phone,
                 store_id: resp.data.store.id,
                 store_name: resp.data.store.name,
-                store_img: resp.data.store.img,
-                customer_id: resp.data.customer.id,
-                customer_name: resp.data.customer.name,
+                store_logo: resp.data.store.logo,
                 isLoading: false,
             });
 
@@ -130,9 +133,11 @@ class FlatDetail extends React.Component {
                         </label>
                     </div>
 
-                    <label className="text-[22px] font-bold text-sky-400 py-[2] ">
-                        {this.state.price}
-                    </label>
+                    {this.price > 0 && (
+                        <label className="text-[22px] font-bold text-sky-400 py-[2] ">
+                            {this.state.price} TMT
+                        </label>
+                    )}
 
                     {(this.state.detail !== "") |
                         (this.state.detail !== undefined) && (
@@ -146,7 +151,7 @@ class FlatDetail extends React.Component {
                         >
                             <img
                                 alt=""
-                                src={server + this.state.store_img}
+                                src={server + this.state.store_logo}
                                 className="store_img w-[50px] h-[50px] overflow-hidden rounded-full m-1"
                             ></img>
                             <div className="grid h-max">
@@ -170,8 +175,8 @@ class FlatDetail extends React.Component {
                         </div>
                     </div>
 
-                    <div className="my-3">
-                        <label>Häsiýetnamasy</label>
+                    <div className="my-3 ">
+                        <label className="text-sky-600">Häsiýetnamasy</label>
 
                         <div className="flex justify-between border-b py-2">
                             <label className="key">Bahasy:</label>
@@ -183,14 +188,14 @@ class FlatDetail extends React.Component {
                         <div className="flex justify-between border-b py-2">
                             <label className="key">Kategoriýasy:</label>
                             <label className="value ml-[10px] font-bold">
-                                {this.state.category}
+                                {this.state.category_name}
                             </label>
                         </div>
 
                         <div className="flex justify-between border-b py-2">
                             <label className="key">Ýerleşýän ýeri:</label>
                             <label className="value ml-[10px] font-bold">
-                                {this.state.location}
+                                {this.state.location_name}
                             </label>
                         </div>
 
@@ -211,15 +216,6 @@ class FlatDetail extends React.Component {
                             <label className="value ml-[10px] font-bold">
                                 {this.state.room_count}
                             </label>
-                        </div>
-                        <div className="flex justify-between border-b py-2">
-                            <label className="key">Satyjy:</label>
-                            <Link
-                                className="value ml-[10px] font-bold"
-                                to={"/customers/" + this.state.customer_id}
-                            >
-                                {this.state.customer_name}
-                            </Link>
                         </div>
 
                         <div className="flex justify-between border-b py-2">

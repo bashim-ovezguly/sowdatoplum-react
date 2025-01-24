@@ -16,6 +16,8 @@ import { AiFillDelete } from "react-icons/ai";
 import { IoMdEye, IoMdTrash } from "react-icons/io";
 import LocationSelector from "../LocationSelector";
 import { CircularProgress } from "@mui/material";
+import { toast } from "react-toastify";
+import ProgressIndicator from "../ProgressIndicator";
 
 class AdminProductDetail extends React.Component {
     constructor(props) {
@@ -77,10 +79,6 @@ class AdminProductDetail extends React.Component {
             this.setState({ stores: resp.data });
         });
 
-        axios.get(server + "/mob/customers").then((resp) => {
-            this.setState({ customers: resp.data });
-        });
-
         axios.get(server + "/mob/index/product").then((resp) => {
             this.setState({
                 categories: resp.data["categories"],
@@ -95,53 +93,45 @@ class AdminProductDetail extends React.Component {
         this.setState({ id: id });
 
         axios
-            .get(server + "/api/admin/products/" + id, this.state.headers)
+            .get(server + "/api/adm/products/" + id, this.state.headers)
             .then((resp) => {
+                if (resp.data.category !== "") {
+                    this.setState({
+                        category_name: resp.data.category.name,
+                        category_id: resp.data.category.id,
+                    });
+                }
+                if (resp.data.store !== "") {
+                    this.setState({
+                        store_name: resp.data.store.name,
+                        store_id: resp.data.store.id,
+                    });
+                }
+                if (resp.data.location !== "") {
+                    this.setState({
+                        location_name: resp.data.location.name,
+                        location_id: resp.data.location.id,
+                    });
+                }
+
                 this.setState({
-                    name: resp.data["name_tm"],
-                    location: resp.data["location"],
-                    viewed: resp.data["viewed"],
-                    detail_text: resp.data["body_tm"],
-                    img: resp.data["img"],
-                    price: resp.data["price"],
-                    created_at: resp.data["created_at"],
-                    images: resp.data["images"],
-                    category: resp.data["category"],
-                    address: resp.data["address"],
-                    phone: resp.data["phone"],
-                    customer_id: resp.data.customer_id,
-                    customer: resp.data.customer,
-                    amount: resp.data["amount"],
-                    brand: resp.data["brand"],
-                    unit: resp.data["unit"],
-                    made_in: resp.data["made_in"],
-                    status: resp.data["status"],
-                    active: resp.data["active"],
-                    credit: resp.data["credit"],
-                    swap: resp.data["swap"],
-                    none_cash_pay: resp.data["none_cash_pay"],
-                    moderated_at: resp.data["moderated_at"],
-                    moderator: resp.data["moderator"],
-                    store: resp.data["store"],
-                    store_name: resp.data["store_name"],
-                    store_id: resp.data.store_id,
-                    location_name: resp.data.location,
-                    location_id: resp.data.location_id,
+                    name: resp.data.name,
+                    viewed: resp.data.viewed,
+                    img: resp.data.img,
+                    price: resp.data.price,
+                    created_at: resp.data.created_at,
+                    images: resp.data.images,
+                    phone: resp.data.phone,
+                    amount: resp.data.amount,
+                    status: resp.data.status,
+                    active: resp.data.active,
+                    credit: resp.data.credit,
                     error: resp.data.error_reason,
                     on_slider: resp.data.on_slider,
+                    description: resp.data.description,
 
                     isLoading: false,
                 });
-
-                if (resp.data["status"] === "pending") {
-                    this.setState({ status: "Barlagda" });
-                }
-                if (resp.data["status"] === "accepted") {
-                    this.setState({ status: "Kabul edilen" });
-                }
-                if (resp.data["status"] === "canceled") {
-                    this.setState({ status: "Gaýtarlan" });
-                }
             });
     }
 
@@ -153,7 +143,7 @@ class AdminProductDetail extends React.Component {
 
         axios
             .post(
-                server + "/api/admin/products/delete/" + this.state.id,
+                server + "/api/adm/products/delete/" + this.state.id,
                 {},
                 this.state.headers
             )
@@ -169,29 +159,14 @@ class AdminProductDetail extends React.Component {
 
         axios
             .put(
-                server + "/api/admin/products/" + this.state.id + "/",
+                server + "/api/adm/products/" + this.state.id + "/",
                 fdata,
                 this.state.headers
             )
             .then((resp) => {
                 this.setData();
-            });
-    }
-
-    sendSMS(msg) {
-        var formdata = new FormData();
-
-        formdata.append("msg", msg);
-
-        axios
-            .put(
-                server + "/api/admin/sms/" + this.state.id,
-                formdata,
-                this.state.headers
-            )
-            .then((resp) => {})
-            .catch((err) => {
-                alert("Ýalňyşlyk ýüze çykdy");
+                if (statusValue === "accepted") toast.success("Kabul edildi");
+                if (statusValue === "pending") toast.success("Barlaga goýuldy");
             });
     }
 
@@ -202,7 +177,7 @@ class AdminProductDetail extends React.Component {
 
         axios
             .put(
-                server + "/api/admin/products/" + this.state.id + "/",
+                server + "/api/adm/products/" + this.state.id + "/",
                 formdata,
                 this.state.headers
             )
@@ -248,7 +223,7 @@ class AdminProductDetail extends React.Component {
 
     save() {
         var formdata = new FormData();
-        formdata.append("name_tm", document.getElementById("name").value);
+        formdata.append("name", document.getElementById("name").value);
 
         if (document.getElementById("category").value != "") {
             formdata.append(
@@ -257,36 +232,26 @@ class AdminProductDetail extends React.Component {
             );
         }
 
-        formdata.append("body_tm", document.getElementById("body_tm").value);
+        formdata.append(
+            "description",
+            document.getElementById("description").value
+        );
         formdata.append("price", document.getElementById("price").value);
         formdata.append("store", document.getElementById("store").value);
-        formdata.append("customer", document.getElementById("customer").value);
         formdata.append("phone", document.getElementById("phone").value);
-        formdata.append("error_reason", document.getElementById("error").value);
         formdata.append("location", this.state.location_id);
-
-        if (document.getElementById("active").checked) {
-            formdata.append("active", true);
-        } else {
-            formdata.append("active", false);
-        }
-
-        if (document.getElementById("on_slider").checked) {
-            formdata.append("on_slider", true);
-        } else {
-            formdata.append("on_slider", false);
-        }
 
         this.setState({ isLoading: true });
         axios
             .put(
-                server + "/api/admin/products/" + this.state.id + "/",
+                server + "/api/adm/products/" + this.state.id + "/",
                 formdata,
                 this.state.headers
             )
             .then((resp) => {
                 this.setData();
                 this.setState({ isLoading: true });
+                toast.success("Yatda saklandy");
             })
             .catch((err) => {
                 alert("Ýalňyşlyk ýüze çykdy");
@@ -300,19 +265,17 @@ class AdminProductDetail extends React.Component {
         });
 
         return (
-            <div className="max-w-[600px] grid mx-auto">
-                {this.state.isLoading && (
-                    <div>
-                        <CircularProgress></CircularProgress>
-                    </div>
-                )}
+            <div className="max-w-[1440px] p-2 grid mx-auto">
+                <ProgressIndicator
+                    open={this.state.isLoading}
+                ></ProgressIndicator>
 
-                <div className="flex flex-wrap">
+                <div className="flex whitespace-nowrap overflow-x-auto">
                     <button
                         onClick={() => {
                             this.changeStatus("accepted");
                         }}
-                        className="border p-1 m-1 flex items-center text-[12px] hover:bg-slate-100 rounded-md"
+                        className="p-1 m-1 flex items-center text-[12px] bg-slate-200 hover:bg-slate-200 rounded-md px-2"
                     >
                         <MdCheck></MdCheck>
                         <label>Kabul etmek</label>
@@ -320,26 +283,16 @@ class AdminProductDetail extends React.Component {
 
                     <button
                         onClick={() => {
-                            this.changeStatus("canceled");
-                        }}
-                        className="border p-1 m-1 flex items-center text-[12px] hover:bg-slate-100 rounded-md"
-                    >
-                        <MdCancel></MdCancel>
-                        <label>Gaýtarmak</label>
-                    </button>
-
-                    <button
-                        onClick={() => {
                             this.changeStatus("pending");
                         }}
-                        className="border p-1 m-1 flex items-center text-[12px] hover:bg-slate-100 rounded-md"
+                        className="p-1 m-1 flex items-center text-[12px] bg-slate-200 hover:bg-slate-200 rounded-md px-2"
                     >
                         <MdWarning></MdWarning>
                         <label>Barlaga geçirmek</label>
                     </button>
 
                     <button
-                        className="border p-1 m-1 flex items-center text-[12px] hover:bg-slate-100 rounded-md"
+                        className="p-1 m-1 flex items-center text-[12px] bg-slate-200 hover:bg-slate-200 rounded-md px-2"
                         onClick={() => {
                             document.getElementById("imgselector").click();
                         }}
@@ -359,7 +312,7 @@ class AdminProductDetail extends React.Component {
                     ></input>
 
                     <button
-                        className="border p-1 m-1 flex items-center text-[12px] hover:bg-slate-100 rounded-md"
+                        className="p-1 m-1 flex items-center text-[12px] bg-slate-200 hover:bg-slate-200 rounded-md px-2"
                         onClick={() => {
                             this.save();
                         }}
@@ -371,7 +324,7 @@ class AdminProductDetail extends React.Component {
                         onClick={() => {
                             this.deleteProduct();
                         }}
-                        className="border p-1 m-1 flex items-center text-[12px] hover:bg-slate-100 rounded-md"
+                        className="p-1 m-1 flex items-center text-[12px] bg-slate-200 hover:bg-slate-200 rounded-md px-2"
                     >
                         <IoMdTrash></IoMdTrash>
                         <label>Bozmak</label>
@@ -380,35 +333,37 @@ class AdminProductDetail extends React.Component {
 
                 <img
                     alt=""
-                    className="w-full max-h-[300px] border my-2 object-contain "
+                    className="max-w-[200px] max-h-[200px] border my-2 object-contain rounded-lg "
                     src={server + this.state.img}
                 ></img>
 
                 <div className="flex overflow-x-auto">
                     {this.state.images.map((item) => {
                         return (
-                            <div className="grid w-max m-1 rounded-lg">
+                            <div className="grid w-max m-1 rounded-lg relative">
                                 <img
                                     alt=""
                                     defaultValue={"/default.png"}
                                     src={server + item.img_s}
                                     className="object-contain border rounded-lg overflow-hidden w-[150px] h-[150px] max-w-none"
                                 ></img>
-                                <div className="flex justify-center p-2 ">
-                                    <AiFillDelete
-                                        size={25}
-                                        className="hover:text-slate-300 duration-200 text-red-600"
-                                        onClick={() => {
-                                            this.removeImage(item.id);
-                                        }}
-                                    ></AiFillDelete>
-                                    <MdCheck
-                                        size={25}
-                                        className="hover:text-slate-300 duration-200 text-green-600"
-                                        onClick={() => {
-                                            this.setMainImage(item.id);
-                                        }}
-                                    ></MdCheck>
+                                <div className="flex absolute top-1 left-1">
+                                    <button className=" p-1 shadow-lg border hover:text-slate-300 duration-200 bg-white rounded-md mr-1 text-red-600">
+                                        <AiFillDelete
+                                            size={30}
+                                            onClick={() => {
+                                                this.removeImage(item.id);
+                                            }}
+                                        ></AiFillDelete>
+                                    </button>
+                                    <button className=" p-1 shadow-lg border hover:text-slate-300 duration-200 bg-white rounded-md mr-1 text-green-600">
+                                        <MdCheck
+                                            size={30}
+                                            onClick={() => {
+                                                this.setMainImage(item.id);
+                                            }}
+                                        ></MdCheck>
+                                    </button>
                                 </div>
                             </div>
                         );
@@ -422,32 +377,17 @@ class AdminProductDetail extends React.Component {
                             <IoMdEye></IoMdEye> {this.state.viewed}
                             <BiCalendar></BiCalendar> {this.state.created_at}
                         </div>
-                        <label>Statusy: {this.state.status} </label>
-                    </div>
-
-                    <div>
-                        <label>Slaýderde gorkez</label>
-                        {this.state.on_slider ? (
-                            <input
-                                defaultChecked
-                                type="checkbox"
-                                id="on_slider"
-                            ></input>
-                        ) : (
-                            <input type="checkbox" id="on_slider"></input>
+                        {this.state.status === "accepted" && (
+                            <label className="bg-green-600 rounded-md px-2 text-white w-max">
+                                {" "}
+                                {this.state.status}{" "}
+                            </label>
                         )}
-                    </div>
-
-                    <div>
-                        <label>Aktiw</label>
-                        {this.state.active ? (
-                            <input
-                                defaultChecked
-                                type="checkbox"
-                                id="active"
-                            ></input>
-                        ) : (
-                            <input type="checkbox" id="active"></input>
+                        {this.state.status === "pending" && (
+                            <label className="bg-orange-600 rounded-md px-2 text-white w-max">
+                                {" "}
+                                {this.state.status}{" "}
+                            </label>
                         )}
                     </div>
 
@@ -459,8 +399,8 @@ class AdminProductDetail extends React.Component {
 
                     <div className="border rounded-md my-1 p-1 flex items-center ">
                         <BiMap
-                            size={35}
-                            className="p-2 hover:bg-slate-200 rounded"
+                            size={25}
+                            className="hover:bg-slate-200 rounded"
                             onClick={() => {
                                 this.setState({ locationSelectorOpen: true });
                             }}
@@ -482,35 +422,17 @@ class AdminProductDetail extends React.Component {
                         <LocationSelector parent={this}></LocationSelector>
                     )}
 
-                    <label>Dükany</label>
+                    <label>Store</label>
                     <select id="store" className="">
-                        <option value={this.state.store_id} hidden>
+                        <option value={""}></option>
+                        <option selected value={this.state.store_id}>
                             {this.state.store_name}
                         </option>
                         {this.state.stores.map((item) => {
                             return (
                                 <option value={item.id}>
                                     {" "}
-                                    {String(item.name_tm).substring(0, 20)}
-                                </option>
-                            );
-                        })}
-                    </select>
-
-                    <label>Ulanyjy</label>
-                    <select id="customer">
-                        <option value={this.state.customer_id} hidden>
-                            {this.state.customer_id}{" "}
-                            {String(this.state.customer).substring(0, 20)}
-                        </option>
-                        <option value={""}>(Görkezilmedik)</option>
-                        {this.state.customers.map((item) => {
-                            return (
-                                <option value={item.id}>
-                                    {" "}
-                                    {item.id}{" "}
-                                    {String(item.name).substring(0, 20)}{" "}
-                                    {item.phone}
+                                    {String(item.name).substring(0, 20)}
                                 </option>
                             );
                         })}
@@ -518,8 +440,9 @@ class AdminProductDetail extends React.Component {
 
                     <label>Kategoriýasy</label>
                     <select id="category">
-                        <option value={""} hidden>
-                            {this.state.category}
+                        <option value={""}></option>
+                        <option selected value={this.state.category_id}>
+                            {this.state.category_name}
                         </option>
                         {this.state.categories.map((item) => {
                             return (
@@ -530,8 +453,9 @@ class AdminProductDetail extends React.Component {
 
                     <label>Goşmaça maglumat</label>
                     <textarea
-                        id="body_tm"
-                        defaultValue={this.state.detail_text}
+                        className="min-h-[200px]"
+                        id="description"
+                        defaultValue={this.state.description}
                     ></textarea>
 
                     <label>Telefon belgisi</label>

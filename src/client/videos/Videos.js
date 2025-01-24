@@ -72,7 +72,9 @@ class Videos extends React.Component {
 
         return (
             <div className="grid mx-auto p-2">
-                <h3 className="text-[20px] text-sky-800 border-b">Wideolar</h3>
+                <h3 className="text-[15px] text-appColor font-bold">
+                    Wideolar
+                </h3>
 
                 <div className="grid justify-center">
                     {this.state.videos.map((item) => {
@@ -128,7 +130,7 @@ class Videos extends React.Component {
                                             }
                                         }}
                                         src={server + item.url}
-                                        className="h-[500px] w-[500px] border overflow-hidden rounded-lg"
+                                        className="h-[500px] w-[500px] border overflow-hidden rounded-lg "
                                     ></video>
                                 </div>
                                 <div className="my-2 flex items-center justify-between text-slate-700">

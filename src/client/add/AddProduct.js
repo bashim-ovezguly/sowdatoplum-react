@@ -1,10 +1,12 @@
 import axios from "axios";
 import React from "react";
 import { server } from "../../static";
-import { MdClose, MdDelete } from "react-icons/md";
+import { MdClose } from "react-icons/md";
 import { CircularProgress } from "@mui/material";
 import LocationSelector from "../../admin/LocationSelector";
-import { BiMap, BiSave } from "react-icons/bi";
+import { BiMap, BiSave, BiTrash } from "react-icons/bi";
+import { toast, ToastContainer } from "react-toastify";
+import ProgressIndicator from "../../admin/ProgressIndicator";
 
 class AddProduct extends React.Component {
     constructor(props) {
@@ -95,9 +97,14 @@ class AddProduct extends React.Component {
 
     save() {
         var formdata = new FormData();
-        formdata.append("name_tm", document.getElementById("name").value);
+        formdata.append("name", document.getElementById("name").value);
+        formdata.append("location", this.state.location_id);
+        formdata.append("phone", document.getElementById("phone").value);
         formdata.append("category", document.getElementById("category").value);
-        formdata.append("body_tm", document.getElementById("body_tm").value);
+        formdata.append(
+            "description",
+            document.getElementById("description").value
+        );
         formdata.append("price", document.getElementById("price").value);
 
         if (document.getElementById("name").value === "") {
@@ -114,19 +121,17 @@ class AddProduct extends React.Component {
             formdata.append("images", item);
         });
 
-        formdata.append("customer", localStorage.getItem("user_id"));
+        formdata.append("store", localStorage.getItem("user_id"));
         this.setState({ isLoading: true });
         axios
             .post(server + "/mob/products", formdata)
             .then((resp) => {
                 this.setState({ isLoading: false });
-                alert(
-                    "Haryt üstünlikli goşuldy. Moderator tassyklamasyna garaşyň"
-                );
+                toast.success("Haryt goşuldy");
             })
             .catch((err) => {
                 this.setState({ isLoading: false });
-                alert("Ýalňyşlyk ýüze çykdy");
+                toast.error("Ýalňyşlyk ýüze çykdy");
             });
     }
 
@@ -140,29 +145,42 @@ class AddProduct extends React.Component {
 
     render() {
         return (
-            <div className="grid max-w-[600px] p-2 m-2 mx-auto">
+            <div className="grid max-w-[400px] p-4 mx-auto text-[13px]">
+                <ProgressIndicator
+                    open={this.state.isLoading}
+                ></ProgressIndicator>
+                <ToastContainer
+                    autoClose={5000}
+                    closeOnClick={true}
+                ></ToastContainer>
                 {this.state.locationSelectorOpen && (
                     <LocationSelector parent={this}></LocationSelector>
                 )}
 
-                {this.state.isLoading && (
-                    <div className="flex justify-center">
-                        <CircularProgress></CircularProgress>
-                    </div>
-                )}
-
-                <h3 className="font-bold text-[20px]">Täze haryt</h3>
+                <h3 className="font-bold text-[20px]">Haryt</h3>
                 <div className="grid">
+                    <input placeholder="Ady" id="name"></input>
                     <input
-                        placeholder="Ady"
-                        className="p-[10px]"
-                        id="name"
+                        placeholder="Bahasy (TMT)"
+                        id="price"
+                        type="number"
+                        min={0}
                     ></input>
 
-                    <div className="location border rounded p-2 flex items-center">
+                    <select className="" id="category">
+                        <option value={""}>Kategoriýasy</option>
+                        {this.state.categories.map((item) => {
+                            return (
+                                <option id={item.id} value={item.id}>
+                                    {item.name_tm}
+                                </option>
+                            );
+                        })}
+                    </select>
+                    <div className="location border rounded p-1  flex items-center">
                         <BiMap
                             size={25}
-                            className="hover:text-slate-400 duration-200"
+                            className="hover:text-slate-400 duration-200 text-slate-600"
                             onClick={() => {
                                 this.setState({ locationSelectorOpen: true });
                             }}
@@ -181,54 +199,54 @@ class AddProduct extends React.Component {
                     </div>
 
                     <input
-                        placeholder="Bahasy (TMT)"
-                        className="field p-10px"
-                        id="price"
+                        id="phone"
+                        placeholder="Telefon belgisi"
                         type="number"
-                        min={0}
                     ></input>
-
-                    <select className="field" id="category">
-                        <option value={""}>Kategoriýasy (görkezilmedik)</option>
-                        {this.state.categories.map((item) => {
-                            return (
-                                <option id={item.id} value={item.id}>
-                                    {item.name_tm}
-                                </option>
-                            );
-                        })}
-                    </select>
 
                     <textarea
                         placeholder="Giňişleýin maglumat"
-                        className="min-h-100px"
-                        id="body_tm"
+                        className="min-h-[100px] p-2"
+                        id="description"
                     ></textarea>
 
-                    <div className="grid grid-cols-3 sm:grid-cols-2">
+                    <div>
+                        <label>
+                            Saýlanan suratlar:{" "}
+                            {this.state.selected_images.length}
+                        </label>
+                    </div>
+
+                    <div className="flex overflow-x-auto my-2 py-2">
                         {this.state.selected_images.map((item) => {
                             return (
-                                <div className="relative border rounded m-2">
-                                    <MdClose
-                                        className="cursor-pointer hover:shadow-lg hover:bg-slate-500 
-                                        duration-300 absolute bg-red-600 rounded-[50%] p-[5px] 
-                                        text-white shadow-md right-[5px] top-[5px]"
-                                        onClick={() => {
-                                            this.removeImage(item);
-                                        }}
-                                        size={35}
-                                    ></MdClose>
+                                <div className="rounded-lg relative border h-[150px] w-[150px] min-w-[150px] overflow-hidden m-1 ">
                                     <img
-                                        className="rounded-md"
+                                        className=" object-cover rounded-md w-full h-full"
                                         alt=""
                                         src={URL.createObjectURL(item)}
                                     ></img>
+                                    <BiTrash
+                                        size={35}
+                                        onClick={() => {
+                                            this.removeImage(item);
+                                        }}
+                                        className="m-1 text-red-600 shadow-lg hover:bg-slate-100 duration-200 absolute bg-white rounded-full p-1 top-1 left-1"
+                                    ></BiTrash>
                                 </div>
                             );
                         })}
                     </div>
-
+                    <button
+                        className="p-2 rounded-md bg-sky-600 my-1 text-white"
+                        onClick={() => {
+                            document.getElementById("imgselector").click();
+                        }}
+                    >
+                        Surat goşmak
+                    </button>
                     <input
+                        hidden
                         onChange={() => {
                             this.onImgSelect();
                         }}
@@ -242,7 +260,7 @@ class AddProduct extends React.Component {
                         onClick={() => {
                             this.save();
                         }}
-                        className="p-1 rounded-md w-max flex items-center bg-sky-700 text-white"
+                        className="p-1 my-4 rounded-md justify-center bg-green-600 flex items-center text-white"
                     >
                         <BiSave size={20} className="m-2"></BiSave>
                         <label>Ýatda saklamak</label>

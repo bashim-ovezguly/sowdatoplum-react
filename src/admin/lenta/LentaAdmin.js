@@ -3,6 +3,7 @@ import React from "react";
 import { BiCalendar } from "react-icons/bi";
 import {
     MdCancel,
+    MdCheck,
     MdDelete,
     MdDone,
     MdPerson,
@@ -10,6 +11,7 @@ import {
 } from "react-icons/md";
 import { server } from "../../static";
 import Pagination from "@mui/material/Pagination";
+import ProgressIndicator from "../ProgressIndicator";
 
 class LentaAdmin extends React.Component {
     constructor(props) {
@@ -40,10 +42,7 @@ class LentaAdmin extends React.Component {
 
     setPage(pageNumber) {
         axios
-            .get(
-                server + "/api/admin/lenta?page=" + pageNumber,
-                this.state.auth
-            )
+            .get(server + "/api/adm/lenta?page=" + pageNumber, this.state.auth)
             .then((resp) => {
                 this.setState({ datalist: resp.data.data });
             });
@@ -51,7 +50,7 @@ class LentaAdmin extends React.Component {
 
     setData() {
         axios
-            .get(server + "/api/admin/lenta?page=" + this.state.current_page, {
+            .get(server + "/api/adm/lenta?page=" + this.state.current_page, {
                 params: this.state.url_params,
                 auth: this.state.auth.auth,
             })
@@ -86,7 +85,7 @@ class LentaAdmin extends React.Component {
         formdata.append("customer", item.customer.id);
         axios
             .put(
-                server + "/api/admin/lenta/" + item.id + "/",
+                server + "/api/adm/lenta/" + item.id + "/",
                 formdata,
                 this.state.auth
             )
@@ -98,10 +97,10 @@ class LentaAdmin extends React.Component {
     acceptItem(item) {
         let formdata = new FormData();
         formdata.append("active", "True");
-        formdata.append("customer", item.customer.id);
+        formdata.append("customer", item.id);
         axios
             .put(
-                server + "/api/admin/lenta/" + item.id + "/",
+                server + "/api/adm/lenta/" + item.id + "/",
                 formdata,
                 this.state.auth
             )
@@ -114,7 +113,7 @@ class LentaAdmin extends React.Component {
         let result = window.confirm("Bozmaga ynamyňyz barmy");
         if (result == true) {
             axios
-                .delete(server + "/api/admin/lenta/" + item.id, this.state.auth)
+                .delete(server + "/api/adm/lenta/" + item.id, this.state.auth)
                 .then((resp) => {
                     this.setData();
                 });
@@ -123,26 +122,31 @@ class LentaAdmin extends React.Component {
 
     render() {
         return (
-            <div className="lenta">
-                <h3>
-                    Lenta ({this.state.total} sany)
-                    {this.state.isLoading && <label> Ýüklenýär...</label>}
-                </h3>
+            <div className="lenta p-2">
+                <ProgressIndicator
+                    open={this.state.isLoading}
+                ></ProgressIndicator>
 
-                <div className="actions">
+                <div className="flex items-center">
+                    <label className="text-base font-bold">
+                        Lenta ({this.state.total} sany)
+                    </label>
+
                     <button
                         onClick={() => {
                             this.setState({ isLoading: true });
                             this.setData();
                         }}
                     >
-                        <label>Täzelemek</label>
-                        <MdRefresh className="icon"></MdRefresh>
+                        <MdRefresh
+                            size={20}
+                            className="hover:bg-slate-200 rounded-md"
+                        ></MdRefresh>
                     </button>
                 </div>
 
                 <Pagination
-                    className="pagination"
+                    className="mx-auto m-3"
                     onChange={(event, page) => {
                         this.setPage(page);
                     }}
@@ -156,39 +160,45 @@ class LentaAdmin extends React.Component {
                         return (
                             <div
                                 key={item.id}
-                                className="rounded-md h-max shadow-md w-[300px] text-[12px] m-2 grid p-2"
+                                className="rounded-md h-max shadow-lg w-[300px] text-[12px] m-2 grid p-2 border relative"
                             >
-                                <label className="flex items-center">
-                                    <MdPerson></MdPerson> {item.customer.name}{" "}
-                                </label>
-                                <label className="flex items-center">
-                                    <BiCalendar></BiCalendar> {item.created_at}
-                                </label>
-
-                                {item.active === "True" && (
-                                    <label className="status">
-                                        Kabul edilen
+                                <div className="flex items-center">
+                                    <MdPerson></MdPerson>
+                                    <label className="flex items-center font-bold mx-2">
+                                        {item.store.name}
                                     </label>
-                                )}
-                                {item.active === "False" && (
-                                    <label className="status">Garaşylýar</label>
-                                )}
-
-                                <div className="">
-                                    {/* {item.images.map(itemImg=>{
-                                return <a href={server+itemImg.img} target="_blank"><img src={server + itemImg.img}></img></a> 
-                            })} */}
-                                    <img
-                                        alt=""
-                                        className="w-full h-[200px] object-cover"
-                                        src={server + item.images[0].img}
-                                    ></img>
                                 </div>
+
+                                <div className="flex items-center">
+                                    <label className="flex items-center ">
+                                        <BiCalendar></BiCalendar>{" "}
+                                        {item.created_at}
+                                    </label>
+                                    {item.active === "True" && (
+                                        <MdCheck
+                                            size={18}
+                                            className="bg-green-600 ml-2 rounded-full text-white absolute top-1 right-1 w-max"
+                                        ></MdCheck>
+                                    )}
+                                    {item.active === "False" && (
+                                        <MdCancel
+                                            size={18}
+                                            className="bg-red-600 ml-2 rounded-full text-white absolute top-1 right-1 w-max"
+                                        ></MdCancel>
+                                    )}
+                                </div>
+
+                                <img
+                                    alt=""
+                                    className="w-full h-[200px] object-cover overflow-hidden border my-1 rounded-md"
+                                    src={server + item.images[0].img}
+                                ></img>
+
                                 <div>
-                                    <p className="text">{item.text}</p>
-                                    <div className="text-[12px] flex  items-center">
+                                    <p className="text-[12px]">{item.text}</p>
+                                    <div className="flex  items-center my-1">
                                         <button
-                                            className="flex items-center mx-1 border p-1 hover:bg-slate-200"
+                                            className="flex items-center bg-slate-200 mr-1 border rounded-full px-1 hover:bg-slate-200"
                                             onClick={() => {
                                                 this.acceptItem(item);
                                             }}
@@ -197,7 +207,7 @@ class LentaAdmin extends React.Component {
                                             <label>Kabul etmek</label>
                                         </button>
                                         <button
-                                            className="flex items-center mx-1 border p-1 hover:bg-slate-200"
+                                            className="flex items-center bg-slate-200 mr-1 border rounded-full px-1 hover:bg-slate-200"
                                             onClick={() => {
                                                 this.cancelItem(item);
                                             }}
@@ -206,7 +216,7 @@ class LentaAdmin extends React.Component {
                                             <label>Gaýtarmak</label>
                                         </button>
                                         <button
-                                            className="flex items-center mx-1 border p-1 hover:bg-slate-200"
+                                            className="flex items-center bg-slate-200 mr-1 border rounded-full px-1 hover:bg-slate-200"
                                             onClick={() => {
                                                 this.deleteItem(item);
                                             }}

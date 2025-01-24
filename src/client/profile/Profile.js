@@ -1,28 +1,28 @@
 import axios from "axios";
 import React from "react";
-import { server } from "../../static";
+import { server, storeUrl } from "../../static";
 import { Routes, Route, Link } from "react-router-dom";
+import { BiLogOut } from "react-icons/bi";
 import {
-    BiCar,
-    BiGift,
-    BiHome,
-    BiLogOut,
-    BiNews,
-    BiShoppingBag,
-} from "react-icons/bi";
-import { MdMail, MdMenu, MdPhone, MdSettings } from "react-icons/md";
+    MdCardGiftcard,
+    MdCarRental,
+    MdEdit,
+    MdImage,
+    MdPerson,
+    MdSettings,
+    MdShoppingCart,
+} from "react-icons/md";
 import AddProduct from "../add/AddProduct";
 import ProfileEdit from "./ProfileEdit";
-import ProfileOrdersIn from "./ProfileOrdersIn";
 import ProfileProducts from "./ProfileProducts";
 import ProfileCars from "./ProfileCars";
 import AddCar from "../add/AddCar";
-import ProfileFlats from "./ProfileFlats";
-import ProfileParts from "./ProfileParts";
-import AddPart from "../add/AddPart";
-import { BsArrowDown, BsArrowUp, BsShop, BsTools } from "react-icons/bs";
-import ProfileLenta from "./ProfileLenta";
-import ProfileOrdersOut from "./ProfileOrdersOut";
+import ProfileLenta from "./ProfileAksiya";
+import ProfileOrders from "./ProfileOrders";
+import ProfileImages from "./ProfileImages";
+import { user_is_authenticated } from "../../App";
+import { MotionAnimate } from "react-motion-animate";
+import { toast, ToastContainer } from "react-toastify";
 
 class MyProfile extends React.Component {
     constructor(props) {
@@ -30,14 +30,7 @@ class MyProfile extends React.Component {
         this.state = {
             isLoading: true,
             menuOpen: false,
-
-            store_count: 0,
             car_count: 0,
-            flat_count: 0,
-            factory_count: 0,
-            part_count: 0,
-            service_count: 0,
-            material_count: 0,
             products_count: 0,
 
             stores: [],
@@ -46,7 +39,7 @@ class MyProfile extends React.Component {
             parts: [],
             products: [],
 
-            id: "",
+            id: localStorage.getItem("user_id"),
             name: "",
             phone: "",
             email: "",
@@ -62,13 +55,6 @@ class MyProfile extends React.Component {
             showAddCar: false,
             showAddFlat: false,
             showAddPart: false,
-
-            auth: {
-                auth: {
-                    username: localStorage.getItem("username"),
-                    password: localStorage.getItem("password"),
-                },
-            },
         };
 
         document.title = "Profile";
@@ -101,50 +87,9 @@ class MyProfile extends React.Component {
         );
     }
 
-    setStores() {
-        let id = localStorage.getItem("id");
-        this.setState({ isLoading: true });
-        axios.get(server + "/mob/stores?customer=" + id).then((resp) => {
-            this.setState({ isLoading: false, stores: resp.data.data });
-        });
-    }
-
-    setCars(id) {
-        this.setState({ isLoading: true });
-        axios.get(server + "/mob/cars?customer=" + id).then((resp) => {
-            this.setState({
-                user: resp.data,
-                isLoading: false,
-                cars: resp.data.data,
-            });
-        });
-    }
-
-    setParts(id) {
-        this.setState({ isLoading: true });
-        axios.get(server + "/mob/parts?customer=" + id).then((resp) => {
-            this.setState({
-                user: resp.data,
-                isLoading: false,
-                parts: resp.data.data,
-            });
-        });
-    }
-
-    setFlats(id) {
-        this.setState({ isLoading: true });
-        axios.get(server + "/mob/flats?customer=" + id).then((resp) => {
-            this.setState({
-                user: resp.data,
-                isLoading: false,
-                flats: resp.data.data,
-            });
-        });
-    }
-
     setProducts(id) {
         this.setState({ isLoading: true });
-        axios.get(server + "/mob/products?customer=" + id).then((resp) => {
+        axios.get(server + "/products?store=" + id).then((resp) => {
             this.setState({
                 user: resp.data,
                 isLoading: false,
@@ -153,42 +98,49 @@ class MyProfile extends React.Component {
         });
     }
 
+    logout() {
+        localStorage.removeItem("user_name");
+        localStorage.removeItem("user_phone");
+        localStorage.removeItem("user_access_token");
+        localStorage.removeItem("user_refresh_token");
+        localStorage.removeItem("user_email");
+        localStorage.removeItem("user_id");
+        localStorage.setItem("logged_in", false);
+        window.location.href = "/";
+    }
+
     setData() {
-        const id = localStorage.getItem("user_id");
         axios
-            .get(server + "/mob/customer/" + id)
+            .get(server + "/profile", {
+                headers: { token: localStorage.getItem("user_access_token") },
+            })
             .then((resp) => {
                 this.setState({
-                    user: resp.data,
                     isLoading: false,
-                    id: resp.data.data.id,
-                    phone: resp.data.data.phone,
-                    name: resp.data.data.name,
-                    email: resp.data.data.email,
-                    img: resp.data.data.img_m,
-                    service_count: resp.data.data.room.services,
-                    material_count: resp.data.data.room.materials,
-                    store_count: resp.data.data.room.store,
-                    flat_count: resp.data.data.room.flats,
-                    announce_count: resp.data.data.room.products,
-                    factory_count: resp.data.data.room.factories,
-                    part_count: resp.data.data.room.parts,
-                    car_count: resp.data.data.room.cars,
-                    lenta_count: resp.data.data.room.lenta,
-                    created_at: resp.data.data.created_at,
-                    orders_in: resp.data.data.orders_in,
-                    orders_out: resp.data.data.orders_out,
+                    id: resp.data.id,
+                    phone: resp.data.phone,
+                    name: resp.data.name,
+                    email: resp.data.email,
+                    img: resp.data.img_m,
+                    wallpaper: resp.data.wallpaper,
+                    flat_count: resp.data.stats.flats,
+                    announce_count: resp.data.stats.products,
+                    image_count: resp.data.stats.images,
+                    car_count: resp.data.stats.cars,
+                    lenta_count: resp.data.stats.lenta,
+                    created_at: resp.data.created_at,
+                    orders: resp.data.stats.orders,
+                    logo: resp.data.logo,
                 });
             })
             .catch((err) => {
-                alert("error loading");
+                this.logout();
             });
     }
 
     logout_click() {
-        localStorage.clear();
-        localStorage.clear();
         window.location.href = "/login";
+        localStorage.removeItem("user_access_token");
     }
 
     postAddClick() {
@@ -210,181 +162,187 @@ class MyProfile extends React.Component {
     }
 
     componentDidMount() {
-        if (localStorage.getItem("profileMenuOpen") === "true") {
-            this.openMenu();
-        } else {
-            this.closeMenu();
+        if (!user_is_authenticated()) {
+            window.location.href = "/login";
         }
+    }
+
+    setWallpaper() {
+        var formdata = new FormData();
+        formdata.append(
+            "wallpaper",
+            document.getElementById("wallpaperFileInput").files[0]
+        );
+
+        axios
+            .put(storeUrl + "/" + this.state.id, formdata, {
+                headers: this.state.headers,
+            })
+            .then((resp) => {
+                this.setState({ isLoading: false });
+                toast.success("Ýatda saklandy");
+            })
+            .catch((err) => {
+                if (err.response.status === 403) {
+                    this.logout_click();
+                }
+
+                toast.error("Ýalňyşlyk ýüze çykdy");
+            })
+            .finally((err) => {
+                this.setState({ isLoading: false });
+            });
     }
 
     render() {
         return (
-            <div className="grid max-w-[1200px] mx-auto ">
-                <div className="hidden sm:flex flex-wrap items-center border-b">
-                    <MdMenu
-                        onClick={() => {
-                            this.openMenu();
-                        }}
-                        className="m-[5px] p-[5px] hover:bg-slate-300 rounded-md border"
-                        size={45}
-                    ></MdMenu>
-                    <img
-                        alt=""
-                        className="w-[30px] h-[30px] object-cover rounded-full mx-[10px]"
-                        src={server + this.state.img}
-                    ></img>
-                    <label className="mr-[10px]">{this.state.name} </label>
-                </div>
+            <MotionAnimate>
+                <ToastContainer
+                    autoClose={10000}
+                    closeOnClick={true}
+                ></ToastContainer>
+                <div className="grid sm:grid-cols-1 grid-cols-[max-content_auto]">
+                    <div className=" grid  p-2 sm:w-full w-[250px] h-max">
+                        {this.state.logo != null && (
+                            <img
+                                alt=""
+                                className="w-[120px] sm:w-[180px]  aspect-square  mx-auto
+                            object-cover rounded-full border overflow-hidden "
+                                src={server + this.state.logo}
+                            ></img>
+                        )}
 
-                <div className="grid grid-cols-[max-content_auto] sm:grid-cols-1">
-                    <div
-                        id="menu"
-                        onClick={() => {
-                            this.closeMenu();
-                        }}
-                        className="profileMenu duration-300 sm:top-[0px] sm:fixed bg-white 
-                                grid m-2 h-max rounded-md border p-2 shadow-md"
-                    >
-                        <label className="text-[20px] font-bold text-center">
-                            Şahsy otag
-                        </label>
-
-                        <img
-                            alt=""
-                            className="w-[100px] h-[100px] object-cover rounded-full mx-auto"
-                            src={server + this.state.img}
-                        ></img>
-
-                        <label className="text-[16px] font-bold text-center">
+                        {this.state.logo == null && (
+                            <MdPerson
+                                size={100}
+                                className="text-slate-500 m-auto border rounded-full mx-auto "
+                            ></MdPerson>
+                        )}
+                        <label className="text-[18px] font-bold text-center">
                             {this.state.name}
                         </label>
-                        <div className="grid items-center text-[12px]">
-                            <div className="flex items-center justify-center">
-                                <label>+993{this.state.phone}</label>
-                            </div>
+
+                        <div className="grid items-center  text-[15px] text-center">
+                            <label>+993{this.state.phone}</label>
                         </div>
 
-                        <div className="grid items-center text-[15px] text-slate-600 ">
+                        <Link
+                            to="/profile/edit"
+                            className="flex p-2 bg-slate-200 rounded-md hover:bg-slate-300 
+                            duration-100 items-center my-1"
+                        >
+                            <button className="flex items-center w-max ">
+                                <MdSettings size={20}></MdSettings>
+                                <label className="mx-2">Sazlamalar</label>
+                            </button>
+                        </Link>
+                        <button
+                            className="p-2 bg-slate-200 rounded-md hover:bg-slate-300 duration-100 
+                            flex items-center my-1"
+                            onClick={() => {
+                                this.logout_click();
+                            }}
+                        >
+                            <BiLogOut size={20}></BiLogOut>
+                            <label className="mx-2">Çykmak</label>
+                        </button>
+                    </div>
+                    <div className="w-full grid h-max">
+                        <div className="grid relative h-[200px] bg-slate-100 rounded-lg p-2 ">
+                            {this.state.wallpaper != null && (
+                                <img
+                                    alt=""
+                                    className="w-full h-full absolute object-cover rounded-lg border-3 border-white"
+                                    src={server + this.state.wallpaper}
+                                ></img>
+                            )}
+
+                            <div className="rounded-full shadow-lg bg-white  bottom-2 right-2 absolute p-2">
+                                <input
+                                    id="wallpaperFileInput"
+                                    hidden
+                                    onChange={() => {
+                                        this.setWallpaper();
+                                    }}
+                                    multiple={false}
+                                    type="file"
+                                ></input>
+
+                                <MdImage
+                                    onClick={() => {
+                                        document
+                                            .getElementById(
+                                                "wallpaperFileInput"
+                                            )
+                                            .click();
+                                    }}
+                                    className="drop-shadow-md hover:cursor-pointer hover:text-slate-400 duration-200 text-slate-600"
+                                    size={30}
+                                ></MdImage>
+                            </div>
+                        </div>
+                        <div className="flex items-center overflow-x-auto text-[14px] text-white m-2 border-b whitespace-nowrap py-1">
                             <Link
-                                to="/my_profile/edit"
-                                className="flex p-1/2 border-white hover:bg-slate-200 rounded-md items-center"
+                                to="/profile/images"
+                                className="flex p-1 px-3 mr-1 hover:bg-appColor hover:text-white rounded-full text-appColor 
+                                            items-center duration-200"
                             >
-                                <button className="flex items-center w-max ">
-                                    <MdSettings
-                                        className="m-2"
-                                        size={20}
-                                    ></MdSettings>
-                                    <label className="">Profil</label>
-                                </button>
+                                <label className="">
+                                    Suratlar {this.state.image_count}
+                                </label>
                             </Link>
                             <Link
-                                to="/my_profile/announces"
-                                className="flex p-1/2 border-white hover:bg-slate-200 rounded-md items-center"
+                                to="/profile/products"
+                                className="flex p-1 px-3 mr-1 hover:bg-appColor hover:text-white rounded-full text-appColor 
+                                            items-center duration-200"
                             >
-                                <BiGift className="m-2" size={20}></BiGift>
                                 <label className="">
                                     Harytlar {this.state.announce_count}{" "}
                                 </label>
                             </Link>
 
                             <Link
-                                to="/my_profile/cars"
-                                className="flex p-1/2 border-white hover:bg-slate-200 rounded-md items-center"
+                                to="/profile/cars"
+                                className="flex p-1 px-3 mr-1 hover:bg-appColor hover:text-white rounded-full text-appColor 
+                                            items-center duration-200"
                             >
-                                <BiCar className="m-2" size={20}></BiCar>
                                 <label className="">
                                     Awtoulaglar {this.state.car_count}
                                 </label>
                             </Link>
 
                             <Link
-                                to="/my_profile/parts"
-                                className="flex p-1/2 border-white hover:bg-slate-200 rounded-md items-center"
+                                to="/profile/lenta"
+                                className="flex p-1 px-3 mr-1 hover:bg-appColor hover:text-white rounded-full text-appColor 
+                                            items-center duration-200"
                             >
-                                <BsTools className="m-2" size={20}></BsTools>
                                 <label className="">
-                                    Awtoşaýlar {this.state.part_count}
+                                    Aksiýalar {this.state.lenta_count}
                                 </label>
                             </Link>
 
                             <Link
-                                to="flats"
-                                className="flex p-1/2 border-white hover:bg-slate-200 rounded-md items-center"
+                                to="/profile/orders"
+                                className="flex p-1 px-3 mr-1 hover:bg-appColor hover:text-white rounded-full text-appColor 
+                                            items-center duration-200"
                             >
-                                <BiHome className="m-2" size={20}></BiHome>
                                 <label className="">
-                                    Gozgalmaýan emläkler {this.state.flat_count}
+                                    Sargytlar {this.state.orders}
                                 </label>
                             </Link>
-
-                            <Link
-                                to="lenta"
-                                className="flex p-1/2 border-white hover:bg-slate-200 rounded-md items-center"
-                            >
-                                <BiNews className="m-2" size={20}></BiNews>
-                                <label className="">
-                                    Lenta {this.state.lenta_count}
-                                </label>
-                            </Link>
-
-                            <Link
-                                to="/my_profile/orders_in"
-                                className="flex p-1/2 border-white hover:bg-slate-200 rounded-md items-center"
-                            >
-                                <BiShoppingBag
-                                    className="m-2"
-                                    size={20}
-                                ></BiShoppingBag>
-                                <BsArrowDown></BsArrowDown>
-                                <label className="">
-                                    Gelen sargytlar {this.state.orders_in}
-                                </label>
-                            </Link>
-
-                            <Link
-                                to="/my_profile/orders_out"
-                                className="flex p-1/2 border-white hover:bg-slate-200 rounded-md items-center"
-                            >
-                                <BiShoppingBag
-                                    className="m-2"
-                                    size={20}
-                                ></BiShoppingBag>
-                                <BsArrowUp></BsArrowUp>
-                                <label className="">
-                                    {" "}
-                                    Giden sargytlar {this.state.orders_out}{" "}
-                                </label>
-                            </Link>
-
-                            <button
-                                className="flex p-1/2 border-white hover:bg-slate-200 rounded-md items-center"
-                                onClick={() => {
-                                    this.logout_click();
-                                }}
-                            >
-                                <BiLogOut className="m-2" size={20}></BiLogOut>
-                                <label className=" flex items-center">
-                                    Çykmak
-                                </label>
-                            </button>
                         </div>
-                    </div>
-                    <div className="menuContent p-4 border shadow-md m-2 rounded-md">
                         <Routes>
                             <Route
-                                path="orders_in"
-                                element={<ProfileOrdersIn></ProfileOrdersIn>}
+                                path="orders"
+                                element={<ProfileOrders></ProfileOrders>}
                             />
+
                             <Route
-                                path="orders_out"
-                                element={<ProfileOrdersOut></ProfileOrdersOut>}
-                            />
-                            <Route
-                                path="announces"
+                                path="products"
                                 element={<ProfileProducts></ProfileProducts>}
                             />
                             <Route
-                                path="announces/add"
+                                path="products/add"
                                 element={<AddProduct></AddProduct>}
                             />
                             <Route
@@ -400,26 +358,19 @@ class MyProfile extends React.Component {
                                 path="cars/add"
                                 element={<AddCar></AddCar>}
                             ></Route>
+
                             <Route
-                                path="flats"
-                                element={<ProfileFlats></ProfileFlats>}
-                            ></Route>
-                            <Route
-                                path="parts"
-                                element={<ProfileParts></ProfileParts>}
+                                path="images"
+                                element={<ProfileImages></ProfileImages>}
                             ></Route>
                             <Route
                                 path="lenta"
                                 element={<ProfileLenta></ProfileLenta>}
                             ></Route>
-                            <Route
-                                path="/parts/add"
-                                element={<AddPart></AddPart>}
-                            />
                         </Routes>
                     </div>
                 </div>
-            </div>
+            </MotionAnimate>
         );
     }
 }

@@ -1,10 +1,8 @@
 import axios from "axios";
 import React from "react";
 import { server } from "../../static";
-import { Pagination } from "@mui/material";
 import { Link } from "react-router-dom";
 import { MdPlayCircle } from "react-icons/md";
-import { IoMdTrash } from "react-icons/io";
 
 class StoreVideos extends React.Component {
     constructor(props) {
@@ -12,25 +10,10 @@ class StoreVideos extends React.Component {
 
         this.state = {
             isLoading: true,
-            id: "",
-            workStart: "",
-            workEnd: "",
-            category: "",
-            name: "",
-            location: "",
-            img: "",
-            created_at: "",
-            detail_text: "",
-            images: [],
-            products: [],
-            viewed: 0,
-            customer_id: "",
-            customer_name: "",
             videos: [],
             page_size: 20,
             products_page: "",
             products_count: "",
-
             auth: {
                 auth: {
                     username: localStorage.getItem("username"),
@@ -55,7 +38,7 @@ class StoreVideos extends React.Component {
                     shape="rounded"
                 /> */}
 
-                <div className="grid grid-cols-4 sm:grid-cols-3 flex-wrap justify-center">
+                <div className="flex flex-wrap">
                     {this.state.videos.map((item) => {
                         return (
                             <Link
@@ -69,7 +52,8 @@ class StoreVideos extends React.Component {
                                             videoPlayerUrl: item.video,
                                         });
                                     }}
-                                    className="relative w-full h-[300px] sm:h-[150px] bg-slate-200 rounded-lg  overflow-hidden flex items-center justify-center
+                                    className="relative w-[200px] aspect-square sm:w-[150px] bg-slate-200 rounded-lg  
+                                    overflow-hidden flex items-center justify-center
                                                     text-slate-600 hover:bg-slate-300 duration-300 border"
                                 >
                                     <video src={server + item.url}></video>

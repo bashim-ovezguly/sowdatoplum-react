@@ -4,7 +4,7 @@ import { server } from "../../static";
 import { MdClose, MdSearch } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
-import { BiLike, BiTime } from "react-icons/bi";
+import { BiLike, BiPlus, BiTime } from "react-icons/bi";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Pagination from "@mui/material/Pagination";
@@ -48,7 +48,7 @@ class AdminNews extends React.Component {
     setPage(pageNumber) {
         this.setState({ isLoading: true });
         axios
-            .get(server + "/api/admin/news?page=" + pageNumber, {
+            .get(server + "/api/adm/news?page=" + pageNumber, {
                 auth: this.state.auth,
             })
             .then((resp) => {
@@ -79,7 +79,7 @@ class AdminNews extends React.Component {
             });
 
         axios
-            .get(server + "/api/admin/news/", config)
+            .get(server + "/api/adm/news/", config)
             .then((resp) => {
                 this.setState({ last_page: resp.data["last_page"] });
                 this.setState({ page_size: resp.data["page_size"] });
@@ -89,7 +89,7 @@ class AdminNews extends React.Component {
             })
             .catch((err) => {
                 if (err.response.status === 403) {
-                    window.location.href = "/admin/login";
+                    window.location.href = "/superuser/login";
                 }
             });
     }
@@ -105,7 +105,7 @@ class AdminNews extends React.Component {
             return null;
         }
         axios
-            .delete(server + "/api/admin/visitors/" + id, this.state.auth)
+            .delete(server + "/api/adm/visitors/" + id, this.state.auth)
             .then((resp) => {
                 this.setData();
                 toast.success("Habar bozuldy");
@@ -131,12 +131,12 @@ class AdminNews extends React.Component {
                         size={25}
                     ></MdClose>
                 </div>
-                <label className="text-sm">Kategoriýasy</label>
+                {/* <label className="text-sm">Kategoriýasy</label>
                 <select id="category">
                     {this.state.categories.map((item) => {
                         return <option value={item.id}>{item.name_tm}</option>;
                     })}
-                </select>
+                </select> */}
                 <input id="title_tm" placeholder="Ady (tm)"></input>
                 <input
                     id="created_at"
@@ -185,7 +185,7 @@ class AdminNews extends React.Component {
         formdata.append("news", news_id);
 
         axios
-            .post(server + "/api/admin/news_imgs/", formdata, {
+            .post(server + "/api/adm/news_imgs/", formdata, {
                 auth: this.state.auth,
             })
             .then((resp) => {
@@ -211,16 +211,12 @@ class AdminNews extends React.Component {
 
         let fdata = new FormData();
         fdata.append("title_tm", document.getElementById("title_tm").value);
-        // fdata.append("title_ru", document.getElementById("title_ru").value);
-        // fdata.append("title_en", document.getElementById("title_en").value);
         fdata.append("body_tm", document.getElementById("body_tm").value);
-        // fdata.append("body_en", document.getElementById("body_en").value);
-        // fdata.append("body_ru", document.getElementById("body_ru").value);
         fdata.append("category", document.getElementById("category").value);
         fdata.append("created_at", document.getElementById("created_at").value);
 
         axios
-            .post(server + "/api/admin/news/", fdata, { auth: this.state.auth })
+            .post(server + "/api/adm/news/", fdata, { auth: this.state.auth })
             .then((resp) => {
                 this.saveImages(resp.data.id);
                 this.setData();
@@ -234,64 +230,45 @@ class AdminNews extends React.Component {
     }
 
     setCategory(id) {
-        this.setState({ category: id, isLoadingCategory: true }, () => {
-            this.setData();
-        });
+        this.setState(
+            { category: id, isLoadingCategory: true, isLoading: true },
+            () => {
+                this.setData();
+            }
+        );
     }
 
     render() {
         return (
-            <div className="news grid">
+            <div className="news grid p-2">
                 <ToastContainer />
                 {this.AddModal()}
-                <label className="p-2 border-b font-bold text-[20px]">
-                    Habarlar
-                </label>
 
                 <div className="flex items-center">
+                    <label className="p-2 border-b font-bold text-[20px]">
+                        Habarlar
+                    </label>
+
                     <input
                         onChange={() => {
                             this.filter();
                         }}
                         id="search"
                         placeholder="gozleg"
+                        className="m-0"
                     ></input>
-                    <button className="p-1 mx-1 bg-slate-300 rounded-md">
-                        <MdSearch size={25}></MdSearch>
+                    <button className="p-1 mx-1 hover:bg-slate-200 duration-200 border rounded-md">
+                        <MdSearch size={20}></MdSearch>
                     </button>
                     <button
                         onClick={() => {
                             this.setState({ addFormShow: true });
                         }}
-                        className="w-max p-1 hover:text-slate-900 text-sky-600"
+                        className="w-max p-1 flex items-center rounded-md px-2 hover:bg-slate-200 duration-200 border"
                     >
-                        Habar goşmak
+                        <BiPlus size={20}></BiPlus>
+                        <label>Habar goşmak</label>
                     </button>
-                </div>
-
-                <div className="flex items-center overflow-x-auto whitespace-nowrap ">
-                    <button
-                        onClick={() => {
-                            this.setState({ category: "" }, () => {
-                                this.setData();
-                            });
-                        }}
-                        className="mr-2 hover:text-sky-300 duration-200 px-2 py-1 text-slate-600"
-                    >
-                        Hemmesi
-                    </button>
-                    {this.state.categories.map((item) => {
-                        return (
-                            <button
-                                onClick={() => {
-                                    this.setCategory(item.id);
-                                }}
-                                className="mr-2 hover:text-sky-300  duration-200 px-2 py-1 text-slate-600"
-                            >
-                                {item.name_tm}
-                            </button>
-                        );
-                    })}
                 </div>
 
                 <Pagination
@@ -308,24 +285,19 @@ class AdminNews extends React.Component {
                     {this.state.news.map((item) => {
                         return (
                             <div
-                                className="grid grid-rows-[max-content_auto]  sm:w-full  
-                                overflow-hidden m-[10px] rounded-md shadow-lg border text-[14px]
-                                hover:shadow-slate-500/50 duration-200 w-[250px]"
+                                className="grid grid-rows-[max-content_auto] sm:w-full  shadow-md rounded-md border p-2
+                                overflow-hidden m-2 text-[14px] hover:shadow-slate-500/50 duration-200 w-[250px]"
                             >
-                                <Link to={"/admin/news/" + item.id}>
+                                <Link to={"/superuser/news/" + item.id}>
                                     <img
                                         alt=""
-                                        className="w-full h-[150px] object-cover"
+                                        className="w-full h-[150px] object-cover rounded-lg"
                                         src={server + item.img}
                                     ></img>
                                 </Link>
-                                <div className="grid p-2 h-max">
-                                    <label className="name text-[12px] font-bold text-slate-600">
+                                <div className="grid h-max">
+                                    <label className="name text-[12px] font-bold text-slate-600 line-clamp-2">
                                         {item.title_tm}
-                                    </label>
-
-                                    <label className="name text-[12px] text-slate-600">
-                                        {String(item.body_tm).substring(0, 100)}
                                     </label>
 
                                     <div className="flex items-center text-slate-500 text-[12px]">

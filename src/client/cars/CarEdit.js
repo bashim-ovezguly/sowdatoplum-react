@@ -3,11 +3,12 @@ import React from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { server } from "../../static";
 
-import { BiCalendar, BiMap, BiPhone, BiTime } from "react-icons/bi";
+import { BiCalendar, BiMap, BiPhone, BiTime, BiTrash } from "react-icons/bi";
 import { FcCancel, FcCheckmark } from "react-icons/fc";
 import { MdClose } from "react-icons/md";
 import LocationSelector from "../../admin/LocationSelector";
 import Loader from "../components/Loader";
+import { toast, ToastContainer } from "react-toastify";
 
 class CarEdit extends React.Component {
     constructor(props) {
@@ -39,11 +40,8 @@ class CarEdit extends React.Component {
             },
         };
 
-        // document.title = 'Dükanlar';
         this.setData();
     }
-
-    componentDidMount() {}
 
     delete() {
         let result = window.confirm("Bozmaga ynamyňyz barmy?");
@@ -57,10 +55,6 @@ class CarEdit extends React.Component {
     }
 
     setData() {
-        const queryString = window.location.search;
-        // const urlParams = new URLSearchParams(queryString);
-        // const id = urlParams.get('id')
-
         const pathname = window.location.pathname;
         const id = pathname.split("/")[3];
 
@@ -91,56 +85,59 @@ class CarEdit extends React.Component {
 
         axios.get(server + "/mob/cars/" + id).then((resp) => {
             document.title =
-                resp.data["mark"] +
+                resp.data.mark.name +
                 " " +
-                resp.data["model"] +
+                resp.data.model.name +
                 " " +
-                resp.data["year"];
+                resp.data.year;
+
+            if (resp.data.location !== "") {
+                this.setState({
+                    location_id: resp.data.location.id,
+                    location_name: resp.data.location.name,
+                });
+            }
 
             this.setState({
-                mark: resp.data.mark,
-                mark_id: resp.data.mark_id,
-                model: resp.data.model,
-                model_id: resp.data.model_id,
+                mark: resp.data.mark.name,
+                mark_id: resp.data.mark.id,
+                model: resp.data.model.name,
+                model_id: resp.data.model.id,
                 price: resp.data.price,
-                main_img: resp.data.img.img_m,
-                color: resp.data.color,
-                color_id: resp.data.color_id,
+                img: resp.data.img.img_m,
+                color: resp.data.color.name,
+                color_id: resp.data.color.id,
                 credit: resp.data.credit,
                 swap: resp.data.swap,
                 none_cash_pay: resp.data.none_cash_pay,
-                fuel: resp.data.fuel,
-                fuel_id: resp.data.fuel_id,
-                body_type: resp.data.body_type,
-                body_type_id: resp.data.body_type_id,
+                fuel: resp.data.fuel.name,
+                fuel_id: resp.data.fuel.id,
+                body_type: resp.data.body_type.name,
+                body_type_id: resp.data.body_type.id,
                 id: resp.data.id,
                 millage: resp.data.millage,
                 on_search: resp.data.on_search,
-                transmission: resp.data.transmission,
-                transmission_id: resp.data.transmission_id,
+                transmission: resp.data.transmission.name,
+                transmission_id: resp.data.transmission.id,
                 vin: resp.data.vin,
                 year: resp.data.year,
                 recolored: resp.data.recolored,
                 engine: resp.data.engine,
-                location_name: resp.data.location,
-                location_id: resp.data.location_id,
                 viewed: resp.data.viewed,
                 detail: resp.data.detail,
-                wd: resp.data.wd,
-                wd_id: resp.data.wd_id,
+                wd: resp.data.wd.name,
+                wd_id: resp.data.wd.id,
                 created_at: resp.data.created_at,
                 images: resp.data.images,
                 phone: resp.data.phone,
-                store: resp.data.store,
-                store_id: resp.data.store_id,
-                customerID: resp.data.customer.id,
-                customer_name: resp.data.customer.name,
+                store_name: resp.data.store.name,
+                store_id: resp.data.store.id,
                 isLoading: false,
             });
         });
     }
 
-    addSelectedImages() {
+    saveSelectedImages() {
         this.setState({ isLoading: true });
         var formdata = new FormData();
         let images = document.getElementById("imgselector").files;
@@ -152,11 +149,11 @@ class CarEdit extends React.Component {
         axios
             .put(server + "/mob/cars/" + this.state.id, formdata)
             .then((resp) => {
-                alert("Ýatda saklandy");
+                toast.success("Ýatda saklandy");
                 this.setData();
             })
             .catch((err) => {
-                alert("Ýalňyşlyk ýüze çykdy");
+                toast.error("Ýalňyşlyk ýüze çykdy");
             });
     }
 
@@ -168,11 +165,11 @@ class CarEdit extends React.Component {
         axios
             .put(server + "/mob/cars/" + this.state.id, formdata)
             .then((resp) => {
-                alert("Ýatda saklandy");
+                toast.success("Ýatda saklandy");
                 this.setData();
             })
             .catch((err) => {
-                alert("Ýalňyşlyk ýüze çykdy");
+                toast.error("Ýalňyşlyk ýüze çykdy");
             });
     }
 
@@ -205,16 +202,14 @@ class CarEdit extends React.Component {
         formdata.append("vin", document.getElementById("vin").value);
         formdata.append(
             "price",
-            document
-                .getElementById("price")
-                .value.replace(" TMT", "")
-                .replace(" ", "")
+            document.getElementById("price").value.replaceAll(" ", "")
         );
         formdata.append("engine", document.getElementById("engine").value);
         formdata.append("year", document.getElementById("year").value);
         formdata.append("millage", document.getElementById("millage").value);
         formdata.append("phone", document.getElementById("phone").value);
         formdata.append("detail", document.getElementById("description").value);
+
         formdata.append("location", this.state.location_id);
 
         if (document.getElementById("swap").checked) {
@@ -229,26 +224,14 @@ class CarEdit extends React.Component {
             formdata.append("credit", false);
         }
 
-        if (document.getElementById("recolored").checked) {
-            formdata.append("recolored", true);
-        } else {
-            formdata.append("recolored", false);
-        }
-
-        if (document.getElementById("none_cash_pay").checked) {
-            formdata.append("none_cash_pay", true);
-        } else {
-            formdata.append("none_cash_pay", false);
-        }
-
         axios
             .put(server + "/mob/cars/" + this.state.id, formdata)
             .then((resp) => {
-                alert("Ýatda saklandy");
+                toast.success("Ýatda saklandy");
                 this.setData();
             })
             .catch((err) => {
-                alert("Ýalňyşlyk ýüze çykdy");
+                toast.error("Ýalňyşlyk ýüze çykdy");
             });
     }
 
@@ -272,21 +255,18 @@ class CarEdit extends React.Component {
     }
 
     render() {
-        var default_img_url = "/default.png";
-        var main_img = server + this.state.main_img;
-
-        if (this.state.main_img === "") {
-            main_img = default_img_url;
-        }
-
         return (
-            <div className="p-[20px] grid">
+            <div className="p-2 grid">
                 <Loader open={this.state.isLoading}></Loader>
+                <ToastContainer
+                    autoClose={5000}
+                    closeOnClick={true}
+                ></ToastContainer>
 
                 <div>
                     <input
                         onChange={() => {
-                            this.addSelectedImages();
+                            this.saveSelectedImages();
                         }}
                         id="imgselector"
                         multiple
@@ -297,51 +277,54 @@ class CarEdit extends React.Component {
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-1">
-                    <div className="grid h-max">
+                    <div className="grid h-max ">
                         <img
                             alt=""
-                            className="w-[100%] rounded-lg my-[5px]"
-                            src={main_img}
+                            className="w-full max-h-[500px] object-cover border rounded-xl overflow-hidden mx-auto"
+                            src={server + this.state.img}
                         ></img>
-                        <div className="images grid grid-cols-3 sm:grid-cols-2">
+                        <div className="flex overflow-x-auto w-full">
                             {this.state.images.map((item) => {
-                                var img = server + item.img_s;
-                                if (item.img_m === "") {
-                                    img = default_img_url;
-                                }
-
                                 return (
-                                    <div className="" key={item.id}>
+                                    <div
+                                        className="rounded-xl m-1 relative w-[150px] h-[150px] min-w-[150px] overflow-hidden "
+                                        key={item.id}
+                                    >
                                         <img
                                             alt=""
-                                            className="border w-full p-1 h-[150px] rounded-lg object-cover"
-                                            src={img}
+                                            className=" w-full h-full object-cover border rounded-xl overflow-hidden "
+                                            src={server + item.img_l}
                                         ></img>
-                                        <div className="flex items-center ">
-                                            <MdClose
-                                                title="Bozmak"
-                                                size={25}
+                                        <div className="flex items-center absolute top-1 left-1">
+                                            <button
+                                                className="flex items-center rounded-full bg-white shadow-lg p-1 m-1"
                                                 onClick={() => {
                                                     this.removeImage(item.id);
                                                 }}
-                                                className="rounded-full border p-[2px] bg-white m-1"
-                                            ></MdClose>
-
-                                            <FcCheckmark
-                                                size={25}
+                                            >
+                                                <BiTrash
+                                                    title="Bozmak"
+                                                    size={25}
+                                                ></BiTrash>
+                                            </button>
+                                            <button
                                                 onClick={() => {
                                                     this.setMainImage(item.id);
                                                 }}
-                                                title="Esasy surata bellemek"
-                                                className="rounded-full border p-[2px] bg-white m-1"
-                                            ></FcCheckmark>
+                                                className="flex items-center rounded-full bg-white shadow-lg p-1  m-1"
+                                            >
+                                                <FcCheckmark
+                                                    size={25}
+                                                    title="Esasy surata bellemek"
+                                                ></FcCheckmark>
+                                            </button>
                                         </div>
                                     </div>
                                 );
                             })}
                         </div>
                         <button
-                            className="button-steelblue rounded-lg bg-sky-600 text-white w-max p-[5px]"
+                            className="button-steelblue bg-sky-600 text-white w-max p-[5px] text-[12px] rounded-full px-2"
                             onClick={() => {
                                 document.getElementById("imgselector").click();
                             }}
@@ -351,8 +334,10 @@ class CarEdit extends React.Component {
                     </div>
 
                     {/* INPUTS */}
-                    <div className="grid text-[14px] h-max px-[20px] max-w-[400px]">
-                        <label className="mx-[5px]">Markasy</label>
+                    <div className="grid text-[14px] h-max p-2 max-w-[400px]">
+                        <label className="mx-2 font-bold text-[12px]">
+                            Markasy
+                        </label>
                         <select
                             id="mark"
                             onChange={() => {
@@ -371,7 +356,9 @@ class CarEdit extends React.Component {
                             })}
                         </select>
 
-                        <label className="mx-[5px]">Modeli</label>
+                        <label className="mx-2 font-bold text-[12px]">
+                            Modeli
+                        </label>
                         <select id="model">
                             <option value={this.state.model_id}>
                                 {this.state.model}
@@ -385,34 +372,48 @@ class CarEdit extends React.Component {
                             })}
                         </select>
 
-                        <label className="mx-[5px]">Bahasy (TMT)</label>
+                        <label className="mx-2 font-bold text-[12px]">
+                            Bahasy (TMT)
+                        </label>
                         <input
                             id="price"
                             defaultValue={this.state.price.replace(" TMT", "")}
                         ></input>
 
-                        <label className="mx-[5px]">Motory</label>
+                        <label className="mx-2 font-bold text-[12px]">
+                            Motory
+                        </label>
                         <input
                             id="engine"
                             defaultValue={this.state.engine}
                         ></input>
 
-                        <label className="mx-[5px]">Ýyly</label>
+                        <label className="mx-2 font-bold text-[12px]">
+                            Ýyly
+                        </label>
                         <input id="year" defaultValue={this.state.year}></input>
 
-                        <label className="mx-[5px]">Geçen ýoly (km)</label>
+                        <label className="mx-2 font-bold text-[12px]">
+                            Geçen ýoly (km)
+                        </label>
                         <input
                             id="millage"
                             defaultValue={this.state.millage}
                         ></input>
 
-                        <label className="mx-[5px]">Telefon belgisi</label>
+                        <label className="mx-2 font-bold text-[12px]">
+                            Telefon belgisi
+                        </label>
                         <input
+                            type="number"
+                            min={0}
                             id="phone"
                             defaultValue={this.state.phone}
                         ></input>
 
-                        <label className="mx-[5px]">Kuzowy</label>
+                        <label className="mx-2 font-bold text-[12px]">
+                            Kuzowy
+                        </label>
                         <select id="body_type">
                             <option hidden value={this.state.body_type_id}>
                                 {this.state.body_type}
@@ -427,7 +428,9 @@ class CarEdit extends React.Component {
                             })}
                         </select>
 
-                        <label className="mx-[5px]">Reňki</label>
+                        <label className="mx-2 font-bold text-[12px]">
+                            Reňki
+                        </label>
                         <select id="color">
                             <option value={this.state.color_id} hidden>
                                 {this.state.color}
@@ -442,7 +445,9 @@ class CarEdit extends React.Component {
                             })}
                         </select>
 
-                        <label className="mx-[5px]">Ýörediji</label>
+                        <label className="mx-2 font-bold text-[12px]">
+                            Ýörediji
+                        </label>
                         <select id="wd">
                             <option hidden value={this.state.wd_id}>
                                 {this.state.wd}
@@ -457,7 +462,9 @@ class CarEdit extends React.Component {
                             })}
                         </select>
 
-                        <label className="mx-[5px]">Ýangyjy</label>
+                        <label className="mx-2 font-bold text-[12px]">
+                            Ýangyjy
+                        </label>
                         <select id="fuel">
                             <option hidden value={this.state.fuel_id}>
                                 {this.state.fuel}
@@ -472,7 +479,9 @@ class CarEdit extends React.Component {
                             })}
                         </select>
 
-                        <label className="mx-[5px]">Korobka</label>
+                        <label className="mx-2 font-bold text-[12px]">
+                            Korobka
+                        </label>
                         <select id="korobka">
                             <option hidden value={this.state.transmission_id}>
                                 {this.state.transmission}
@@ -487,112 +496,78 @@ class CarEdit extends React.Component {
                             })}
                         </select>
 
-                        <label className="mx-[5px]">Ýerleşýän ýeri</label>
+                        <label className="mx-2 font-bold text-[12px]">
+                            Ýerleşýän ýeri
+                        </label>
                         <div
                             className="border rounded p-[10px] m-[5px] flex items-center"
                             onClick={() => {
                                 this.setState({ locationSelectorOpen: true });
                             }}
                         >
-                            <BiMap></BiMap> {this.state.location_name}
+                            <BiMap size={20}></BiMap> {this.state.location_name}
                         </div>
 
                         {this.state.locationSelectorOpen && (
                             <LocationSelector parent={this}></LocationSelector>
                         )}
 
-                        <label className="mx-[5px]">VIN</label>
+                        <label className="mx-2 font-bold text-[12px]">
+                            VIN
+                        </label>
                         <input id="vin" defaultValue={this.state.vin}></input>
 
-                        <label className="mx-[5px]">Giňişleýin maglumat</label>
+                        <label className="mx-2 font-bold text-[12px]">
+                            Giňişleýin maglumat
+                        </label>
                         <textarea
                             className="min-h-200px"
                             id="description"
                             defaultValue={this.state.detail}
                         ></textarea>
 
-                        <div
-                            className="checkbox flex items-center border border-solid hover:bg-slate-200 duration-300 
-                                border-slate-200 rounded-md m-[5px] p-[5px]"
-                            onClick={() => {
-                                document.getElementById("swap").click();
-                            }}
-                        >
+                        <div className="checkbox flex items-center  m-1 ">
                             <input
                                 defaultChecked={this.state.swap}
                                 className="w-[20px] h-[20px]"
                                 id="swap"
                                 type={"checkbox"}
                             ></input>
-                            <label className="mx-[5px]">Çalşyk</label>
+                            <label className="mx-2 font-bold text-[12px]">
+                                Çalşyk
+                            </label>
                         </div>
-                        <div
-                            className="checkbox flex items-center border border-solid hover:bg-slate-200 duration-300 
-                                    border-slate-200 rounded-md m-[5px] p-[5px]"
-                            onClick={() => {
-                                document.getElementById("credit").click();
-                            }}
-                        >
+                        <div className="checkbox flex items-center  m-1 ">
                             <input
                                 defaultChecked={this.state.credit}
                                 className="w-[20px] h-[20px]"
                                 id="credit"
                                 type={"checkbox"}
                             ></input>
-                            <label className="mx-[5px]">Kredit</label>
+                            <label className="mx-2 font-bold text-[12px]">
+                                Kredit
+                            </label>
                         </div>
-                        <div
-                            className="checkbox flex items-center border border-solid hover:bg-slate-200 duration-300 
-                                    border-slate-200 rounded-md m-[5px] p-[5px]"
-                            onClick={() => {
-                                document
-                                    .getElementById("none_cash_pay")
-                                    .click();
-                            }}
-                        >
-                            <input
-                                defaultChecked={this.state.none_cash_pay}
-                                className="w-[20px] h-[20px]"
-                                id="none_cash_pay"
-                                type={"checkbox"}
-                            ></input>
-                            <label className="mx-[5px]">Nagt däl töleg</label>
-                        </div>
-                        <div
-                            className="checkbox flex items-center border border-solid hover:bg-slate-200 duration-300 
-                                    border-slate-200 rounded-md m-[5px] p-[5px]"
-                            onClick={() => {
-                                document.getElementById("recolored").click();
-                            }}
-                        >
-                            <input
-                                defaultChecked={this.state.recolored}
-                                className="w-[20px] h-[20px]"
-                                id="recolored"
-                                type={"checkbox"}
-                            ></input>
-                            <label className="mx-[5px]">Reňki üýtgedilen</label>
+
+                        <div className="grid grid-cols-2">
+                            <button
+                                onClick={() => {
+                                    this.save();
+                                }}
+                                className="bg-green-600 text-white rounded-md m-1 p-2"
+                            >
+                                Ýatda sakla
+                            </button>
+                            <button
+                                onClick={() => {
+                                    this.delete();
+                                }}
+                                className="bg-red-600 text-white rounded-md m-1 p-2"
+                            >
+                                Bozmak
+                            </button>
                         </div>
                     </div>
-                </div>
-
-                <div>
-                    <button
-                        onClick={() => {
-                            this.save();
-                        }}
-                        className="bg-green-800 text-white rounded-md p-[5px]"
-                    >
-                        Ýatda sakla
-                    </button>
-                    <button
-                        onClick={() => {
-                            this.delete();
-                        }}
-                        className="bg-red-800 text-white rounded-md p-[5px]"
-                    >
-                        Bozmak
-                    </button>
                 </div>
             </div>
         );

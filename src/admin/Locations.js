@@ -17,7 +17,7 @@ import Pagination from "@mui/material/Pagination";
 import { IoMdTrash } from "react-icons/io";
 
 class Locations extends React.Component {
-    locationUrl = "/api/admin/locations/";
+    locationUrl = "/api/adm/locations/";
     constructor(props) {
         super(props);
 
@@ -76,9 +76,7 @@ class Locations extends React.Component {
 
         axios
             .get(
-                server +
-                    "/api/admin/locations/?page=" +
-                    this.state.current_page,
+                server + "/api/adm/locations/?page=" + this.state.current_page,
                 { params: this.state.url_params, auth: this.state.auth }
             )
             .then((resp) => {
@@ -97,7 +95,7 @@ class Locations extends React.Component {
         });
 
         axios
-            .get(server + "/api/admin/location_status/", this.state.auth)
+            .get(server + "/api/adm/location_status/", this.state.auth)
             .then((resp) => {
                 this.setState({ statuses: resp.data.data });
                 setTimeout(() => {
@@ -340,7 +338,7 @@ class Locations extends React.Component {
 
         axios
             .put(
-                server + "/api/admin/locations/" + id + "/",
+                server + "/api/adm/locations/" + id + "/",
                 fdata,
                 this.state.auth
             )
@@ -364,11 +362,7 @@ class Locations extends React.Component {
         fdata.append("active", document.getElementById("active").value);
 
         axios
-            .post(
-                server + "/api/admin/locations/create",
-                fdata,
-                this.state.auth
-            )
+            .post(server + "/api/adm/locations/create", fdata, this.state.auth)
             .then((resp) => {
                 this.setData();
             });
@@ -409,7 +403,7 @@ class Locations extends React.Component {
         if (result == true) {
             axios
                 .post(
-                    server + "/api/admin/locations/delete/" + id,
+                    server + "/api/adm/locations/delete/" + id,
                     {},
                     this.state.auth
                 )

@@ -1,8 +1,11 @@
 import axios from "axios";
 import React from "react";
-import { server } from "../../static";
-import { BiTrash } from "react-icons/bi";
+import { server, storeUrl } from "../../static";
+import { BiMap, BiTrash } from "react-icons/bi";
 import { toast, ToastContainer } from "react-toastify";
+import LocationSelector from "../../admin/LocationSelector";
+import ProgressIndicator from "../../admin/ProgressIndicator";
+import { MdEdit } from "react-icons/md";
 
 class ProfileEdit extends React.Component {
     constructor(props) {
@@ -16,19 +19,25 @@ class ProfileEdit extends React.Component {
             email: "",
             created_at: "",
             img: "",
-
+            location_id: "",
+            location_name: "",
+            tc_id: "",
+            tc_name: "",
             email_error: "",
             confirm_password_error: "",
             old_passwrod_error: "",
             new_password_error: "",
 
+            categories: [],
+            trade_centers: [],
+
             headers: {
                 token: localStorage.getItem("user_access_token"),
             },
+            token: localStorage.getItem("user_access_token"),
         };
 
         document.title = "Profile";
-        this.setData = this.setData.bind(this);
         this.setData();
     }
 
@@ -41,7 +50,7 @@ class ProfileEdit extends React.Component {
         formdata.append("password", password);
 
         axios
-            .post(server + "/mob/token/obtain", formdata)
+            .post(server + "/token/obtain", formdata)
             .then((resp) => {
                 localStorage.setItem(
                     "access_token",
@@ -63,7 +72,7 @@ class ProfileEdit extends React.Component {
         formdata.append("refresh_token", refresh_token);
 
         axios
-            .post(server + "/mob/token/refresh", formdata)
+            .post(server + "/token/refresh", formdata)
             .then((resp) => {
                 localStorage.setItem(
                     "access_token",
@@ -80,18 +89,45 @@ class ProfileEdit extends React.Component {
     }
 
     setData() {
-        const pathname = window.location.pathname;
         const id = localStorage.getItem("user_id");
+        console.log(storeUrl + "/" + id);
 
-        axios.get(server + "/mob/customer/" + id).then((resp) => {
+        axios.get(storeUrl + "/" + id).then((resp) => {
             this.setState({
-                user: resp.data,
                 isLoading: false,
-                id: resp.data.data["id"],
-                phone: resp.data.data["phone"],
-                name: resp.data.data["name"],
-                email: resp.data.data["email"],
-                img: resp.data.data["img_m"],
+                user: resp.data,
+                description: resp.data.description,
+                id: resp.data.id,
+                logo: resp.data.logo,
+                phone: resp.data.phone,
+                name: resp.data.name,
+                email: resp.data.email,
+            });
+
+            if (resp.data.location !== "" && resp.data.location !== null) {
+                this.setState({
+                    location_name: resp.data.location.name,
+                    location_id: resp.data.location.id,
+                });
+            }
+            if (resp.data.center !== "" && resp.data.center !== null) {
+                this.setState({
+                    tc_name: resp.data.center.name,
+                    tc_id: resp.data.center.id,
+                });
+            }
+            if (resp.data.category !== "" && resp.data.category !== null) {
+                this.setState({
+                    category_id: resp.data.category.id,
+                    category_name: resp.data.category.name,
+                });
+            }
+        });
+
+        axios.get(server + "/index/store").then((resp) => {
+            this.setState({
+                categories: resp.data.categories,
+                trade_centers: resp.data.trade_centers,
             });
         });
     }
@@ -113,8 +149,8 @@ class ProfileEdit extends React.Component {
         localStorage.removeItem("id");
     }
 
-    onSelectFile() {
-        var file = document.getElementById("imgselector").files;
+    setUploadedImg() {
+        var file = document.getElementById("fileInput").files;
         document.getElementById("customer_photo").src = URL.createObjectURL(
             file[0]
         );
@@ -126,19 +162,17 @@ class ProfileEdit extends React.Component {
         }
 
         var formdata = new FormData();
-        formdata.append("img", "delete");
+        formdata.append("logo", "delete");
         axios
-            .put(
-                server + "/mob/customer/" + this.state.id,
-                formdata,
-                this.state.config
-            )
+            .put(server + "/mob/stores/" + this.state.id, formdata, {
+                headers: { token: this.state.token },
+            })
             .then((resp) => {
                 this.setState({ isLoading: false });
-                alert("saved successfully");
+                toast.success("Ýatda saklandy");
             })
             .catch((err) => {
-                this.get_new_access_token();
+                toast.error("Error");
             });
 
         this.setData();
@@ -154,18 +188,18 @@ class ProfileEdit extends React.Component {
 
         if (old_password.length > 0) {
             if (new_password.length === 0) {
-                alert("Täze açar sözüni giriziň");
+                toast.error("Täze açar sözüni giriziň");
                 return null;
             }
         }
 
         if (new_password.length > 0) {
             if (old_password.length === 0) {
-                alert("Köne açar sözüni giriziň");
+                toast.error("Köne açar sözüni giriziň");
             }
 
             if (confirm_password !== new_password) {
-                alert("password gabat gelenok");
+                toast.error("password gabat gelenok");
                 return null;
             } else {
                 formdata.append("new_password", new_password);
@@ -174,35 +208,40 @@ class ProfileEdit extends React.Component {
         }
 
         axios
-            .put(
-                server + "/mob/customer/" + this.state.id,
-                formdata,
-                this.state.config
-            )
+            .put(server + "/stores/" + this.state.id, formdata, {
+                headers: this.state.headers,
+            })
             .then((resp) => {
                 this.setState({ isLoading: false });
-                alert("saved successfully");
+                toast.success("Açar sözi üýtgedildi");
+                this.get_new_access_token();
             })
             .catch((err) => {
-                this.get_new_access_token();
+                toast.error("Ýalňyşlyk ýüze çykdy");
             });
     }
 
     save() {
+        this.setState({ isLoading: true });
         var formdata = new FormData();
         var name = document.getElementById("name").value;
         var email = document.getElementById("email").value;
+        var description = document.getElementById("description").value;
         var new_password = document.getElementById("new_password").value;
         var old_password = document.getElementById("old_password").value;
         var confirm_password =
             document.getElementById("confirm_password").value;
-        var image = document.getElementById("imgselector").files[0];
+        var image = document.getElementById("fileInput").files[0];
 
         formdata.append("name", name);
         formdata.append("email", email);
+        formdata.append("description", description);
+        formdata.append("location", this.state.location_id);
+        formdata.append("category", document.getElementById("category").value);
+        formdata.append("center", document.getElementById("tc").value);
 
         if (image !== undefined) {
-            formdata.append("img", image);
+            formdata.append("logo", image);
         }
 
         if (old_password.length > 0) {
@@ -227,49 +266,55 @@ class ProfileEdit extends React.Component {
         }
 
         axios
-            .put(server + "/mob/customer/" + this.state.id, formdata, {
+            .put(storeUrl + "/" + this.state.id, formdata, {
                 headers: this.state.headers,
             })
             .then((resp) => {
                 this.setState({ isLoading: false });
-                toast.success("saved successfully");
+                toast.success("Ýatda saklandy");
+                localStorage.setItem("user_name", this.state.name);
+                localStorage.setItem("user_email", this.state.email);
             })
             .catch((err) => {
-                // this.get_new_access_token();
+                if (err.response.status === 403) {
+                    this.logout_click();
+                }
+
                 toast.error("Ýalňyşlyk ýüze çykdy");
+            })
+            .finally((err) => {
+                this.setState({ isLoading: false });
             });
     }
 
     render() {
-        var img = "/default.png";
-        if (this.state.img != null) {
-            img = server + this.state.img;
-        }
-
         return (
-            <div className="grid text-[14px]">
+            <div className="grid bg-white p-4 mb-4 shadow-md rounded-md w-max mx-auto border">
                 <ToastContainer
                     closeOnClick={true}
                     autoClose={5000}
                 ></ToastContainer>
-                <h3 className="font-bold text-[22px] border-b">Profil</h3>
 
-                {/* PHOTO */}
-                <div className="grid w-[200px] mx-auto">
+                <ProgressIndicator
+                    open={this.state.isLoading}
+                ></ProgressIndicator>
+                <div className="grid max-w-[400px] mx-auto w-full">
                     <img
                         alt=""
-                        className=" h-[200px] my-2 rounded-lg mx-auto hover:shadow-md duration-300 object-cover"
+                        className=" border h-[200px] w-[200px] rounded-full shadow-sm  overflow-hidden my-2 hover:shadow-lg
+                        mx-auto duration-300 object-cover border-white "
                         onClick={() => {
-                            document.getElementById("imgselector").click();
+                            document.getElementById("fileInput").click();
                         }}
                         id="customer_photo"
-                        src={img}
+                        src={server + this.state.logo}
                     ></img>
+
                     <input
                         onChange={() => {
-                            this.onSelectFile();
+                            this.setUploadedImg();
                         }}
-                        id="imgselector"
+                        id="fileInput"
                         hidden
                         type="file"
                     ></input>
@@ -278,42 +323,83 @@ class ProfileEdit extends React.Component {
                         onClick={() => {
                             this.delete_image();
                         }}
-                        className="flex items-center justify-center border rounded-md text-slate-600
-                                my-[5px] p-[5px] hover:bg-slate-400 duration-200"
+                        className="flex items-center justify-center border rounded-md text-red-600 w-max mx-auto
+                                my-2 p-1 hover:text-slate-300 duration-200"
                     >
                         <BiTrash size={23}></BiTrash>
                         <label>Bozmak</label>
                     </div>
-                </div>
+                    <label className="text-[12px] font-bold text-slate-600">
+                        Adyňyz
+                    </label>
+                    <input id="name" defaultValue={this.state.name}></input>
+                    <label className="text-[12px] font-bold text-slate-600">
+                        Elektron poçtaňyz
+                    </label>
+                    <input id="email" defaultValue={this.state.email}></input>
 
-                <div className="img"></div>
+                    <label className="text-[12px] font-bold text-slate-600">
+                        Ýerleşýän ýeriňiz
+                    </label>
+                    <div className="flex items-center border p-1 my-2 rounded-md">
+                        <BiMap
+                            onClick={() => {
+                                this.setState({ locationSelectorOpen: true });
+                            }}
+                            className=""
+                            size={25}
+                        ></BiMap>
+                        <label>{this.state.location_name}</label>
+                    </div>
 
-                <div className="grid max-w-[400px]">
-                    <label>Meniň maglumatlarym</label>
-                    <input
-                        id="name"
-                        defaultValue={this.state.name}
-                        placeholder="Adyňyz"
-                    ></input>
+                    <label className="text-[12px] font-bold text-slate-600">
+                        Kategoriýa
+                    </label>
+                    {this.state.locationSelectorOpen && (
+                        <LocationSelector parent={this}></LocationSelector>
+                    )}
 
-                    <input
-                        id="email"
-                        defaultValue={this.state.email}
-                        placeholder="Elektron poçtaňyz"
-                    ></input>
-
+                    <select id="category">
+                        <option hidden value={this.state.category_id}>
+                            {this.state.category_name}
+                        </option>
+                        {this.state.categories.map((item) => {
+                            return (
+                                <option id={item.id} value={item.id}>
+                                    {item.name_tm}
+                                </option>
+                            );
+                        })}
+                    </select>
+                    <label className="text-[12px] font-bold text-slate-600">
+                        Söwda merkezi
+                    </label>
+                    <select id="tc">
+                        <option hidden value={this.state.tc_id}>
+                            {this.state.tc_name}
+                        </option>
+                        {this.state.trade_centers.map((item) => {
+                            return (
+                                <option id={item.id} value={item.id}>
+                                    {item.name}
+                                </option>
+                            );
+                        })}
+                    </select>
+                    <textarea
+                        className="max-h-[200px]"
+                        id="description"
+                        defaultValue={this.state.description}
+                    ></textarea>
                     <button
-                        className="w-max p-2 my-1 bg-sky-600 text-white  rounded-md"
+                        className="p-2 my-1 bg-green-600 text-white  rounded-md"
                         onClick={() => {
                             this.save();
                         }}
                     >
                         Ýatda sakla
                     </button>
-                </div>
-
-                <div className="grid max-w-[400px] mt-[20px] ">
-                    <label>Açar sözüni täzelemek</label>
+                    <label className="font-bold">Açar sözüni täzelemek</label>
                     <input
                         id="old_password"
                         placeholder="Köne açar sözi"
@@ -338,7 +424,7 @@ class ProfileEdit extends React.Component {
                         {this.state.confirm_password_error}
                     </label>
                     <button
-                        className="w-max p-2 my-1 bg-sky-600 text-white rounded-md"
+                        className="p-2 my-1 bg-green-600 text-white rounded-md"
                         onClick={() => {
                             this.changePassword();
                         }}

@@ -3,6 +3,8 @@ import React from "react";
 import { MdDelete, MdRefresh } from "react-icons/md";
 import { server } from "../static";
 import { CircularProgress, Pagination } from "@mui/material";
+import { FaChrome } from "react-icons/fa";
+import { DiAndroid } from "react-icons/di";
 
 class Devices extends React.Component {
     constructor(props) {
@@ -37,7 +39,7 @@ class Devices extends React.Component {
     setData() {
         axios
             .get(
-                server + "/api/admin/devices/?page=" + this.state.current_page,
+                server + "/api/adm/devices/?page=" + this.state.current_page,
                 this.state.auth
             )
             .then((resp) => {
@@ -57,7 +59,7 @@ class Devices extends React.Component {
 
         this.setState({ isLoading: true });
         axios
-            .delete(server + "/api/admin/devices/" + id, this.state.auth)
+            .delete(server + "/api/adm/devices/" + id, this.state.auth)
             .then((resp) => {
                 this.setData();
                 this.setState({ isLoading: false });
@@ -68,7 +70,7 @@ class Devices extends React.Component {
         this.setState({ isLoading: true });
         axios
             .get(
-                server + "/api/admin/devices?page=" + pageNumber,
+                server + "/api/adm/devices?page=" + pageNumber,
                 this.state.auth
             )
             .then((resp) => {
@@ -79,24 +81,25 @@ class Devices extends React.Component {
 
     render() {
         return (
-            <div className="vistors grid">
-                <h3>
-                    Devices {this.state.total}
-                    {this.state.isLoading && (
-                        <CircularProgress></CircularProgress>
-                    )}
-                </h3>
-
-                <div className="flex items-center">
+            //DEVICES
+            <div className="grid p-2">
+                <div className="flex items-center mb-2">
+                    <label className="text-lg font-bold">
+                        Devices {this.state.total}
+                        {this.state.isLoading && (
+                            <div className="absolute bg-white text-white shadow-md rounded-md m-2 p-2 ">
+                                <CircularProgress></CircularProgress>
+                            </div>
+                        )}
+                    </label>
                     <button
                         onClick={() => {
                             this.setState({ isLoading: true });
                             this.setData();
                         }}
-                        className="flex items-center"
+                        className="flex items-center bg-slate-200 rounded-md mx-1 p-1"
                     >
-                        <label>Täzelemek</label>
-                        <MdRefresh className="icon"></MdRefresh>
+                        <MdRefresh size={20}></MdRefresh>
                     </button>
                 </div>
 
@@ -111,28 +114,40 @@ class Devices extends React.Component {
                 />
 
                 <table className="text-[12px] border m-2 p-2">
-                    <tr className="text-left ">
-                        <th>ID</th>
-                        <th>App version</th>
-                        <th>Code</th>
-                        <th>Registered at</th>
-                        <th>Last seen</th>
-                        <th>Customer</th>
-                        <th>IP</th>
-                        <th>Hereketler</th>
+                    <tr className="text-left bg-slate-200">
+                        <th className="p-1">ID</th>
+                        <th className="p-1">Platform</th>
+                        <th className="p-1">App version</th>
+                        <th className="p-1">Device ID</th>
+                        <th className="p-1">Registered at</th>
+                        <th className="p-1">Last seen</th>
+                        <th className="p-1">Store</th>
+                        <th className="p-1">IP</th>
+                        <th className="p-1">Hereketler</th>
                     </tr>
                     {this.state.deviceList.map((item) => {
                         return (
-                            <tr
-                                className="hover:bg-slate-100"
-                                onClick={() => {
-                                    window.location.href =
-                                        "/admin/devices/" + item.code;
-                                }}
-                            >
+                            <tr className="hover:bg-slate-100">
                                 <td>{item.id}</td>
+                                <td>
+                                    <div className="flex items-center">
+                                        {item.platform == "web" && (
+                                            <FaChrome
+                                                size={18}
+                                                className=" mx-1"
+                                            ></FaChrome>
+                                        )}
+                                        {item.platform == "android" && (
+                                            <DiAndroid
+                                                size={18}
+                                                className="text-green-600 mx-1"
+                                            ></DiAndroid>
+                                        )}
+                                        {item.platform}
+                                    </div>
+                                </td>
                                 <td>{item.app_version}</td>
-                                <td>{item.code}</td>
+                                <td>{item.device_id}</td>
                                 <td>{item.created_at}</td>
                                 <td>{item.last_seen}</td>
                                 <td>
@@ -145,7 +160,7 @@ class Devices extends React.Component {
                                 <td>{item.ip}</td>
                                 <td>
                                     <MdDelete
-                                        className=""
+                                        className=" hover:text-slate-500"
                                         size={22}
                                         onClick={() => {
                                             this.deleteItem(item.id);

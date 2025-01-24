@@ -3,6 +3,8 @@ import React from "react";
 import { BiMap } from "react-icons/bi";
 import { server } from "../../static";
 import LocationSelector from "../../admin/LocationSelector";
+import { toast, ToastContainer } from "react-toastify";
+import { Switch } from "@mui/material";
 
 class TradeCentersDetail extends React.Component {
     constructor(props) {
@@ -10,14 +12,8 @@ class TradeCentersDetail extends React.Component {
 
         this.state = {
             isLoading: true,
-            datalist: [],
             all_locations: [],
 
-            page_size: "",
-            current_page: 1,
-            last_page: "",
-            total: "",
-            customers: [],
             locationSelectorOpen: false,
             location_id: "",
             locations__name: "",
@@ -30,7 +26,10 @@ class TradeCentersDetail extends React.Component {
             },
         };
 
-        document.title = "Satyjylar";
+        document.title = "Söwda merkezler";
+    }
+
+    componentWillMount() {
         this.setData();
     }
 
@@ -38,31 +37,47 @@ class TradeCentersDetail extends React.Component {
         let id = window.location.pathname.split("/")[3];
 
         axios
-            .get(server + "/api/admin/trade_centers/" + id, this.state.auth)
+            .get(server + "/api/adm/trade_centers/" + id, this.state.auth)
             .then((resp) => {
-                this.setState({ name_tm: resp.data.name_tm });
-                this.setState({ id: resp.data.id });
-                this.setState({ location_name: resp.data.location });
-                this.setState({ location_id: resp.data.location_id });
-                this.setState({ img: resp.data.img_m });
-                this.setState({ sort_order: resp.data.sort_order });
-                this.setState({ isLoading: false });
+                if (resp.data.active === true) {
+                    document.getElementById("acttive").defaultChecked = true;
+                }
+
+                this.setState({
+                    name_tm: resp.data.name_tm,
+                    id: resp.data.id,
+                    location_name: resp.data.location,
+                    location_id: resp.data.location_id,
+                    img: resp.data.img_m,
+                    sort_order: resp.data.sort_order,
+                    isLoading: false,
+                });
+
+                if (resp.data.active === "true") {
+                    this.setState({ active: true }, () => {
+                        console.log(this.state.active);
+                    });
+                } else {
+                    this.setState({ active: false }, () => {
+                        console.log(this.state.active);
+                    });
+                }
             });
     }
 
-    edit_img() {
+    changeImage() {
         let id = window.location.pathname.split("/")[3];
         var fdata = new FormData();
         fdata.append("img_l", document.getElementById("imgselector").files[0]);
 
         axios
             .put(
-                server + "/api/admin/trade_centers/" + id + "/",
+                server + "/api/adm/trade_centers/" + id + "/",
                 fdata,
                 this.state.auth
             )
             .then((resp) => {
-                alert("Ýatda saklandy");
+                toast.success("Ýatda saklandy");
                 this.setData();
             });
     }
@@ -75,13 +90,20 @@ class TradeCentersDetail extends React.Component {
         fdata.append("sort_order", document.getElementById("sort_order").value);
         fdata.append("location", this.state.location_id);
 
+        if (document.getElementById("active").checked) {
+            fdata.append("active", "true");
+        } else {
+            fdata.append("active", "false");
+        }
+
         axios
             .put(
-                server + "/api/admin/trade_centers/" + id + "/",
+                server + "/api/adm/trade_centers/" + id + "/",
                 fdata,
                 this.state.auth
             )
             .then((resp) => {
+                toast.success("Ýatda saklandy");
                 this.setData();
             });
     }
@@ -92,7 +114,7 @@ class TradeCentersDetail extends React.Component {
         if (result === true) {
             axios
                 .post(
-                    server + "/api/admin/trade_centers/delete/" + id,
+                    server + "/api/adm/trade_centers/delete/" + id,
                     {},
                     this.state.auth
                 )
@@ -104,35 +126,60 @@ class TradeCentersDetail extends React.Component {
 
     render() {
         return (
-            <div className="max-w-[600px]">
+            <div className="max-w-[600px] m-auto">
+                <ToastContainer
+                    autoClose={3000}
+                    closeOnClick={true}
+                ></ToastContainer>
+
                 <h3>{this.state.name_tm} </h3>
                 {this.state.locationSelectorOpen && (
                     <LocationSelector parent={this}></LocationSelector>
                 )}
                 {this.state.isLoading && <h3>Ýüklenýär...</h3>}
 
+                <div className="flex items-center ">
+                    {this.state.active === true && (
+                        <Switch id="active" defaultChecked></Switch>
+                    )}
+                    {this.state.active === false && (
+                        <Switch id="active"></Switch>
+                    )}
+
+                    <label>Aktiw</label>
+                </div>
+
                 <input
                     id="imgselector"
                     accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*"
                     type="file"
                     onChange={() => {
-                        this.edit_img();
+                        this.changeImage();
                     }}
                 ></input>
 
                 <div className="grid">
-                    <img alt="" src={this.state.img}></img>
+                    <img
+                        className="rounded-md w-full object-contain border max-h-[300px]"
+                        alt=""
+                        src={this.state.img}
+                    ></img>
 
+                    <label className="text-[12px]">Ady</label>
                     <input
                         id="name_tm"
                         defaultValue={this.state.name_tm}
                         placeholder="Ady"
                     ></input>
+                    <label className="text-[12px]"> Tertibi</label>
+
                     <input
                         id="sort_order"
                         defaultValue={this.state.sort_order}
                         placeholder="Tertip belgisi"
                     ></input>
+                    <label className="text-[12px]">Ýerleşýän ýeri</label>
+
                     <button
                         className="border rounded-md  flex items-center p-2"
                         onClick={() => {
@@ -140,11 +187,9 @@ class TradeCentersDetail extends React.Component {
                         }}
                     >
                         <BiMap className=" mr-2 hover:bg-slate-300"></BiMap>
-                        <label>
-                            Ýerleşýän ýeri - {this.state.location_name}
-                        </label>
+                        <label>{this.state.location_name}</label>
                     </button>
-                    <div className="flex items-center">
+                    <div className="flex items-center text-[13px]">
                         <button
                             className="rounded-md p-2 mx-1 bg-green-600 text-white w-max"
                             onClick={() => {

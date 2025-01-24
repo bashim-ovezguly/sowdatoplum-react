@@ -6,6 +6,7 @@ import { CircularProgress } from "@mui/material";
 import { Link } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
 import { AiFillLike, AiOutlineLike } from "react-icons/ai";
+import { MotionAnimate } from "react-motion-animate";
 
 class News extends React.Component {
     constructor(props) {
@@ -105,107 +106,80 @@ class News extends React.Component {
         }
 
         return (
-            <div className="grid p-2">
-                <h3 className="text-[20px] text-sky-800 border-b">Habarlar</h3>
+            <MotionAnimate>
+                <div className="grid">
+                    <h3 className="text-[15px] m-2 text-appColor font-bold">
+                        Täzelikler
+                    </h3>
 
-                <div className="flex items-center whitespace-nowrap px-3 overflow-x-auto">
-                    <button
-                        onClick={() => {
-                            this.setState({ category: "" }, () => {
-                                this.setData();
-                            });
-                        }}
-                        className="mr-2 hover:text-sky-300 duration-200 px-2 text-slate-600"
-                    >
-                        Hemmesi
-                    </button>
-                    {this.state.categories.map((item) => {
-                        return (
-                            <button
-                                onClick={() => {
-                                    this.setCategory(item.id);
-                                }}
-                                className="mr-2 hover:text-sky-300  duration-200 px-2 py-1 text-slate-600"
-                            >
-                                {item.name_tm}
-                            </button>
-                        );
-                    })}
-                </div>
+                    {this.state.isLoading && (
+                        <div className="flex justify-center">
+                            <CircularProgress></CircularProgress>
+                        </div>
+                    )}
 
-                {this.state.isLoading && (
-                    <div className="flex justify-center m-10px">
-                        <CircularProgress></CircularProgress>
-                    </div>
-                )}
-
-                <div className="grid grid-cols-3 sm:grid-cols-1">
-                    {this.state.news.map((item) => {
-                        return (
-                            <div
-                                className="grid  grid-rows-[max-content_auto] shadow-md hover:shadow-lg rounded-lg border duration-200
-                                overflow-hidden m-2 text-[14px] "
-                            >
-                                <div className="relative text-slate-50">
+                    <div className="flex flex-wrap justify-center sm:grid-cols-1">
+                        {this.state.news.map((item) => {
+                            return (
+                                <div
+                                    className="grid w-[300px] sm:w-full grid-rows-[max-content_auto] shadow-lg border p-2
+                                duration-200 bg-white rounded-xl border-slate-200 m-2 text-[13px] "
+                                >
                                     <Link to={"/news/" + item.id}>
                                         <img
                                             alt=""
-                                            className="w-full sm:h-[200px] h-[250px] object-cover "
+                                            className="w-full sm:h-[200px] h-[200px] object-cover rounded-lg"
                                             src={server + item.img}
                                         ></img>
-
-                                        <div
-                                            className="absolute top-2 right-2 z-10 bg-slate-600/50 font-bold 
-                                    rounded-md px-2 py-1"
-                                        >
+                                    </Link>
+                                    <div className="grid h-max">
+                                        <div className="">
                                             {
                                                 String(item.created_at).split(
                                                     " "
                                                 )[0]
                                             }
                                         </div>
-                                    </Link>
-                                </div>
-                                <div className="grid p-2 h-max">
-                                    <label className="name text-[15px] font-bold text-slate-600">
-                                        {item.title_tm}
-                                    </label>
+                                        <label className="name font-bold text-slate-800 line-clamp-2">
+                                            {item.title_tm}
+                                        </label>
 
-                                    <div className="flex items-center text-slate-500">
-                                        <div className="flex items-center mr-4">
-                                            <FaEye
-                                                className="mr-2"
-                                                size={20}
-                                            ></FaEye>
-                                            <label>{item.view}</label>
+                                        <div className="flex items-center text-slate-500">
+                                            <div className="flex items-center mr-4">
+                                                <FaEye
+                                                    className="mr-2"
+                                                    size={20}
+                                                ></FaEye>
+                                                <label>{item.view}</label>
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    this.likeClick(item.id);
+                                                }}
+                                                className="flex items-center mr-4 hover:text-sky-500 duration-200 rounded-lg px-2"
+                                            >
+                                                {item.liked === true ? (
+                                                    <AiFillLike
+                                                        className="mr-2"
+                                                        size={20}
+                                                    ></AiFillLike>
+                                                ) : (
+                                                    <AiOutlineLike
+                                                        className="mr-2"
+                                                        size={20}
+                                                    ></AiOutlineLike>
+                                                )}
+
+                                                <label>{item.like_count}</label>
+                                            </button>
                                         </div>
-                                        <button
-                                            onClick={() => {
-                                                this.likeClick(item.id);
-                                            }}
-                                            className="flex items-center mr-4 hover:bg-slate-200 rounded-lg px-2"
-                                        >
-                                            {item.liked === true ? (
-                                                <AiFillLike
-                                                    className="mr-2"
-                                                    size={20}
-                                                ></AiFillLike>
-                                            ) : (
-                                                <AiOutlineLike
-                                                    className="mr-2"
-                                                    size={20}
-                                                ></AiOutlineLike>
-                                            )}
-
-                                            <label>{item.like_count}</label>
-                                        </button>
                                     </div>
                                 </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
+                    </div>
                 </div>
-            </div>
+            </MotionAnimate>
         );
     }
 }

@@ -1,11 +1,12 @@
 import axios from "axios";
 import React from "react";
 import { server } from "../../static";
-import { Pagination } from "@mui/material";
+import { CircularProgress, Pagination } from "@mui/material";
 import { Link } from "react-router-dom";
-import { BiBasket } from "react-icons/bi";
-import { ToastContainer, toast } from "react-toastify";
-import { FiShoppingCart } from "react-icons/fi";
+import StoreBasket from "./StoreBasket";
+import { MdShoppingCart } from "react-icons/md";
+import ProgressIndicator from "../../admin/ProgressIndicator";
+import { MotionAnimate } from "react-motion-animate";
 
 class StoreProducts extends React.Component {
     constructor(props) {
@@ -13,27 +14,13 @@ class StoreProducts extends React.Component {
 
         this.state = {
             isLoading: true,
-            id: "",
-            category: "",
-            name: "",
-            location: "",
-            img: "",
-            created_at: "",
-            detail_text: "",
             images: [],
             products: [],
-            viewed: 0,
-            center: "",
-            address: "",
-            customer_id: "",
-            customer_name: "",
-            phones: [],
-            cars: [],
-            materials: [],
-            contacts: [],
             page_size: 20,
             products_page: "",
             products_count: "",
+            basket_items: [],
+            id: window.location.pathname.split("/")[2],
         };
 
         this.setData();
@@ -47,143 +34,119 @@ class StoreProducts extends React.Component {
         }
     }
 
-    addToBasket(id) {
-        let tempArray = [];
-        let exist = false;
-        const product = { id: id, amount: 1 };
+    add_new_item_to_basket(item) {
+        let tempArray = this.state.basket_items;
 
-        if (
-            (localStorage.getItem("basket") != null) &
-            (localStorage.getItem("basket") !== "")
-        ) {
-            tempArray = JSON.parse(localStorage.getItem("basket"));
-        }
+        const product = {
+            id: item.id,
+            name: item.name,
+            img: item.img,
+            price: item.price,
+            amount: 1,
+        };
 
-        tempArray.filter((item) => {
-            if (item !== "") {
-                if (item.id === id) {
-                    exist = true;
-                }
-            }
-        });
-
-        if (exist === false) {
+        const result = tempArray.filter((item) => item.id === product.id);
+        if (result.length === 0) {
             tempArray.push(product);
-            toast.success("Sebede goşuldy");
-        } else {
-            toast.info("Eýýäm sebetde bar");
         }
-        localStorage.setItem("basket", JSON.stringify(tempArray));
-        this.setState({ basketSize: tempArray.length });
+
+        this.setState({ basket_items: tempArray });
     }
 
     render() {
         return (
-            <div className="grid">
-                <ToastContainer
-                    autoClose={5000}
-                    closeOnClick={true}
-                ></ToastContainer>
+            <MotionAnimate>
+                <div className="grid">
+                    <ProgressIndicator
+                        open={this.state.isLoading}
+                    ></ProgressIndicator>
+                    <button
+                        onClick={() => {
+                            this.setState({ showBasket: true });
+                        }}
+                        to={"/stores/" + this.state.id + "/basket"}
+                        className="fixed bottom-14 right-0"
+                    >
+                        <label className="bg-green-600 rounded-full text-[22px] px-2 absolute top-0 right-0 text-white">
+                            {this.state.basket_items.length}
+                        </label>
+                        <MdShoppingCart
+                            size={60}
+                            className=" rounded-lg bg-appColor text-white shadow-lg p-2 m-2"
+                        ></MdShoppingCart>
+                    </button>
 
-                <Link
-                    to={"/stores/" + this.state.id + "/basket"}
-                    className="fixed bottom-14 right-10"
-                >
-                    <label className="bg-green-600 rounded-full px-2 absolute top--1 text-white">
-                        {this.state.basketSize}
-                    </label>
-                    <FiShoppingCart
-                        size={70}
-                        className=" rounded-2xl bg-sky-600 text-white shadow-lg p-2"
-                    ></FiShoppingCart>
-                </Link>
+                    {this.state.showBasket && (
+                        <StoreBasket
+                            store={localStorage.getItem("user_id")}
+                            parent={this}
+                            sender={localStorage.getItem("user_id")}
+                            accepter={this.state.id}
+                            items={this.state.basket_items}
+                        ></StoreBasket>
+                    )}
+                    <Pagination
+                        className="m-2"
+                        onChange={(event, page) => {
+                            this.setProductsPage(page);
+                        }}
+                        count={this.state.products_total_page}
+                        variant="outlined"
+                        shape="rounded"
+                    />
 
-                <Pagination
-                    className="mx-auto"
-                    onChange={(event, page) => {
-                        this.setProductsPage(page);
-                    }}
-                    count={this.state.products_total_page}
-                    variant="outlined"
-                    shape="rounded"
-                />
+                    <div className="flex flex-wrap ">
+                        {this.state.products.map((item) => {
+                            var img = server + item.img;
+                            if (item.img.length === 0) {
+                                img = "/default.png";
+                            }
+                            return (
+                                <div
+                                    className="grid m-2 w-[200px]  sm:w-[150px] h-max bg-white rounded-md 
+                                    text-[11px] shadow-lg border duration-200 sm:mx-auto p-2"
+                                    key={item.id}
+                                >
+                                    <Link to={"/products/" + item.id}>
+                                        <img
+                                            className="w-full aspect-square border object-cover rounded-md"
+                                            alt=""
+                                            src={img}
+                                        ></img>
+                                    </Link>
 
-                <div className="grid grid-cols-4 sm:grid-cols-2">
-                    {this.state.products.map((item) => {
-                        var img = server + item.img;
-                        if (item.img.length === 0) {
-                            img = "/default.png";
-                        }
-                        return (
-                            <div
-                                className="grid m-2 border rounded-md overflow-hidden bg-slate-100 hover:shadow-lg duration-200"
-                                key={item.id}
-                            >
-                                <Link to={"/products/" + item.id}>
-                                    <img
-                                        className="w-[100%] h-[200px] object-cover"
-                                        alt=""
-                                        src={img}
-                                    ></img>
-                                </Link>
-                                <div className="p-2 grid text-[14px] sm:text-[12px]">
-                                    <label className="font-bold ">
-                                        {item.name}
-                                    </label>
-                                    {item.price !== "0 TMT" && (
-                                        <label className="price font-bold text-blue-700">
-                                            {item.price}
+                                    <div className="grid text-[14px] sm:text-[14px]">
+                                        <label className=" font-bold line-clamp-1">
+                                            {item.name}
                                         </label>
-                                    )}
-                                    <button
-                                        onClick={() => {
-                                            this.addToBasket(item.id);
-                                        }}
-                                        className="bg-green-600 text-white rounded-md p-1 hover:bg-green-400 duration-200"
-                                    >
-                                        Sebede goşmak
-                                    </button>
+                                        <label className="font-bold rounded-md  text-appColor">
+                                            {item.price} TMT
+                                        </label>
+
+                                        <button
+                                            onClick={() => {
+                                                this.add_new_item_to_basket(
+                                                    item
+                                                );
+                                            }}
+                                            className="bg-green-600 text-white rounded-md p-1 hover:bg-green-400 duration-200 
+                                        flex items-center justify-center text-center"
+                                        >
+                                            <label>Sebede goşmak</label>
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
+                    </div>
                 </div>
-            </div>
+            </MotionAnimate>
         );
     }
 
     setData() {
         const pathname = window.location.pathname;
         const id = pathname.split("/")[2];
-
-        axios.get(server + "/mob/stores/" + id).then(
-            (resp) => {
-                document.title = resp.data.name_tm;
-                this.setState({
-                    name: resp.data.name_tm,
-                    body_tm: resp.data.body_tm,
-                    location: resp.data.location,
-                    viewed: resp.data.viewed,
-                    detail_text: resp.data.body_tm,
-                    img: resp.data.img,
-                    created_at: resp.data.created_at,
-                    images: resp.data.images,
-                    category: resp.data.category,
-                    center: resp.data.center,
-                    size: resp.data.size,
-                    address: resp.data.address,
-                    phones: resp.data.phones,
-                    customer_id: resp.data.customer_id,
-                    customer_phone: resp.data.customer_phone,
-                    customer_name: resp.data.customer.name,
-                    location_name: resp.data.location_name,
-                    id: resp.data.id,
-                    contacts: resp.data.contacts,
-                    isLoading: false,
-                });
-            },
-            (resp) => {}
-        );
 
         axios
             .get(
@@ -194,9 +157,13 @@ class StoreProducts extends React.Component {
                     id
             )
             .then((resp) => {
-                this.setState({ products: resp.data.data });
-                this.setState({ products_count: resp.data.count });
-                this.setState({ products_total_page: resp.data.total_page });
+                this.setState({
+                    id: id,
+                    products: resp.data.data,
+                    products_count: resp.data.count,
+                    products_total_page: resp.data.total_page,
+                    isLoading: false,
+                });
             });
     }
 

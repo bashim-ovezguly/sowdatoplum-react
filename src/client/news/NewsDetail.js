@@ -36,6 +36,8 @@ class NewsDetail extends React.Component {
 
     componentWillMount() {
         this.setData();
+
+        window.scrollTo(0, 0);
     }
 
     likeClick() {
@@ -45,7 +47,7 @@ class NewsDetail extends React.Component {
 
         var fdata = new FormData();
         fdata.append("like", 1);
-        axios.put(server + "/mob/news/" + id, fdata).then((res) => {
+        axios.put(server + "/news/" + id, fdata).then((res) => {
             this.setData();
         });
     }
@@ -55,7 +57,7 @@ class NewsDetail extends React.Component {
         const id = pathname.split("/")[2];
         this.setState({ id: id });
 
-        axios.get(server + "/mob/news/" + id).then((resp) => {
+        axios.get(server + "/news/" + id).then((resp) => {
             this.setState({ title_tm: resp.data.title_tm });
             this.setState({ title_ru: resp.data.title_ru });
             this.setState({ title_en: resp.data.title_en });
@@ -76,12 +78,12 @@ class NewsDetail extends React.Component {
 
     render() {
         return (
-            <div className="grid p-5 sm:p-4">
+            <div className="grid p-5 sm:p-4 max-w-[900px] mx-auto">
                 <div className="flex flex-wrap justify-center">
                     {this.state.images.map((item) => {
                         return (
                             <img
-                                className="max-h-[300px] max-w-[400px] w-full m-2 object-contain"
+                                className="max-h-[300px] max-w-[400px] border w-full m-2 object-cover rounded-lg overflow-hidden"
                                 alt=""
                                 src={server + item.img}
                             ></img>
@@ -118,11 +120,11 @@ class NewsDetail extends React.Component {
                     <BiTime className="mr-1"></BiTime>
                     {this.state.created_at}
                 </div>
-                <div className="flex items-center justify-end">
-                    <label className="rounded-2xl border border-slate-400">
-                        {this.state.source}
-                    </label>
-                </div>
+                {this.state.source !== "" && (
+                    <div className="flex items-center justify-end bg-slate-200 rounded-full max-w-[200px] hover:bg-slate-400 duration-200 p-2">
+                        <label className="">{this.state.source}</label>
+                    </div>
+                )}
             </div>
         );
     }
